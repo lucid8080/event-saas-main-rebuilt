@@ -1,0 +1,344 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+}
+
+enum UserRole {
+  HERO
+  ADMIN
+  USER
+}
+
+enum EventType {
+  BIRTHDAY_PARTY
+  WEDDING
+  CORPORATE_EVENT
+  HOLIDAY_CELEBRATION
+  CONCERT
+  SPORTS_EVENT
+  NIGHTLIFE
+  CAROUSEL_BACKGROUND
+  FAMILY_GATHERING
+  BBQ
+  PARK_GATHERING
+  COMMUNITY_EVENT
+  FUNDRAISER
+  WORKSHOP
+  MEETUP
+  CELEBRATION
+  REUNION
+  POTLUCK
+  GAME_NIGHT
+  BOOK_CLUB
+  ART_CLASS
+  FITNESS_CLASS
+  BREAKDANCING
+  POTTERY
+  OTHER
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  createdAt         DateTime @default(now()) @map(name: "created_at")
+  updatedAt         DateTime @default(now()) @map(name: "updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map(name: "accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map(name: "sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
+  role          UserRole  @default(USER)
+  credits       Int       @default(0)
+  ticketmasterFlyerEnabled Boolean @default(false)
+  carouselMakerEnabled Boolean @default(false)
+  watermarkEnabled Boolean @default(false)
+
+  accounts Account[]
+  sessions Session[]
+
+  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?   @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+
+  generatedImages GeneratedImage[]
+  generatedCarousels GeneratedCarousel[]
+  userActivities UserActivity[]
+  imageGenerationStats ImageGenerationStats[]
+  blogPosts BlogPost[]
+  personalEvents PersonalEvent[]
+
+  @@map(name: "users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map(name: "verification_tokens")
+}
+
+model GeneratedImage {
+  id          String    @id @default(cuid())
+  userId      String
+  prompt      String
+  url         String
+  r2Key       String?   // R2 storage key for the image
+  eventType   EventType?
+  eventDetails Json?    // Store event-specific question answers as JSON
+  isPublic    Boolean   @default(false) // New field for public showcase
+  // WebP-specific fields
+  webpKey     String?   // R2 storage key for the WebP version
+  originalFormat String? // Original image format (png, jpg, etc.)
+  compressionRatio Decimal? @db.Decimal(5,2) // Compression ratio achieved
+  webpEnabled Boolean   @default(true) // Whether WebP conversion is enabled for this image
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([isPublic]) // New index for public image queries
+  @@index([r2Key]) // Index for R2 key queries
+  @@index([webpKey]) // Index for WebP key queries
+  @@index([webpEnabled]) // Index for WebP enabled queries
+  @@map("generated_images")
+}
+
+model GeneratedCarousel {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  slides      Json      // Store carousel slides data as JSON
+  slideUrls   String[]  // Store URLs of generated slide images
+  aspectRatio String    @default("1:1")
+  slideCount  Int       @default(3)
+  isPublic    Boolean   @default(false) // New field for public showcase
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([isPublic]) // New index for public carousel queries
+  @@map("generated_carousels")
+}
+
+model Settings {
+  key   String @id
+  value Float
+  
+  @@map("settings")
+}
+
+model UserActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  metadata  Json     @default("{}")
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([timestamp])
+  @@map("user_activities")
+}
+
+model ImageGenerationStats {
+  id        String    @id @default(cuid())
+  userId    String
+  eventType EventType?
+  style     String?
+  timestamp DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([timestamp])
+  @@index([eventType])
+  @@map("image_generation_stats")
+}
+
+model SystemPrompt {
+  id          String   @id @default(cuid())
+  category    String   // e.g., "event_type", "style_preset", "carousel_background"
+  subcategory String?  // e.g., "BIRTHDAY_PARTY", "WEDDING", "peach-waves"
+  name        String   // Human-readable name for the prompt
+  description String?  // Description of what this prompt is for
+  content     String   @db.Text // The actual prompt content
+  version     Int      @default(1) // Version number for tracking changes
+  isActive    Boolean  @default(true) // Whether this prompt is currently active
+  metadata    Json     @default("{}") // Additional metadata (tags, usage stats, etc.)
+  createdBy   String?  // User ID who created this prompt
+  updatedBy   String?  // User ID who last updated this prompt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([category, subcategory, version])
+  @@index([category])
+  @@index([subcategory])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("system_prompts")
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?  @db.Text
+  content     String   @db.Text
+  featuredImage String?
+  authorId    String
+  status      BlogPostStatus @default(DRAFT)
+  publishedAt DateTime?
+  tags        String[]
+  metaTitle   String?
+  metaDescription String?
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([authorId])
+  @@index([tags])
+  @@map("blog_posts")
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model PersonalEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  date        DateTime
+  type        String
+  description String?
+  recurring   Boolean  @default(true)
+  color       String   @default("pink")
+  createdAt   DateTime @default(now()) @map(name: "created_at")
+  updatedAt   DateTime @default(now()) @map(name: "updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map(name: "personal_events")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  subject   String
+  message   String   @db.Text
+  status    ContactMessageStatus @default(NEW)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map(name: "contact_messages")
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  RESPONDED
+  ARCHIVED
+}
+
+// R2 Analytics and Performance Tracking
+model ImageAccessLog {
+  id           String   @id @default(cuid())
+  imageId      String
+  userId       String
+  accessType   String   // 'gallery', 'modal', 'download', 'share'
+  accessCount  Int      @default(1)
+  lastAccessed DateTime @default(now())
+
+  @@unique([imageId, userId, accessType])
+  @@index([imageId])
+  @@index([userId])
+  @@index([lastAccessed])
+  @@map("image_access_logs")
+}
+
+model R2PerformanceLog {
+  id        String   @id @default(cuid())
+  operation String   // 'upload', 'download', 'signed_url', 'delete'
+  success   Boolean
+  duration  Int      // Duration in milliseconds
+  error     String?  @db.Text
+  timestamp DateTime @default(now())
+
+  @@index([operation])
+  @@index([success])
+  @@index([timestamp])
+  @@map("r2_performance_logs")
+}
+
+model R2Alert {
+  id             String    @id @default(cuid())
+  type           String    // 'cost', 'performance', 'storage', 'error'
+  severity       String    // 'low', 'medium', 'high', 'critical'
+  title          String
+  message        String    @db.Text
+  threshold      Float
+  currentValue   Float
+  timestamp      DateTime  @default(now())
+  acknowledged   Boolean   @default(false)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+
+  @@index([type])
+  @@index([severity])
+  @@index([acknowledged])
+  @@index([timestamp])
+  @@map("r2_alerts")
+}

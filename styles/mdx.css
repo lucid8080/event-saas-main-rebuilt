@@ -1,0 +1,77 @@
+/* MDX Styles */
+.mdx {
+  @apply text-foreground;
+}
+
+.mdx h1 {
+  @apply text-3xl font-bold mb-4 mt-8;
+}
+
+.mdx h2 {
+  @apply text-2xl font-semibold mb-3 mt-6;
+}
+
+.mdx h3 {
+  @apply text-xl font-semibold mb-2 mt-4;
+}
+
+.mdx h4 {
+  @apply text-lg font-semibold mb-2 mt-4;
+}
+
+.mdx p {
+  @apply mb-4 leading-relaxed;
+}
+
+.mdx ul {
+  @apply mb-4 list-disc list-inside;
+}
+
+.mdx ol {
+  @apply mb-4 list-decimal list-inside;
+}
+
+.mdx li {
+  @apply mb-1;
+}
+
+.mdx blockquote {
+  @apply border-l-4 border-primary pl-4 italic my-4;
+}
+
+.mdx code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.mdx pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.mdx pre code {
+  @apply bg-transparent p-0;
+}
+
+.mdx a {
+  @apply text-primary hover:underline;
+}
+
+.mdx table {
+  @apply w-full border-collapse border border-border my-4;
+}
+
+.mdx th,
+.mdx td {
+  @apply border border-border px-4 py-2 text-left;
+}
+
+.mdx th {
+  @apply bg-muted font-semibold;
+}
+
+.mdx img {
+  @apply max-w-full h-auto rounded-lg my-4;
+}
+
+.mdx hr {
+  @apply border-border my-8;
+} 

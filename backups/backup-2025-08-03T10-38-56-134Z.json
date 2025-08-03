@@ -1,0 +1,857 @@
+{
+  "timestamp": "2025-08-03T10:38:56.134Z",
+  "version": "1.0.0",
+  "criticalData": {
+    "adminUsers": [
+      {
+        "id": "cmdviteqa0000wd8kjmspet3j",
+        "name": "Lucid D",
+        "email": "lucid8080@gmail.com",
+        "emailVerified": null,
+        "image": null,
+        "createdAt": "2025-08-03T10:10:37.138Z",
+        "updatedAt": "2025-08-03T10:10:37.138Z",
+        "role": "ADMIN",
+        "credits": 1001,
+        "ticketmasterFlyerEnabled": false,
+        "carouselMakerEnabled": false,
+        "watermarkEnabled": false,
+        "stripeCustomerId": null,
+        "stripeSubscriptionId": null,
+        "stripePriceId": null,
+        "stripeCurrentPeriodEnd": null,
+        "accounts": [],
+        "sessions": []
+      }
+    ],
+    "systemPrompts": [
+      {
+        "id": "cmdviyanu000a122th45cuyia",
+        "category": "style_preset",
+        "subcategory": "Political Satire",
+        "name": "Political Satire Style",
+        "description": "Default prompt for Political Satire style preset",
+        "content": "detailed political caricature with formal government office backdrop, satirical and humorous political commentary, sophisticated and witty aesthetic with political symbolism and formal setting, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional political satire design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Political Satire"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.146Z",
+        "updatedAt": "2025-08-03T10:14:25.146Z"
+      },
+      {
+        "id": "cmdviyans0009122tuip9lvuy",
+        "category": "style_preset",
+        "subcategory": "Street Art",
+        "name": "Street Art Style",
+        "description": "Default prompt for Street Art style preset",
+        "content": "urban street art style with bold graffiti elements, contemporary urban culture, and vibrant street aesthetics, edgy and urban atmosphere with graffiti techniques and street art visual language, modern and rebellious style with urban artistic elements, limited text and faces unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, authentic street art design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Street Art"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.145Z",
+        "updatedAt": "2025-08-03T10:14:25.145Z"
+      },
+      {
+        "id": "cmdviyanq0008122ta0yt7v4l",
+        "category": "style_preset",
+        "subcategory": "Fantasy World",
+        "name": "Fantasy World Style",
+        "description": "Default prompt for Fantasy World style preset",
+        "content": "magical and enchanting fantasy realm with mystical elements, ethereal lighting, and otherworldly atmosphere, dreamlike and fantastical aesthetic with magical visual effects and fantasy creatures, whimsical and imaginative style with fantasy world elements, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, enchanting fantasy design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Fantasy World"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.143Z",
+        "updatedAt": "2025-08-03T10:14:25.143Z"
+      },
+      {
+        "id": "cmdviyano0007122trxp4xx9t",
+        "category": "style_preset",
+        "subcategory": "Origami",
+        "name": "Origami Style",
+        "description": "Default prompt for Origami style preset",
+        "content": "low-poly 3D character design in geometric, faceted style with warm shades, minimalist and modern aesthetic with clean geometric forms, contemporary and artistic style with polygonal shapes and warm color palette, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, modern geometric design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Origami"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.141Z",
+        "updatedAt": "2025-08-03T10:14:25.141Z"
+      },
+      {
+        "id": "cmdviyanm0006122twmk9amol",
+        "category": "style_preset",
+        "subcategory": "Cyberpunk",
+        "name": "Cyberpunk Style",
+        "description": "Default prompt for Cyberpunk style preset",
+        "content": "futuristic cyberpunk style with neon lighting, technological elements, and urban dystopia aesthetic, high-tech and edgy atmosphere with neon colors and futuristic design elements, modern and cutting-edge style with cyberpunk visual language, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, authentic cyberpunk design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Cyberpunk"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.139Z",
+        "updatedAt": "2025-08-03T10:14:25.139Z"
+      },
+      {
+        "id": "cmdviyank0005122tasejct4q",
+        "category": "style_preset",
+        "subcategory": "Retro Game",
+        "name": "Retro Game Style",
+        "description": "Default prompt for Retro Game style preset",
+        "content": "retro game theme with pixel art graphics, 16-bit aesthetic, and nostalgic gaming elements, vintage video game atmosphere with pixelated textures and retro color palettes, nostalgic and playful style with classic gaming visual elements, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, authentic retro game design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Retro Game"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.136Z",
+        "updatedAt": "2025-08-03T10:14:25.136Z"
+      },
+      {
+        "id": "cmdviyanh0004122t6as1xvl5",
+        "category": "style_preset",
+        "subcategory": "Vintage Film Poster",
+        "name": "Vintage Film Poster Style",
+        "description": "Default prompt for Vintage Film Poster style preset",
+        "content": "vintage action movie poster style with bold colors, dramatic lighting, and 80s retro aesthetic, cinematic and dramatic atmosphere with vintage typography and film poster composition, nostalgic and energetic style with retro color palettes and dramatic shadows, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, authentic vintage poster design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Vintage Film Poster"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.134Z",
+        "updatedAt": "2025-08-03T10:14:25.134Z"
+      },
+      {
+        "id": "cmdviyanf0003122tpc5v8rfx",
+        "category": "style_preset",
+        "subcategory": "Golden Harmony",
+        "name": "Golden Harmony Style",
+        "description": "Default prompt for Golden Harmony style preset",
+        "content": "elegant celebration design with soft neutral tones, gold accents, and warm lighting, sophisticated and luxurious atmosphere with harmonious color balance, refined and upscale aesthetic with golden highlights and elegant composition, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, premium celebration design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Golden Harmony"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.132Z",
+        "updatedAt": "2025-08-03T10:14:25.132Z"
+      },
+      {
+        "id": "cmdviyand0002122tgbqz9eqf",
+        "category": "style_preset",
+        "subcategory": "Children Book",
+        "name": "Children Book Style",
+        "description": "Default prompt for Children Book style preset",
+        "content": "whimsical children book illustration style with soft colors, friendly characters, and playful elements, warm and inviting atmosphere perfect for family events, gentle and approachable aesthetic with rounded shapes and cheerful colors, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, family-friendly design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Children Book"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.129Z",
+        "updatedAt": "2025-08-03T10:14:25.129Z"
+      },
+      {
+        "id": "cmdviyanb0001122t3zyy0z2l",
+        "category": "style_preset",
+        "subcategory": "Pop Art",
+        "name": "Pop Art Style",
+        "description": "Default prompt for Pop Art style preset",
+        "content": "vibrant pop art style reminiscent of Roy Lichtenstein and Andy Warhol, bold colors, comic book dots, and graphic design elements, retro pop culture aesthetic with bright primary colors and bold outlines, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, authentic pop art design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Pop Art"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.127Z",
+        "updatedAt": "2025-08-03T10:14:25.127Z"
+      },
+      {
+        "id": "cmdviyan80000122t0bruit7b",
+        "category": "style_preset",
+        "subcategory": "Wild Card",
+        "name": "Wild Card Style",
+        "description": "Default prompt for Wild Card style preset",
+        "content": "unique and unpredictable artistic interpretation with creative freedom, experimental composition and unconventional visual elements, artistic and innovative style with unexpected color combinations and abstract elements, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, creative artistic design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "Wild Card"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:14:25.124Z",
+        "updatedAt": "2025-08-03T10:14:25.124Z"
+      },
+      {
+        "id": "cmdvixizt000g59ri5rqdl460",
+        "category": "event_type",
+        "subcategory": "OTHER",
+        "name": "Other Event",
+        "description": "Default prompt for other events",
+        "content": "versatile event design with adaptable styling, welcoming atmosphere, and inclusive visual elements, friendly and approachable mood with universal appeal and flexible design elements, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "OTHER"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.290Z",
+        "updatedAt": "2025-08-03T10:13:49.290Z"
+      },
+      {
+        "id": "cmdvixizq000f59ri58m816x6",
+        "category": "event_type",
+        "subcategory": "POTTERY",
+        "name": "Pottery Event",
+        "description": "Default prompt for pottery events",
+        "content": "creative pottery class with artistic atmosphere, ceramic elements, and hands-on crafting, peaceful and meditative mood with artistic tools and creative expression, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional pottery class event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "POTTERY"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.287Z",
+        "updatedAt": "2025-08-03T10:13:49.287Z"
+      },
+      {
+        "id": "cmdvixizp000e59rij94dln7y",
+        "category": "event_type",
+        "subcategory": "BREAKDANCING",
+        "name": "Breakdancing Event",
+        "description": "Default prompt for breakdancing events",
+        "content": "dynamic breakdancing event with urban dance atmosphere, street dance elements, and hip-hop culture, energetic and rhythmic mood with urban dance moves and street culture, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional breakdancing event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "BREAKDANCING"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.285Z",
+        "updatedAt": "2025-08-03T10:13:49.285Z"
+      },
+      {
+        "id": "cmdvixizm000d59ri4lqej8m1",
+        "category": "event_type",
+        "subcategory": "FITNESS_CLASS",
+        "name": "Fitness Class Event",
+        "description": "Default prompt for fitness class events",
+        "content": "energetic fitness class with active atmosphere, exercise elements, and health-focused environment, dynamic and motivating mood with fitness equipment and active lifestyle, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional fitness class event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "FITNESS_CLASS"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.283Z",
+        "updatedAt": "2025-08-03T10:13:49.283Z"
+      },
+      {
+        "id": "cmdvixizk000c59riou6i67t7",
+        "category": "event_type",
+        "subcategory": "ART_CLASS",
+        "name": "Art Class Event",
+        "description": "Default prompt for art class events",
+        "content": "creative art class with artistic atmosphere, creative elements, and artistic expression, inspiring and imaginative mood with artistic tools and creative exploration, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional art class event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "ART_CLASS"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.280Z",
+        "updatedAt": "2025-08-03T10:13:49.280Z"
+      },
+      {
+        "id": "cmdvixizi000b59risa4legq2",
+        "category": "event_type",
+        "subcategory": "BOOK_CLUB",
+        "name": "Book Club Event",
+        "description": "Default prompt for book club events",
+        "content": "intellectual book club with literary atmosphere, reading elements, and discussion environment, thoughtful and engaging mood with literary themes and intellectual discourse, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional book club event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "BOOK_CLUB"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.279Z",
+        "updatedAt": "2025-08-03T10:13:49.279Z"
+      },
+      {
+        "id": "cmdvixizg000a59rileyrq7qo",
+        "category": "event_type",
+        "subcategory": "GAME_NIGHT",
+        "name": "Game Night Event",
+        "description": "Default prompt for game night events",
+        "content": "entertaining game night with playful atmosphere, gaming elements, and fun activities, lively and engaging mood with entertainment and social gaming, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional game night event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "GAME_NIGHT"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.276Z",
+        "updatedAt": "2025-08-03T10:13:49.276Z"
+      },
+      {
+        "id": "cmdvixizd000959ribk3hzyyr",
+        "category": "event_type",
+        "subcategory": "POTLUCK",
+        "name": "Potluck Event",
+        "description": "Default prompt for potluck events",
+        "content": "communal potluck with shared food atmosphere, culinary elements, and community dining, welcoming and collaborative mood with food sharing and social dining, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional potluck event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "POTLUCK"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.274Z",
+        "updatedAt": "2025-08-03T10:13:49.274Z"
+      },
+      {
+        "id": "cmdvixizb000859riufx0pkqo",
+        "category": "event_type",
+        "subcategory": "REUNION",
+        "name": "Reunion Event",
+        "description": "Default prompt for reunion events",
+        "content": "emotional reunion with nostalgic atmosphere, connection elements, and shared memories, warm and sentimental mood with reconnection themes and meaningful moments, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional reunion event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "REUNION"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.271Z",
+        "updatedAt": "2025-08-03T10:13:49.271Z"
+      },
+      {
+        "id": "cmdvixiz9000759rislyz41lm",
+        "category": "event_type",
+        "subcategory": "CELEBRATION",
+        "name": "Celebration Event",
+        "description": "Default prompt for celebration events",
+        "content": "general celebration with festive atmosphere, party elements, and joyful mood, happy and celebratory atmosphere with universal appeal and positive energy, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional celebration event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "CELEBRATION"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.269Z",
+        "updatedAt": "2025-08-03T10:13:49.269Z"
+      },
+      {
+        "id": "cmdvixiz7000659rix5i1og5w",
+        "category": "event_type",
+        "subcategory": "MEETUP",
+        "name": "Meetup Event",
+        "description": "Default prompt for meetup events",
+        "content": "casual meetup with relaxed atmosphere, networking elements, and social interaction, friendly and approachable mood with informal setting and connection opportunities, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional meetup event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "MEETUP"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.267Z",
+        "updatedAt": "2025-08-03T10:13:49.267Z"
+      },
+      {
+        "id": "cmdvixiz5000559rinp2ox7xm",
+        "category": "event_type",
+        "subcategory": "WORKSHOP",
+        "name": "Workshop Event",
+        "description": "Default prompt for workshop events",
+        "content": "educational workshop with learning environment, instructional elements, and knowledge-sharing atmosphere, informative and engaging mood with educational tools and collaborative learning, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional workshop event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "WORKSHOP"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.265Z",
+        "updatedAt": "2025-08-03T10:13:49.265Z"
+      },
+      {
+        "id": "cmdvixiz3000459rivp4d7it7",
+        "category": "event_type",
+        "subcategory": "FUNDRAISER",
+        "name": "Fundraiser Event",
+        "description": "Default prompt for fundraiser events",
+        "content": "charitable fundraiser event with philanthropic atmosphere, donation elements, and cause-related imagery, inspiring and generous mood with altruistic themes and community support, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional fundraiser event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "FUNDRAISER"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.263Z",
+        "updatedAt": "2025-08-03T10:13:49.263Z"
+      },
+      {
+        "id": "cmdvixiz0000359rigvijepww",
+        "category": "event_type",
+        "subcategory": "COMMUNITY_EVENT",
+        "name": "Community Event Event",
+        "description": "Default prompt for community event events",
+        "content": "community-focused event with diverse participants, inclusive atmosphere, and local cultural elements, welcoming and collaborative mood with community spirit and local pride, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional community event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "COMMUNITY_EVENT"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.260Z",
+        "updatedAt": "2025-08-03T10:13:49.260Z"
+      },
+      {
+        "id": "cmdvixiyy000259rik7rgd8f3",
+        "category": "event_type",
+        "subcategory": "PARK_GATHERING",
+        "name": "Park Gathering Event",
+        "description": "Default prompt for park gathering events",
+        "content": "outdoor park gathering with natural scenery, open spaces, and recreational elements, peaceful and community-focused atmosphere with natural lighting and park amenities, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional park event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "PARK_GATHERING"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.258Z",
+        "updatedAt": "2025-08-03T10:13:49.258Z"
+      },
+      {
+        "id": "cmdvixiyv000159ri7dczqxpk",
+        "category": "event_type",
+        "subcategory": "BBQ",
+        "name": "Bbq Event",
+        "description": "Default prompt for bbq events",
+        "content": "outdoor barbecue event with grilling equipment, picnic atmosphere, and casual outdoor setting, relaxed and social mood with natural lighting and outdoor elements, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional BBQ event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "BBQ"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.256Z",
+        "updatedAt": "2025-08-03T10:13:49.256Z"
+      },
+      {
+        "id": "cmdvixiys000059rid98cdwe5",
+        "category": "event_type",
+        "subcategory": "FAMILY_GATHERING",
+        "name": "Family Gathering Event",
+        "description": "Default prompt for family gathering events",
+        "content": "warm family gathering with cozy atmosphere, comfortable seating, and family-friendly decor, welcoming and inclusive mood with natural lighting and home-like elements, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional family event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "comprehensive_seeding",
+          "originalKey": "FAMILY_GATHERING"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:49.252Z",
+        "updatedAt": "2025-08-03T10:13:49.252Z"
+      },
+      {
+        "id": "cmdviwk3j00026eyhnr513g52",
+        "category": "event_type",
+        "subcategory": "NIGHTLIFE",
+        "name": "Nightlife Event",
+        "description": "Default prompt for nightlife events",
+        "content": "vibrant nightlife event with neon lighting, urban atmosphere, and contemporary club aesthetics, exciting and energetic mood with modern urban elements and nightlife energy, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional nightlife flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "NIGHTLIFE"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:04.063Z",
+        "updatedAt": "2025-08-03T10:13:04.063Z"
+      },
+      {
+        "id": "cmdviwk3f00016eyh5tf11byb",
+        "category": "event_type",
+        "subcategory": "CONCERT",
+        "name": "Concert Event",
+        "description": "Default prompt for concert events",
+        "content": "dynamic concert event with energetic lighting, stage effects, and musical atmosphere, exciting and vibrant mood with dramatic lighting and performance energy, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional concert flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "CONCERT"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:04.060Z",
+        "updatedAt": "2025-08-03T10:13:04.060Z"
+      },
+      {
+        "id": "cmdviwk3a00006eyhnbny2fx3",
+        "category": "event_type",
+        "subcategory": "WEDDING",
+        "name": "Wedding Event",
+        "description": "Default prompt for wedding events",
+        "content": "elegant wedding celebration with romantic floral arrangements, soft lighting, and sophisticated decor, timeless and romantic atmosphere with warm golden tones, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional wedding flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "WEDDING"
+        },
+        "createdBy": "cmdviteqa0000wd8kjmspet3j",
+        "updatedBy": "cmdviteqa0000wd8kjmspet3j",
+        "createdAt": "2025-08-03T10:13:04.054Z",
+        "updatedAt": "2025-08-03T10:13:04.054Z"
+      },
+      {
+        "id": "cmdvisrhm000bjiv8i8u9xdxu",
+        "category": "text_generation",
+        "subcategory": "cta",
+        "name": "cta text generation",
+        "description": "Default text_generation prompt for cta",
+        "content": "Generate a clear call-to-action text that encourages engagement or next steps. The text should be action-oriented, compelling, create urgency or excitement, and use strong verbs. Keep it short (2-4 words) and make it impossible to ignore. Use only real, readable English words - no gibberish, no fake letters, no strange characters.",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "text_generation_cta"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.019Z",
+        "updatedAt": "2025-08-03T10:10:07.019Z"
+      },
+      {
+        "id": "cmdvisrhk000ajiv80r5svd0o",
+        "category": "text_generation",
+        "subcategory": "body",
+        "name": "body text generation",
+        "description": "Default text_generation prompt for body",
+        "content": "Generate informative body text that provides details and context for the carousel content. The text should be clear, engaging, provide valuable information to the reader, and maintain consistent tone. Keep it concise (1-2 sentences) while being informative and compelling. Use only real, readable English words - no gibberish, no fake letters, no strange characters.",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "text_generation_body"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.017Z",
+        "updatedAt": "2025-08-03T10:10:07.017Z"
+      },
+      {
+        "id": "cmdvisrhj0009jiv8832g29jt",
+        "category": "text_generation",
+        "subcategory": "header",
+        "name": "header text generation",
+        "description": "Default text_generation prompt for header",
+        "content": "Generate a compelling header text for a carousel slide that is attention-grabbing and clearly communicates the main message. The text should be concise (3-7 words), impactful, use strong action words, and create immediate visual impact. Focus on clarity, brevity, and emotional resonance. Use only real, readable English words - no gibberish, no fake letters, no strange characters.",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "text_generation_header"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.016Z",
+        "updatedAt": "2025-08-03T10:10:07.016Z"
+      },
+      {
+        "id": "cmdvisrhi0008jiv8yt3awh0q",
+        "category": "carousel_background",
+        "subcategory": "base",
+        "name": "Carousel Background Base",
+        "description": "Default carousel_background prompt for base",
+        "content": "Create a seamless background image with a continuous pattern. The background should be a unified design that flows smoothly from left to right across the entire width. Use simple, solid colors and subtle patterns that create visual interest without being distracting. The design should be cohesive and seamless, with no visible breaks, separations, or distinct sections. Choose colors that provide excellent contrast for white text overlay. Ensure high quality, no blur, no distortion, professional design suitable for social media carousels.",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "carousel_background_base"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.014Z",
+        "updatedAt": "2025-08-03T10:10:07.014Z"
+      },
+      {
+        "id": "cmdvisrhg0007jiv88vfypf9g",
+        "category": "system_default",
+        "subcategory": null,
+        "name": "NIGHTLIFE",
+        "description": "Default system_default prompt for general use",
+        "content": "vibrant nightlife event with neon lighting, urban atmosphere, and contemporary club aesthetics, exciting and energetic mood with modern urban elements and nightlife energy, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional nightlife flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "NIGHTLIFE"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.013Z",
+        "updatedAt": "2025-08-03T10:10:07.013Z"
+      },
+      {
+        "id": "cmdvisrhe0006jiv8zy4pk1wo",
+        "category": "event_type",
+        "subcategory": "SPORTS_EVENT",
+        "name": "Sports Event Event",
+        "description": "Default event_type prompt for SPORTS_EVENT",
+        "content": "action-packed sports event with dynamic movement, competitive energy, and athletic atmosphere, energetic and competitive mood with sports equipment and arena elements, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional sports flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "SPORTS_EVENT"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.011Z",
+        "updatedAt": "2025-08-03T10:10:07.011Z"
+      },
+      {
+        "id": "cmdvisrhc0005jiv8qmenn9ya",
+        "category": "system_default",
+        "subcategory": null,
+        "name": "CONCERT",
+        "description": "Default system_default prompt for general use",
+        "content": "dynamic concert event with energetic lighting, stage effects, and musical atmosphere, exciting and vibrant mood with dramatic lighting and performance energy, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional concert flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "CONCERT"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.009Z",
+        "updatedAt": "2025-08-03T10:10:07.009Z"
+      },
+      {
+        "id": "cmdvisrha0004jiv8rl2vnhz8",
+        "category": "event_type",
+        "subcategory": "HOLIDAY_CELEBRATION",
+        "name": "Holiday Celebration Event",
+        "description": "Default event_type prompt for HOLIDAY_CELEBRATION",
+        "content": "festive holiday celebration with seasonal decorations, warm lighting, and traditional holiday elements, joyful and celebratory atmosphere with holiday color palettes, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional holiday flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "HOLIDAY_CELEBRATION"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.006Z",
+        "updatedAt": "2025-08-03T10:10:07.006Z"
+      },
+      {
+        "id": "cmdvisrh70003jiv8l0yulqmx",
+        "category": "event_type",
+        "subcategory": "CORPORATE_EVENT",
+        "name": "Corporate Event Event",
+        "description": "Default event_type prompt for CORPORATE_EVENT",
+        "content": "professional corporate event with modern business aesthetics, clean lines, and sophisticated design elements, professional and trustworthy atmosphere with corporate color schemes, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional business flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "CORPORATE_EVENT"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.003Z",
+        "updatedAt": "2025-08-03T10:10:07.003Z"
+      },
+      {
+        "id": "cmdvisrh50002jiv8qrj8zvqo",
+        "category": "system_default",
+        "subcategory": null,
+        "name": "WEDDING",
+        "description": "Default system_default prompt for general use",
+        "content": "elegant wedding celebration with romantic floral arrangements, soft lighting, and sophisticated decor, timeless and romantic atmosphere with warm golden tones, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional wedding flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "WEDDING"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:07.001Z",
+        "updatedAt": "2025-08-03T10:10:07.001Z"
+      },
+      {
+        "id": "cmdvisrh00001jiv8m872pcn5",
+        "category": "event_type",
+        "subcategory": "BIRTHDAY_PARTY",
+        "name": "Birthday Party Event",
+        "description": "Default event_type prompt for BIRTHDAY_PARTY",
+        "content": "vibrant birthday party celebration with colorful balloons, confetti, and festive decorations, warm and joyful atmosphere with bright lighting, no text unless otherwise specified, no gibberish text, no fake letters, no strange characters, only real readable words if text is included, no blur, no distortion, high quality, professional event flyer design",
+        "version": 1,
+        "isActive": true,
+        "metadata": {
+          "seeded": true,
+          "source": "default",
+          "originalKey": "BIRTHDAY_PARTY"
+        },
+        "createdBy": "cmdvisrgw0000jiv8yweavz8b",
+        "updatedBy": "cmdvisrgw0000jiv8yweavz8b",
+        "createdAt": "2025-08-03T10:10:06.997Z",
+        "updatedAt": "2025-08-03T10:10:06.997Z"
+      }
+    ],
+    "blogPosts": [],
+    "generatedImages": [],
+    "generatedCarousels": [],
+    "userSettings": [
+      {
+        "id": "cmdviteqa0000wd8kjmspet3j",
+        "email": "lucid8080@gmail.com",
+        "name": "Lucid D",
+        "role": "ADMIN",
+        "credits": 1001,
+        "ticketmasterFlyerEnabled": false,
+        "carouselMakerEnabled": false,
+        "watermarkEnabled": false,
+        "stripeCustomerId": null,
+        "stripeSubscriptionId": null,
+        "stripePriceId": null,
+        "stripeCurrentPeriodEnd": null,
+        "createdAt": "2025-08-03T10:10:37.138Z",
+        "updatedAt": "2025-08-03T10:10:37.138Z"
+      }
+    ],
+    "r2Analytics": [],
+    "personalEvents": [],
+    "contactMessages": []
+  },
+  "metadata": {
+    "totalRecords": 44,
+    "backupSize": 0,
+    "dataIntegrity": true
+  }
+}
