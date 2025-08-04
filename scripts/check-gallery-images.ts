@@ -54,7 +54,8 @@ async function checkGalleryImages() {
       console.log('')
       
       recentImages.forEach((image, index) => {
-        console.log(`${index + 1}. ${image.title || 'Untitled'}`)
+        // Title property does not exist, so just use 'Untitled'
+        console.log(`${index + 1}. Untitled`)
         console.log(`   ID: ${image.id}`)
         console.log(`   User: ${image.user?.email || 'Unknown'} (${image.user?.name || 'Unknown'})`)
         console.log(`   Event Type: ${image.eventType}`)

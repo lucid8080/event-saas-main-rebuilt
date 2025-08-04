@@ -194,9 +194,15 @@ export async function getWebPAnalytics(): Promise<WebPAnalytics> {
 
     qualityStats.forEach(stat => {
       if (stat.compressionRatio && stat._count.compressionRatio) {
-        if (stat.compressionRatio < 20) {
+        let ratioNumber: number;
+        if (typeof stat.compressionRatio === 'object' && typeof stat.compressionRatio.toNumber === 'function') {
+          ratioNumber = stat.compressionRatio.toNumber();
+        } else {
+          ratioNumber = Number(stat.compressionRatio);
+        }
+        if (ratioNumber < 20) {
           qualityDistribution.high += stat._count.compressionRatio;
-        } else if (stat.compressionRatio < 50) {
+        } else if (ratioNumber < 50) {
           qualityDistribution.medium += stat._count.compressionRatio;
         } else {
           qualityDistribution.low += stat._count.compressionRatio;
@@ -243,14 +249,19 @@ export async function getWebPAnalytics(): Promise<WebPAnalytics> {
 
     // Calculate performance metrics
     const conversionSuccessRate = totalImages > 0 ? (webpConvertedImages / totalImages) * 100 : 0;
-    const averageFileSizeReduction = compressionStats._avg.compressionRatio || 0;
+    const averageFileSizeReductionRaw = compressionStats._avg.compressionRatio || 0;
+    const averageFileSizeReduction = typeof averageFileSizeReductionRaw === 'object' && typeof averageFileSizeReductionRaw.toNumber === 'function'
+      ? averageFileSizeReductionRaw.toNumber()
+      : Number(averageFileSizeReductionRaw);
     const optimizationEffectiveness = averageFileSizeReduction > 0 ? Math.min(100, averageFileSizeReduction * 2) : 0;
 
     return {
       totalImages,
       webpConvertedImages,
       conversionRate: totalImages > 0 ? (webpConvertedImages / totalImages) * 100 : 0,
-      averageCompressionRatio: compressionStats._avg.compressionRatio || 0,
+      averageCompressionRatio: typeof compressionStats._avg.compressionRatio === 'object' && typeof compressionStats._avg.compressionRatio?.toNumber === 'function'
+        ? compressionStats._avg.compressionRatio.toNumber()
+        : Number(compressionStats._avg.compressionRatio) || 0,
       totalStorageSaved: 0, // Would need to calculate from actual file sizes
       averageProcessingTime: 0, // Would need to track processing times
       qualityDistribution,
@@ -312,7 +323,9 @@ export async function getWebPAnalyticsForPeriod(
       totalImages,
       webpConvertedImages,
       conversionRate: totalImages > 0 ? (webpConvertedImages / totalImages) * 100 : 0,
-      averageCompressionRatio: compressionStats._avg.compressionRatio || 0,
+      averageCompressionRatio: typeof compressionStats._avg.compressionRatio === 'object' && typeof compressionStats._avg.compressionRatio?.toNumber === 'function'
+        ? compressionStats._avg.compressionRatio.toNumber()
+        : Number(compressionStats._avg.compressionRatio) || 0,
       totalStorageSaved: 0,
       averageProcessingTime: 0,
       qualityDistribution: { high: 0, medium: 0, low: 0 },
@@ -320,7 +333,9 @@ export async function getWebPAnalyticsForPeriod(
       errorRate: 0,
       performanceMetrics: {
         conversionSuccessRate: totalImages > 0 ? (webpConvertedImages / totalImages) * 100 : 0,
-        averageFileSizeReduction: compressionStats._avg.compressionRatio || 0,
+        averageFileSizeReduction: typeof compressionStats._avg.compressionRatio === 'object' && typeof compressionStats._avg.compressionRatio?.toNumber === 'function'
+          ? compressionStats._avg.compressionRatio.toNumber()
+          : Number(compressionStats._avg.compressionRatio) || 0,
         optimizationEffectiveness: 0
       }
     };

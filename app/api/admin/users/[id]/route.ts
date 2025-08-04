@@ -2,7 +2,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { canHero, canAdmin, isRoleHigherOrEqual } from "@/lib/role-based-access";
 
-export const PATCH = auth(async (req, { params }: { params: { id: string } }) => {
+export const PATCH = auth(async (req, ctx) => {
+  const { params } = await ctx.params;
+  const userId = params.id;
   if (!req.auth) {
     return new Response("Not authenticated", { status: 401 });
   }
@@ -20,7 +22,6 @@ export const PATCH = auth(async (req, { params }: { params: { id: string } }) =>
     return new Response("Unauthorized", { status: 403 });
   }
 
-  const userId = params.id;
   if (!userId) {
     return new Response("User ID is required", { status: 400 });
   }
@@ -87,7 +88,9 @@ export const PATCH = auth(async (req, { params }: { params: { id: string } }) =>
   }
 });
 
-export const DELETE = auth(async (req, { params }: { params: { id: string } }) => {
+export const DELETE = auth(async (req, ctx) => {
+  const { params } = await ctx.params;
+  const userId = params.id;
   if (!req.auth) {
     return new Response("Not authenticated", { status: 401 });
   }
@@ -102,7 +105,6 @@ export const DELETE = auth(async (req, { params }: { params: { id: string } }) =
     return new Response("Unauthorized", { status: 403 });
   }
 
-  const userId = params.id;
   if (!userId) {
     return new Response("User ID is required", { status: 400 });
   }

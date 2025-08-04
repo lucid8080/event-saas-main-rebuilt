@@ -193,7 +193,7 @@ export function generateSearchTags(metadata: ImageMetadata): string[] {
     tags.push(...metadata.customTags.map(tag => tag.toLowerCase()));
   }
   
-  return [...new Set(tags)]; // Remove duplicates
+  return Array.from(new Set(tags)); // Remove duplicates
 }
 
 /**

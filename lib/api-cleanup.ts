@@ -130,7 +130,7 @@ export class ApiCleanupManager {
     const deprecatedEndpoints: ApiEndpoint[] = [];
     const recommendations: string[] = [];
 
-    for (const [key, endpoint] of this.endpoints) {
+    for (const [key, endpoint] of Array.from(this.endpoints.entries())) {
       const stats = this.usageStats.get(key);
       const daysSinceLastUsed = stats ? (now - stats.lastUsed) / (24 * 60 * 60 * 1000) : 0;
 

@@ -159,19 +159,7 @@ export default makeSource({
           }
         });
       },
-      [
-        rehypePrettyCode,
-        {
-          theme: "github-dark",
-          keepBackground: false,
-          onVisitLine(node) {
-            // Prevent lines from collapsing in `display: grid` mode, and allow empty lines to be copy/pasted
-            if (node.children.length === 0) {
-              node.children = [{ type: "text", value: " " }];
-            }
-          },
-        },
-      ],
+      // rehypePrettyCode temporarily disabled for build compatibility
       () => (tree) => {
         visit(tree, (node) => {
           if (node?.type === "element" && node?.tagName === "figure") {

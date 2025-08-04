@@ -16,6 +16,8 @@ export const DEFAULT_WEBP_STORAGE_CONFIG: WebPStorageConfig = {
   backupOriginal: false,
 };
 
+export { generateWebPKey } from './r2';
+
 // Check if WebP version exists in R2
 export async function checkWebPExists(originalKey: string): Promise<boolean> {
   try {

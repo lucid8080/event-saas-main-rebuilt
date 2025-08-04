@@ -161,7 +161,7 @@ export class DatabaseOptimizer {
   // Clean up expired cache entries
   private cleanupExpiredCache(): void {
     const now = Date.now();
-    for (const [key, cached] of this.queryCache.entries()) {
+    for (const [key, cached] of Array.from(this.queryCache.entries())) {
       if (now - cached.timestamp > cached.ttl) {
         this.queryCache.delete(key);
       }

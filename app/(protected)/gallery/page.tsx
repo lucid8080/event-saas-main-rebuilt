@@ -781,11 +781,7 @@ export default function GalleryPage() {
                 src={selectedImage.url}
                 webpSrc={webpUrls.get(selectedImage.id)?.primaryUrl}
                 alt="Full size"
-                className="max-w-none max-h-none object-contain"
-                style={{ 
-                  minWidth: '100%',
-                  minHeight: '100%'
-                }}
+                className="max-w-none max-h-none object-contain w-full h-full"
               />
             </div>
           </div>

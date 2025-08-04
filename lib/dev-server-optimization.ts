@@ -77,9 +77,9 @@ export const hotReloadOptimization = {
         return require(modulePath);
       }
 
-      const module = require(modulePath);
-      moduleCache.set(modulePath, module);
-      return module;
+      const moduleContent = require(modulePath);
+      moduleCache.set(modulePath, moduleContent);
+      return moduleContent;
     };
 
     return cachedRequire;

@@ -83,13 +83,12 @@ export async function getImageMetadata(imageBuffer: Buffer) {
   try {
     const metadata = await sharp(imageBuffer).metadata();
     return {
-      format: metadata.format,
       width: metadata.width,
       height: metadata.height,
+      format: metadata.format,
       size: imageBuffer.length,
       hasAlpha: metadata.hasAlpha,
       hasProfile: metadata.hasProfile,
-      isOpaque: metadata.isOpaque,
     };
   } catch (error) {
     console.error('Error getting image metadata:', error);

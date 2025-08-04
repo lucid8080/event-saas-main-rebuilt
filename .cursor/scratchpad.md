@@ -88,6 +88,88 @@ A comprehensive admin dashboard that:
 
 ## High-level Task Breakdown
 
+### NEW TASK: Fix MDX Processing Production Error
+
+#### Background and Motivation
+The user is experiencing a production error related to MDX processing with the `mdast-util-gfm-table` library. The error occurs during the build process when Contentlayer tries to process MDX files, specifically with the `inTable` property being undefined.
+
+**Current State Analysis:**
+- Production build fails with MDX processing error
+- Error: `TypeError: Cannot read properties of undefined (reading 'inTable')`
+- Issue occurs in `mdast-util-gfm-table` library during markdown parsing
+- Contentlayer build process is affected
+- MDX files in content directory may have compatibility issues
+
+**Root Cause Analysis:**
+- Version compatibility issue between MDX processing libraries
+- `mdast-util-gfm-table` version 2.0.0 may have compatibility issues
+- Contentlayer configuration may need updates for newer MDX processing
+- Potential malformed markdown content in MDX files
+
+**Desired State:**
+- Production build completes successfully without MDX errors
+- All MDX content processes correctly
+- Contentlayer build pipeline works reliably
+- No breaking changes to existing MDX functionality
+
+#### Key Challenges and Analysis
+
+1. **Version Compatibility Issues**
+   - Identify incompatible MDX processing library versions
+   - Update or downgrade problematic dependencies
+   - Ensure all MDX-related packages work together
+   - Test compatibility with Contentlayer
+
+2. **Contentlayer Configuration**
+   - Review and update Contentlayer configuration
+   - Fix MDX processing pipeline settings
+   - Ensure proper plugin configuration
+   - Add error handling for MDX processing
+
+3. **MDX Content Validation**
+   - Check for malformed markdown in MDX files
+   - Validate table syntax and structure
+   - Ensure proper frontmatter formatting
+   - Fix any problematic content
+
+4. **Build Process Optimization**
+   - Add error handling to build process
+   - Implement fallback mechanisms for MDX processing
+   - Add debugging information for MDX errors
+   - Optimize build performance
+
+#### High-level Task Breakdown
+
+**Phase 1: Dependency Analysis and Version Fixes**
+- [ ] Identify problematic MDX processing library versions
+- [ ] Update or downgrade incompatible dependencies
+- [ ] Test MDX processing with updated versions
+- [ ] Ensure Contentlayer compatibility
+
+**Phase 2: Contentlayer Configuration Updates**
+- [ ] Review and update Contentlayer configuration
+- [ ] Fix MDX processing pipeline settings
+- [ ] Add error handling for MDX processing
+- [ ] Test configuration changes
+
+**Phase 3: MDX Content Validation and Fixes**
+- [ ] Check all MDX files for malformed content
+- [ ] Fix table syntax and structure issues
+- [ ] Validate frontmatter formatting
+- [ ] Test content processing
+
+**Phase 4: Build Process Optimization**
+- [ ] Add error handling to build process
+- [ ] Implement fallback mechanisms
+- [ ] Add debugging information
+- [ ] Test complete build process
+
+**Phase 5: Testing and Validation**
+- [ ] Test production build locally
+- [ ] Validate all MDX content renders correctly
+- [ ] Test Contentlayer functionality
+- [ ] Ensure no breaking changes
+
 ### NEW TASK: Implement Lazy Loading for Gallery Images
 
 #### Background and Motivation

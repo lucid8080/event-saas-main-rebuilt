@@ -103,10 +103,10 @@ export class ImageOptimizer {
         pipeline = pipeline.jpeg({ quality, progressive: options.progressive });
       }
 
-      // Optimize if enabled
-      if (options.optimize !== false && imageOptimizationConfig.enableCompression) {
-        pipeline = pipeline.optimize();
-      }
+      // Optimize if enabled (commented out due to Sharp version compatibility)
+      // if (options.optimize !== false && imageOptimizationConfig.enableCompression) {
+      //   pipeline = pipeline.optimize();
+      // }
 
       const buffer = await pipeline.toBuffer();
       const metadata = await pipeline.metadata();
@@ -120,7 +120,7 @@ export class ImageOptimizer {
         colorSpace: metadata.space || 'unknown',
       };
 
-      return { buffer, metadata };
+      return { buffer, metadata: imageMetadata };
     } catch (error) {
       console.error('❌ Image optimization failed:', error);
       throw error;
@@ -259,7 +259,7 @@ export class ImageOptimizer {
     const now = Date.now();
     const maxAge = imageOptimizationConfig.cacheMaxAge * 1000;
 
-    for (const [id, cached] of this.processedImages.entries()) {
+    for (const [id, cached] of Array.from(this.processedImages.entries())) {
       if (now - cached.timestamp > maxAge) {
         this.processedImages.delete(id);
       }

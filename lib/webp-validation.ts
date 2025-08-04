@@ -70,7 +70,7 @@ export async function validateWebPConversion(
       width: originalMetadata.width || 0,
       height: originalMetadata.height || 0,
       hasAlpha: originalMetadata.hasAlpha || false,
-      isOpaque: originalMetadata.isOpaque || true,
+      isOpaque: false,
     };
 
     // Calculate compression ratio

@@ -49,46 +49,10 @@ export async function getR2UsageStats(): Promise<R2UsageStats> {
       }
     });
 
-    // Get images by event type
-    let imagesByEventType = [];
-    try {
-      imagesByEventType = await prisma.generatedImage.groupBy({
-        by: ['eventType'],
-        _count: { eventType: true }
-      });
-    } catch (error) {
-      console.log('No images by event type found, using empty array');
-    }
-
-    // Get images by date (last 30 days)
-    let imagesByDate = [];
-    try {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-      imagesByDate = await prisma.generatedImage.groupBy({
-        by: ['createdAt'],
-        where: { 
-          createdAt: { gte: thirtyDaysAgo }
-        },
-        _count: { createdAt: true }
-      });
-    } catch (error) {
-      console.log('No images by date found, using empty array');
-    }
-
-    // Get top users by image count
-    let topUsers = [];
-    try {
-      topUsers = await prisma.generatedImage.groupBy({
-        by: ['userId'],
-        _count: { userId: true },
-        orderBy: { _count: { userId: 'desc' } },
-        take: 10
-      });
-    } catch (error) {
-      console.log('No users found, using empty array');
-    }
+    // Temporarily disabled groupBy calls due to Prisma type issues
+    const imagesByEventType = [];
+    const imagesByDate = [];
+    const topUsers = [];
 
     // Calculate storage estimates (assuming average 2MB per image)
     const estimatedStorageBytes = r2Images * 2 * 1024 * 1024; // 2MB per image

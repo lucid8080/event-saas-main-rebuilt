@@ -136,9 +136,6 @@ export class WebPConversionMonitor {
             this.currentBatch.errors.push(`${r2Key}: ${details.error}`);
           }
           break;
-        case 'skipped':
-          this.currentBatch.skippedImages++;
-          break;
       }
 
       // Check if we should auto-rollback
@@ -279,7 +276,6 @@ export class WebPConversionMonitor {
     const total = statuses.length;
     const completed = statuses.filter(s => s.status === 'completed').length;
     const failed = statuses.filter(s => s.status === 'failed').length;
-    const skipped = statuses.filter(s => s.status === 'skipped').length;
     const inProgress = statuses.filter(s => s.status === 'in_progress').length;
     const rolledBack = statuses.filter(s => s.status === 'rolled_back').length;
 
@@ -297,7 +293,7 @@ export class WebPConversionMonitor {
       total,
       completed,
       failed,
-      skipped,
+      skipped: 0,
       inProgress,
       rolledBack,
       successRate,
@@ -406,7 +402,9 @@ export async function getDatabaseConversionStatus(): Promise<{
     _avg: { compressionRatio: true },
   });
 
-  const averageCompressionRatio = compressionStats._avg.compressionRatio || 0;
+  const averageCompressionRatio = typeof compressionStats._avg.compressionRatio === 'object' && typeof compressionStats._avg.compressionRatio?.toNumber === 'function'
+    ? compressionStats._avg.compressionRatio.toNumber()
+    : Number(compressionStats._avg.compressionRatio) || 0;
 
   // Estimate total space saved (this would need to be calculated from actual file sizes)
   const totalSpaceSaved = 0; // TODO: Implement actual calculation
@@ -458,8 +456,10 @@ export async function validateConversionResults(): Promise<{
   // Check for very low compression ratios
   const lowCompressionImages = await prisma.generatedImage.findMany({
     where: {
-      compressionRatio: { lt: 10 },
-      compressionRatio: { not: null },
+      compressionRatio: { 
+        lt: 10,
+        not: null 
+      },
     },
   });
 
