@@ -421,4 +421,5 @@ if (require.main === module) {
     });
 }
 
-export { convertExistingImagesToWebP, ConversionConfig, ConversionResult }; 
+export { convertExistingImagesToWebP };
+export type { ConversionConfig, ConversionResult }; 

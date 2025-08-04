@@ -55,7 +55,6 @@ async function runWebPConversionTests() {
     console.log(`   Dimensions: ${metadata.width}x${metadata.height}`);
     console.log(`   Size: ${metadata.size} bytes`);
     console.log(`   Has Alpha: ${metadata.hasAlpha}`);
-    console.log(`   Is Opaque: ${metadata.isOpaque}`);
   } catch (error) {
     console.error('❌ Metadata extraction failed:', error);
   }

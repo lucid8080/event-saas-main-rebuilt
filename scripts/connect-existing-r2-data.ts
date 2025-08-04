@@ -3,13 +3,36 @@
 import 'dotenv/config';
 import { prisma } from '../lib/db';
 import { env } from '../env.mjs';
-import { r2Client } from '../lib/r2';
-import { ListObjectsV2Command } from '@aws-sdk/client-s3';
+
+// Dynamic imports to avoid 'self is not defined' error during build
+let S3Client: any;
+let ListObjectsV2Command: any;
+let r2Client: any;
+
+async function initAwsSdk() {
+  if (!S3Client) {
+    const awsSdk = await import('@aws-sdk/client-s3');
+    S3Client = awsSdk.S3Client;
+    ListObjectsV2Command = awsSdk.ListObjectsV2Command;
+    
+    r2Client = new S3Client({
+      region: 'auto',
+      endpoint: env.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: env.R2_ACCESS_KEY_ID,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+}
 
 console.log('🔗 Connecting Existing R2 Data to Database...\n');
 
 async function connectExistingR2Data() {
   try {
+    // Initialize AWS SDK
+    await initAwsSdk();
+    
     // Check environment variables
     if (!env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY || !env.R2_BUCKET_NAME || !env.R2_ENDPOINT) {
       console.log('❌ R2 environment variables not configured');

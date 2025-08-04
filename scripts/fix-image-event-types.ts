@@ -60,7 +60,7 @@ async function fixImageEventTypes() {
         try {
           await prisma.generatedImage.update({
             where: { id: image.id },
-            data: { eventType: correctEventType }
+            data: { eventType: correctEventType as any }
           });
 
           console.log(`✅ ${image.id}: ${image.eventType} → ${correctEventType}`);

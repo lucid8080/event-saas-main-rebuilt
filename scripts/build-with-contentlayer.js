@@ -27,6 +27,9 @@ try {
   process.env.NEXT_TRACE = '0';
   process.env.GENERATE_SOURCEMAP = 'false';
   process.env.NODE_OPTIONS = '--max-old-space-size=4096';
+  process.env.NEXT_DISABLE_TELEMETRY = '1';
+  process.env.NEXT_DISABLE_TRACING = '1';
+  process.env.NEXT_DISABLE_FS_TRACING = '1';
   
   execSync('next build', { 
     stdio: 'inherit'

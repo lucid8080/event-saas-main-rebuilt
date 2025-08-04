@@ -21,6 +21,7 @@ import {
   uploadImageWithWebP, 
   DEFAULT_WEBP_CONFIG 
 } from '../lib/webp-integration';
+import { type ImageMetadata } from '../lib/r2';
 
 // Test image data (1x1 pixel PNG)
 const TEST_IMAGE_DATA = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
@@ -114,9 +115,9 @@ async function testWebPIntegrationComplete() {
   
   try {
     // Mock image metadata for integration test
-    const mockMetadata = {
-      userId: 'test-user',
-      eventType: 'WEDDING',
+    const mockMetadata: ImageMetadata = {
+      userId: 'test-user-id',
+      eventType: 'WEDDING' as any,
       aspectRatio: '16:9',
       watermarkEnabled: false,
       promptHash: 'test-hash',

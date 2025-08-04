@@ -1,13 +1,39 @@
 #!/usr/bin/env tsx
 
 import { prisma } from '../lib/db';
-import { r2Client } from '../lib/r2';
-import { ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { env } from '../env.mjs';
+
+// Dynamic imports to avoid 'self is not defined' error during build
+let S3Client: any;
+let ListObjectsV2Command: any;
+let DeleteObjectCommand: any;
+let r2Client: any;
+
+async function initAwsSdk() {
+  if (!S3Client) {
+    const awsSdk = await import('@aws-sdk/client-s3');
+    S3Client = awsSdk.S3Client;
+    ListObjectsV2Command = awsSdk.ListObjectsV2Command;
+    DeleteObjectCommand = awsSdk.DeleteObjectCommand;
+    
+    r2Client = new S3Client({
+      region: 'auto',
+      endpoint: env.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: env.R2_ACCESS_KEY_ID,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+}
 
 async function syncR2Database() {
-  console.log('🔄 R2 Database Sync Tool\n');
-
   try {
+    // Initialize AWS SDK
+    await initAwsSdk();
+    
+    console.log('🔄 Syncing R2 Database...\n');
+
     // 1. Get database images with R2 keys
     console.log('📊 Analyzing database...');
     const dbImages = await prisma.generatedImage.findMany({

@@ -117,7 +117,12 @@ async function createSampleGalleryImages() {
         const createdImage = await prisma.generatedImage.create({
           data: {
             ...imageData,
-            userId: adminUser.id
+            eventType: imageData.eventType as any, // Cast to EventType enum
+            user: {
+              connect: {
+                id: adminUser.id
+              }
+            }
           }
         })
         
@@ -171,7 +176,11 @@ async function createSampleGalleryImages() {
         const createdCarousel = await prisma.generatedCarousel.create({
           data: {
             ...carouselData,
-            userId: adminUser.id,
+            user: {
+              connect: {
+                id: adminUser.id
+              }
+            },
             slides: carouselData.slides as any
           }
         })
@@ -199,4 +208,4 @@ async function createSampleGalleryImages() {
   }
 }
 
-createSampleGalleryImages() 
+createSampleGalleryImages()

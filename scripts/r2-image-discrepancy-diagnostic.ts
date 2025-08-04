@@ -1,8 +1,29 @@
 #!/usr/bin/env tsx
 
 import { prisma } from '../lib/db';
-import { r2Client } from '../lib/r2';
-import { ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { env } from '../env.mjs';
+
+// Dynamic imports to avoid 'self is not defined' error during build
+let S3Client: any;
+let ListObjectsV2Command: any;
+let r2Client: any;
+
+async function initAwsSdk() {
+  if (!S3Client) {
+    const awsSdk = await import('@aws-sdk/client-s3');
+    S3Client = awsSdk.S3Client;
+    ListObjectsV2Command = awsSdk.ListObjectsV2Command;
+    
+    r2Client = new S3Client({
+      region: 'auto',
+      endpoint: env.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: env.R2_ACCESS_KEY_ID,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+}
 
 async function diagnoseR2ImageDiscrepancy() {
   console.log('🔍 R2 Image Discrepancy Diagnostic\n');
@@ -32,6 +53,7 @@ async function diagnoseR2ImageDiscrepancy() {
     // 2. Check R2 bucket contents
     console.log('\n☁️ R2 Bucket Analysis:');
     try {
+      await initAwsSdk();
       const command = new ListObjectsV2Command({
         Bucket: process.env.R2_BUCKET_NAME,
         MaxKeys: 1000
@@ -109,6 +131,7 @@ async function diagnoseR2ImageDiscrepancy() {
       const dbKeySet = new Set(dbR2Keys.map(img => img.r2Key!));
       
       try {
+        await initAwsSdk();
         const command = new ListObjectsV2Command({
           Bucket: process.env.R2_BUCKET_NAME,
           MaxKeys: 1000
@@ -143,6 +166,7 @@ async function diagnoseR2ImageDiscrepancy() {
     console.log(`   Database without R2 key: ${imagesWithoutR2Key}`);
     
     try {
+      await initAwsSdk();
       const command = new ListObjectsV2Command({
         Bucket: process.env.R2_BUCKET_NAME,
         MaxKeys: 1000

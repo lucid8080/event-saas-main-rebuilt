@@ -177,11 +177,6 @@ async function testWebPPerformance() {
     console.log(`  Is Valid: ${validation.isValid}`);
     console.log(`  Quality Score: ${validation.qualityScore}/100`);
     console.log(`  Compression Ratio: ${validation.compressionRatio.toFixed(2)}%`);
-    console.log(`  Issues: ${validation.issues.length}`);
-    
-    if (validation.issues.length > 0) {
-      validation.issues.forEach(issue => console.log(`    - ${issue}`));
-    }
   } catch (error) {
     console.log(`❌ Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

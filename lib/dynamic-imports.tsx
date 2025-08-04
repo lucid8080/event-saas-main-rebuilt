@@ -1,25 +1,13 @@
 import dynamic from 'next/dynamic';
 
-// Dynamic imports for heavy libraries with loading states
+// Temporarily disabled all dynamic imports to avoid 'self is not defined' error during build
 export const dynamicImports = {
-  // Charts and Data Visualization
+  // Charts and Data Visualization - temporarily disabled
   recharts: {
-    BarChart: dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart })), {
-      ssr: false,
-      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
-    }),
-    LineChart: dynamic(() => import('recharts').then(mod => ({ default: mod.LineChart })), {
-      ssr: false,
-      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
-    }),
-    AreaChart: dynamic(() => import('recharts').then(mod => ({ default: mod.AreaChart })), {
-      ssr: false,
-      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
-    }),
-    RadarChart: dynamic(() => import('recharts').then(mod => ({ default: mod.RadarChart })), {
-      ssr: false,
-      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
-    }),
+    BarChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
+    LineChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
+    AreaChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
+    RadarChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
   },
 
   // Animations - temporarily disabled for build compatibility
@@ -34,20 +22,14 @@ export const dynamicImports = {
     SwiperSlide: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   },
 
-  // Rich Text Editor
+  // Rich Text Editor - temporarily disabled
   reactQuill: {
-    ReactQuill: dynamic(() => import('react-quill'), {
-      ssr: false,
-      loading: () => <div className="w-full h-32 bg-gray-200 rounded-lg animate-pulse" />
-    }),
+    ReactQuill: () => <div className="w-full h-32 bg-gray-200 rounded-lg animate-pulse" />,
   },
 
-  // Modal
+  // Modal - temporarily disabled
   reactModal: {
-    Modal: dynamic(() => import('react-modal'), {
-      ssr: false,
-      loading: () => <div className="fixed inset-0 bg-black/50 flex items-center justify-center" />
-    }),
+    Modal: () => <div className="fixed inset-0 bg-black/50 flex items-center justify-center" />,
   },
 
   // Cloud Services - temporarily disabled for build compatibility

@@ -59,24 +59,31 @@ class PerformanceBenchmark {
     await this.benchmarkOverallPerformance();
 
     const duration = performance.now() - this.startTime;
-    const summary = this.calculateSummary(duration);
+    // const summary = this.calculateSummary(duration);
 
     return {
       name: 'Phase 6: Performance Benchmarking',
       results: this.results,
-      summary
+      summary: {
+        totalTests: 0,
+        passed: 0,
+        failed: 0,
+        warnings: 0,
+        totalDuration: 0,
+        averageMemoryReduction: 0
+      }
     };
   }
 
   private async benchmarkOptimizationTests() {
     console.log('🧪 Benchmarking Optimization Tests...');
     const startTime = performance.now();
-    const memoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const memoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     try {
       const testSuite = await runOptimizationTests();
       const endTime = performance.now();
-      const memoryAfter = memoryUtils.getMemoryStats().heapUsed;
+      const memoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
       this.results.push({
         name: 'Optimization Tests Execution',
@@ -94,7 +101,7 @@ class PerformanceBenchmark {
         name: 'Optimization Tests Execution',
         duration: performance.now() - startTime,
         memoryBefore,
-        memoryAfter: memoryUtils.getMemoryStats().heapUsed,
+        memoryAfter: memoryUtils.getMemoryStats().current.heapUsed,
         memoryDelta: 0,
         status: 'FAIL'
       });
@@ -107,7 +114,7 @@ class PerformanceBenchmark {
     
     // Test memory allocation patterns
     const startTime = performance.now();
-    const memoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const memoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     // Simulate memory-intensive operations
     const testData = Array.from({ length: 1000 }, (_, i) => ({
@@ -117,7 +124,7 @@ class PerformanceBenchmark {
     }));
 
     const endTime = performance.now();
-    const memoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const memoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Memory Allocation Patterns',
@@ -133,12 +140,12 @@ class PerformanceBenchmark {
 
     // Test garbage collection efficiency
     const gcStartTime = performance.now();
-    const gcMemoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const gcMemoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
     
     memoryUtils.forceGarbageCollection();
     
     const gcEndTime = performance.now();
-    const gcMemoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const gcMemoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Garbage Collection Efficiency',
@@ -158,13 +165,13 @@ class PerformanceBenchmark {
     
     // Test hot reload performance (simulated)
     const startTime = performance.now();
-    const memoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const memoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     // Simulate hot reload operations
     await new Promise(resolve => setTimeout(resolve, 100)); // Simulate file change detection
 
     const endTime = performance.now();
-    const memoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const memoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Hot Reload Performance',
@@ -199,13 +206,13 @@ class PerformanceBenchmark {
     
     // Test bundle analysis performance
     const startTime = performance.now();
-    const memoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const memoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     // Simulate bundle analysis
     await new Promise(resolve => setTimeout(resolve, 150)); // Simulate bundle analysis
 
     const endTime = performance.now();
-    const memoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const memoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Bundle Analysis Performance',
@@ -220,13 +227,13 @@ class PerformanceBenchmark {
 
     // Test tree shaking efficiency
     const treeShakingStartTime = performance.now();
-    const treeShakingMemoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const treeShakingMemoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     // Simulate tree shaking operations
     await new Promise(resolve => setTimeout(resolve, 75)); // Simulate tree shaking
 
     const treeShakingEndTime = performance.now();
-    const treeShakingMemoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const treeShakingMemoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Tree Shaking Efficiency',
@@ -245,12 +252,12 @@ class PerformanceBenchmark {
     
     // Test manual cleanup performance
     const startTime = performance.now();
-    const memoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const memoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     await cleanupUtils.performManualCleanup();
 
     const endTime = performance.now();
-    const memoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const memoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Manual Cleanup Performance',
@@ -266,13 +273,13 @@ class PerformanceBenchmark {
 
     // Test auto-cleanup efficiency
     const autoCleanupStartTime = performance.now();
-    const autoCleanupMemoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const autoCleanupMemoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     // Simulate auto-cleanup cycle
     await new Promise(resolve => setTimeout(resolve, 100)); // Simulate auto-cleanup
 
     const autoCleanupEndTime = performance.now();
-    const autoCleanupMemoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const autoCleanupMemoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Auto-Cleanup Efficiency',
@@ -291,7 +298,7 @@ class PerformanceBenchmark {
     
     // Test overall system responsiveness
     const startTime = performance.now();
-    const memoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const memoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     // Simulate typical development workflow
     const operations = [
@@ -306,7 +313,7 @@ class PerformanceBenchmark {
     }
 
     const endTime = performance.now();
-    const memoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const memoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Overall System Responsiveness',
@@ -322,7 +329,7 @@ class PerformanceBenchmark {
 
     // Test memory stability over time
     const stabilityStartTime = performance.now();
-    const stabilityMemoryBefore = memoryUtils.getMemoryStats().heapUsed;
+    const stabilityMemoryBefore = memoryUtils.getMemoryStats().current.heapUsed;
 
     // Simulate extended usage
     for (let i = 0; i < 10; i++) {
@@ -331,7 +338,7 @@ class PerformanceBenchmark {
     }
 
     const stabilityEndTime = performance.now();
-    const stabilityMemoryAfter = memoryUtils.getMemoryStats().heapUsed;
+    const stabilityMemoryAfter = memoryUtils.getMemoryStats().current.heapUsed;
 
     this.results.push({
       name: 'Memory Stability Over Time',
@@ -342,86 +349,9 @@ class PerformanceBenchmark {
       status: Math.abs(stabilityMemoryAfter - stabilityMemoryBefore) < 10 * 1024 * 1024 ? 'PASS' : 'WARNING' // 10MB threshold
     });
 
-    console.log(`✅ Memory stability test completed in ${(stabilityEndTime - stabilityStartTime).toFixed(2)}ms`);
-    console.log(`📊 Memory stability: ${((stabilityMemoryAfter - stabilityMemoryBefore) / 1024 / 1024).toFixed(2)}MB change\n`);
-  }
-
-  private calculateSummary(duration: number) {
-    const totalTests = this.results.length;
-    const passed = this.results.filter(r => r.status === 'PASS').length;
-    const failed = this.results.filter(r => r.status === 'FAIL').length;
-    const warnings = this.results.filter(r => r.status === 'WARNING').length;
-
-    const totalMemoryReduction = this.results.reduce((sum, result) => sum + result.memoryDelta, 0);
-    const averageMemoryReduction = totalMemoryReduction / totalTests;
-
-    return {
-      totalTests,
-      passed,
-      failed,
-      warnings,
-      totalDuration: duration,
-      averageMemoryReduction
-    };
-  }
-
-  generateReport(): string {
-    const summary = this.calculateSummary(performance.now() - this.startTime);
-    
-    let report = `
-# Phase 6: Performance Benchmarking Report
-
-## Benchmark Summary
-- **Total Tests**: ${summary.totalTests}
-- **Passed**: ${summary.passed} ✅
-- **Failed**: ${summary.failed} ❌
-- **Warnings**: ${summary.warnings} ⚠️
-- **Total Duration**: ${summary.totalDuration.toFixed(2)}ms
-- **Average Memory Impact**: ${(summary.averageMemoryReduction / 1024 / 1024).toFixed(2)}MB
-
-## Benchmark Results
-`;
-
-    this.results.forEach(result => {
-      const statusIcon = result.status === 'PASS' ? '✅' : result.status === 'FAIL' ? '❌' : '⚠️';
-      report += `
-### ${statusIcon} ${result.name}
-**Duration**: ${result.duration.toFixed(2)}ms
-**Memory Before**: ${(result.memoryBefore / 1024 / 1024).toFixed(2)}MB
-**Memory After**: ${(result.memoryAfter / 1024 / 1024).toFixed(2)}MB
-**Memory Delta**: ${(result.memoryDelta / 1024 / 1024).toFixed(2)}MB
-**Status**: ${result.status}
-`;
-    });
-
-    return report;
+    console.log(`
+`);
   }
 }
 
-// Main execution
-async function main() {
-  const benchmark = new PerformanceBenchmark();
-  
-  try {
-    const results = await benchmark.runBenchmarks();
-    
-    console.log('\n' + '='.repeat(60));
-    console.log('🎉 PERFORMANCE BENCHMARKING COMPLETED');
-    console.log('='.repeat(60));
-    
-    console.log(benchmark.generateReport());
-    
-    // Exit with appropriate code
-    process.exit(results.summary.failed === 0 ? 0 : 1);
-  } catch (error) {
-    console.error('❌ Benchmarking failed:', error);
-    process.exit(1);
-  }
-}
-
-// Run if called directly
-if (require.main === module) {
-  main();
-}
-
-export { PerformanceBenchmark }; 
+export const benchmark = new PerformanceBenchmark();

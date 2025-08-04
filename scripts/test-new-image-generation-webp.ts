@@ -44,14 +44,30 @@ async function testNewImageGenerationWebP() {
     
     try {
       const startTime = Date.now();
-      const result = await testCase.function(
-        testCase.params.prompt,
-        testCase.params.aspectRatio,
-        testCase.params.eventType || testCase.params.slideIndex || testCase.params.slideCount,
-        testCase.params.eventType ? {} : undefined,
-        testCase.params.slideIndex ? testCase.params.carouselTitle : undefined,
-        testCase.params.slideCount ? testCase.params.carouselTitle : undefined
-      );
+      let result;
+      if (testCase.function === generateImage) {
+        result = await generateImage(
+          testCase.params.prompt,
+          testCase.params.aspectRatio,
+          testCase.params.eventType,
+          testCase.params.eventType ? {} : undefined
+        );
+      } else if (testCase.function === generateCarouselBackground) {
+        result = await generateCarouselBackground(
+          testCase.params.prompt,
+          testCase.params.aspectRatio,
+          testCase.params.slideIndex,
+          testCase.params.carouselTitle
+        );
+      } else if (testCase.function === generateCarouselLongImage) {
+        result = await generateCarouselLongImage(
+          testCase.params.prompt,
+          testCase.params.slideCount,
+          testCase.params.carouselTitle
+        );
+      } else {
+        throw new Error(`Unknown function: ${testCase.function.name}`);
+      }
       const endTime = Date.now();
       
       if (result.success) {

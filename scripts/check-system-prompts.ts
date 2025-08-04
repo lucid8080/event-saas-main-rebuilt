@@ -16,7 +16,6 @@ async function checkSystemPrompts() {
 
     systemPrompts.forEach((prompt, index) => {
       console.log(`\n${index + 1}. ${prompt.name}`);
-      console.log(`   Type: ${prompt.type}`);
       console.log(`   Active: ${prompt.isActive ? '✅' : '❌'}`);
       console.log(`   Created: ${prompt.createdAt.toISOString()}`);
       console.log(`   Content: ${prompt.content.substring(0, 100)}...`);
@@ -25,13 +24,6 @@ async function checkSystemPrompts() {
     // Check active prompts by type
     const activePrompts = systemPrompts.filter(p => p.isActive);
     console.log(`\n📊 Active prompts: ${activePrompts.length}`);
-
-    const promptTypes = Array.from(new Set(activePrompts.map(p => p.type)));
-    console.log('📋 Active prompt types:');
-    promptTypes.forEach(type => {
-      const count = activePrompts.filter(p => p.type === type).length;
-      console.log(`   ${type}: ${count} prompts`);
-    });
 
     if (systemPrompts.length === 0) {
       console.log('\n⚠️  No system prompts found!');

@@ -55,7 +55,12 @@ async function fixWebPDatabaseUpdates() {
           });
 
           if (similarImages.length > 0) {
-            const avgCompression = similarImages.reduce((sum, img) => sum + (img.compressionRatio || 0), 0) / similarImages.length;
+            const avgCompression = similarImages.reduce((sum, img) => {
+              const ratio = typeof img.compressionRatio === 'object' && typeof img.compressionRatio?.toNumber === 'function'
+                ? img.compressionRatio.toNumber()
+                : Number(img.compressionRatio) || 0;
+              return sum + ratio;
+            }, 0) / similarImages.length;
             estimatedOriginalSize = Math.round(webpInfo.size / (1 - avgCompression / 100));
           } else {
             // Default estimation based on format

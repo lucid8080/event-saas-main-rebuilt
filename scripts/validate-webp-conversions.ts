@@ -200,9 +200,15 @@ async function analyzeCompressionQuality() {
     });
 
     if (compressionStats._count.compressionRatio > 0) {
-      const avg = compressionStats._avg.compressionRatio || 0;
-      const min = compressionStats._min.compressionRatio || 0;
-      const max = compressionStats._max.compressionRatio || 0;
+      const avg = typeof compressionStats._avg.compressionRatio === 'object' && typeof compressionStats._avg.compressionRatio?.toNumber === 'function'
+        ? compressionStats._avg.compressionRatio.toNumber()
+        : Number(compressionStats._avg.compressionRatio) || 0;
+      const min = typeof compressionStats._min.compressionRatio === 'object' && typeof compressionStats._min.compressionRatio?.toNumber === 'function'
+        ? compressionStats._min.compressionRatio.toNumber()
+        : Number(compressionStats._min.compressionRatio) || 0;
+      const max = typeof compressionStats._max.compressionRatio === 'object' && typeof compressionStats._max.compressionRatio?.toNumber === 'function'
+        ? compressionStats._max.compressionRatio.toNumber()
+        : Number(compressionStats._max.compressionRatio) || 0;
 
       console.log(`   Average compression: ${avg.toFixed(2)}%`);
       console.log(`   Best compression: ${max.toFixed(2)}%`);
@@ -222,15 +228,19 @@ async function analyzeCompressionQuality() {
       // Check for outliers
       const lowCompressionImages = await prisma.generatedImage.count({
         where: {
-          compressionRatio: { lt: 10 },
-          compressionRatio: { not: null },
+          compressionRatio: { 
+            lt: 10,
+            not: null 
+          },
         },
       });
 
       const highCompressionImages = await prisma.generatedImage.count({
         where: {
-          compressionRatio: { gt: 90 },
-          compressionRatio: { not: null },
+          compressionRatio: { 
+            gt: 90,
+            not: null 
+          },
         },
       });
 

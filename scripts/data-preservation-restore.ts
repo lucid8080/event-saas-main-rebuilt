@@ -201,7 +201,12 @@ async function restoreDataBackup(options: RestoreOptions = {}): Promise<void> {
             excerpt: post.excerpt,
             content: post.content,
             status: post.status,
-            publishedAt: post.publishedAt
+            publishedAt: post.publishedAt,
+            author: {
+              connect: {
+                email: 'admin@example.com' // Connect to admin user
+              }
+            }
           }
         });
         console.log(`   ✅ Restored blog post: ${post.title}`);
@@ -313,7 +318,6 @@ async function restoreDataBackup(options: RestoreOptions = {}): Promise<void> {
         await prisma.contactMessage.upsert({
           where: { id: message.id },
           update: {
-            name: message.name,
             email: message.email,
             subject: message.subject,
             message: message.message,
@@ -321,11 +325,12 @@ async function restoreDataBackup(options: RestoreOptions = {}): Promise<void> {
             updatedAt: new Date()
           },
           create: {
-            name: message.name,
             email: message.email,
             subject: message.subject,
             message: message.message,
             status: message.status,
+            firstName: message.name?.split(' ')[0] || 'Unknown',
+            lastName: message.name?.split(' ').slice(1).join(' ') || 'User',
           }
         });
         console.log(`   ✅ Restored contact message: ${message.name} - ${message.subject}`);
@@ -359,7 +364,6 @@ async function restoreDataBackup(options: RestoreOptions = {}): Promise<void> {
                 eventType: image.eventType,
                 eventDetails: image.eventDetails,
                 isPublic: image.isPublic,
-                updatedAt: new Date()
               },
               create: {
                 userId: user.id,
@@ -405,7 +409,6 @@ async function restoreDataBackup(options: RestoreOptions = {}): Promise<void> {
                 aspectRatio: carousel.aspectRatio,
                 slideCount: carousel.slideCount,
                 isPublic: carousel.isPublic,
-                updatedAt: new Date()
               },
               create: {
                 userId: user.id,
@@ -445,16 +448,12 @@ async function restoreDataBackup(options: RestoreOptions = {}): Promise<void> {
               operation: analytics.operation,
               duration: analytics.duration,
               success: analytics.success,
-              errorMessage: analytics.errorMessage,
-              metadata: analytics.metadata,
               timestamp: new Date(analytics.timestamp)
             },
             create: {
               operation: analytics.operation,
               duration: analytics.duration,
               success: analytics.success,
-              errorMessage: analytics.errorMessage,
-              metadata: analytics.metadata,
               timestamp: new Date(analytics.timestamp)
             }
           });
