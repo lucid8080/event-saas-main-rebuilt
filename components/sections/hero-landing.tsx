@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 import { env } from "@/env.mjs";
 import { siteConfig } from "@/config/site";
@@ -11,6 +14,19 @@ import { RotatingPhrases } from "@/components/shared/rotating-phrases";
 import { ClientMarquee } from "@/components/sections/client-marquee";
 
 export default function HeroLanding() {
+  const [astronautImage, setAstronautImage] = useState("/astronaut-rocket.png");
+  const [isHolding, setIsHolding] = useState(false);
+
+  const handleMouseDown = () => {
+    setIsHolding(true);
+    setAstronautImage("/astronaut-rocket2.png");
+  };
+
+  const handleMouseUp = () => {
+    setIsHolding(false);
+    setAstronautImage("/astronaut-rocket.png");
+  };
+
   const avatars = [
     {
       imageUrl: "https://randomuser.me/api/portraits/men/1.jpg",
@@ -48,9 +64,20 @@ export default function HeroLanding() {
         <RotatingPhrases />
 
         <h1 className="text-balance text-4xl sm:text-5xl md:text-6xl lg:text-[66px] font-urban font-extrabold tracking-tight drop-shadow-2xl">
-          Instant Flyers Ready for Print or Social Media{" "}
+          Rocket-Speed
+          <img 
+            id="hero-astronaut-image"
+            src={astronautImage}
+            alt="Astronaut riding rocket" 
+            className="inline-block w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 object-contain animate-logo-spin cursor-pointer"
+            draggable="false"
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          />
+          Flyers, Print/Socials Media Ready,{" "}
           <span className="text-gradient_indigo-purple font-extrabold">
-           No Designer Needed!
+           No Design Skills Needed
           </span>
         </h1>
 

@@ -109,10 +109,10 @@ export const Icons = {
   lineChart: LineChart,
   logo: ({ className, width, height }: LucideProps) => (
     <NextImage
-      src="/ECAI.png"
+      src="/astronaut-logo.png"
       alt="EventCraftAI Logo"
-      width={typeof width === 'number' ? width : 24}
-      height={typeof height === 'number' ? height : 24}
+      width={typeof width === 'number' ? width : 32}
+      height={typeof height === 'number' ? height : 32}
       className={`animate-logo-spin ${className || ''}`}
     />
   ),

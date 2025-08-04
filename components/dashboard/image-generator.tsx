@@ -65,6 +65,7 @@ const stylePresets = [
   { id: 9, thumbnail: "/styles/9_Fantasy_World.jpeg", name: "Fantasy World", description: "Magical and enchanting fantasy realm with mystical elements" },
   { id: 10, thumbnail: "/styles/10_Street_Art.jpeg", name: "Street Art", description: "Urban street art style with bold graffiti and contemporary urban culture, limited text and and faces unless otherwise specified" },
   { id: 11, thumbnail: "/styles/4_Political_Satire.jpg", name: "Political Satire", description: "Detailed political caricature with formal government office backdrop" },
+  { id: 12, thumbnail: "/styles/11_Unicorn_Balloon_Bash.jpg", name: "Unicorn Balloon Bash", description: "Vibrant and playful scene perfect for children's party flyers featuring adorable balloon-like unicorn-dragon hybrids in bright colors with confetti, streamers, and magical elements" },
 ];
 
 const shapes = [
@@ -129,6 +130,27 @@ export function ImageGenerator() {
   const [isLoadingHolidayData, setIsLoadingHolidayData] = useState<boolean>(false);
   const [isShapeSectionCollapsed, setIsShapeSectionCollapsed] = useState<boolean>(true);
   const [isEventDetailsSectionCollapsed, setIsEventDetailsSectionCollapsed] = useState<boolean>(true);
+
+  // Style pagination state
+  const [currentStylePage, setCurrentStylePage] = useState(0);
+  const stylesPerPage = 6;
+  const totalStylePages = Math.ceil(stylePresets.length / stylesPerPage);
+
+  // Handle navigation for style pagination
+  const handleNextStyles = () => {
+    setCurrentStylePage(prev => Math.min(prev + 1, totalStylePages - 1));
+  };
+
+  const handlePrevStyles = () => {
+    setCurrentStylePage(prev => Math.max(prev - 1, 0));
+  };
+
+  // Get visible styles for current page
+  const startIndex = currentStylePage * stylesPerPage;
+  const endIndex = startIndex + stylesPerPage;
+  const visibleStyles = stylePresets.slice(startIndex, endIndex);
+  const hasNextPage = currentStylePage < totalStylePages - 1;
+  const hasPrevPage = currentStylePage > 0;
 
   
   // Logo overlay state
@@ -768,8 +790,9 @@ export function ImageGenerator() {
 
 
                         {/* Style Grid */}
-                        <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto">
-                          {stylePresets.map((style) => (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-3 gap-2">
+                            {visibleStyles.map((style) => (
                             <Tooltip key={style.id}>
                               <TooltipTrigger asChild>
                                                                    <button
@@ -802,6 +825,32 @@ export function ImageGenerator() {
                               </TooltipContent>
                             </Tooltip>
                           ))}
+                          </div>
+                          
+                          {/* Navigation Buttons */}
+                          <div className="flex justify-center items-center gap-2">
+                            {hasPrevPage && (
+                              <button
+                                onClick={handlePrevStyles}
+                                className="px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 hover:border-purple-300 transition-colors duration-200 dark:bg-purple-900/20 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                              >
+                                ← Previous
+                              </button>
+                            )}
+                            
+                            <span className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+                              {currentStylePage + 1} of {totalStylePages}
+                            </span>
+                            
+                            {hasNextPage && (
+                              <button
+                                onClick={handleNextStyles}
+                                className="px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 hover:border-purple-300 transition-colors duration-200 dark:bg-purple-900/20 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                              >
+                                Next →
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1269,10 +1318,10 @@ export function ImageGenerator() {
                     {isLoading ? (
                       <div className="mx-auto flex size-32 items-center justify-center rounded-full bg-gray-100 p-8 dark:bg-gray-800">
                         <Image 
-                          src="/ECAI.png" 
-                          alt="ECAI Logo" 
-                          width={96}
-                          height={96}
+                          src="/astronaut-logo.png" 
+                          alt="EventCraftAI Logo" 
+                          width={128}
+                          height={128}
                           className="animate-spin"
                           priority
                         />

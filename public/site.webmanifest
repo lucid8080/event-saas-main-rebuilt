@@ -3,12 +3,12 @@
   "short_name": "EventCraftAI",
   "icons": [
     {
-      "src": "./ECAI.png",
+      "src": "./astronaut-logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./ECAI.png",
+      "src": "./astronaut-logo.png",
       "sizes": "512x512",
       "type": "image/png"
     }

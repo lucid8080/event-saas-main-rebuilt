@@ -191,19 +191,32 @@
   }
 
   .animate-logo-spin {
-    animation: logo-spin 4s linear infinite;
+    animation: logo-float 8s ease-in-out infinite;
+    transform-origin: center;
   }
 
   .animate-breathing {
     animation: breathing 3s ease-in-out infinite;
   }
 
-  @keyframes logo-spin {
-    from {
-      transform: rotate(0deg);
+  @keyframes logo-float {
+    0% {
+      transform: translate(1px, -2px) rotate(-6deg);
     }
-    to {
-      transform: rotate(360deg);
+    20% {
+      transform: translate(3px, -4px) rotate(-2deg);
+    }
+    40% {
+      transform: translate(2px, -1px) rotate(2deg);
+    }
+    60% {
+      transform: translate(-1px, 1px) rotate(6deg);
+    }
+    80% {
+      transform: translate(-3px, 3px) rotate(2deg);
+    }
+    100% {
+      transform: translate(1px, -2px) rotate(-6deg);
     }
   }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Download, Trash2, Heart, Filter, X, Pencil, Layers, Image as ImageIcon, Globe, Lock } from "lucide-react";
+import { MoreVertical, Download, Trash2, Heart, Filter, X, Pencil, Layers, Image as ImageIcon, Globe, Lock, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { useImageEditToggle } from "@/hooks/use-image-edit-toggle";
 import { ImageEditorModal } from "@/components/dashboard/image-editor-modal";
 import { WebPImage } from "@/components/shared/webp-image";
+import { LazyImage } from "@/components/shared/lazy-image";
+import { useBatchLazyLoading } from "@/hooks/use-lazy-loading";
 import { getOptimalImageUrl } from "@/lib/webp-url-utils";
 
 const eventTypes = [
@@ -82,6 +84,26 @@ export default function GalleryPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingImageUrl, setEditingImageUrl] = useState<string | null>(null);
   const [webpUrls, setWebpUrls] = useState<Map<string, { primaryUrl: string; fallbackUrl: string; isWebP: boolean }>>(new Map());
+  
+  // Zoom functionality state
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // Lazy loading for images
+  const { visibleItems: visibleImages, isLoading: imagesLoading, hasMore: hasMoreImages, sentinelRef: imagesSentinelRef } = useBatchLazyLoading(filteredImages, {
+    batchSize: 12,
+    threshold: 0.1,
+    rootMargin: '100px'
+  });
+
+  // Lazy loading for carousels
+  const { visibleItems: visibleCarousels, isLoading: carouselsLoading, hasMore: hasMoreCarousels, sentinelRef: carouselsSentinelRef } = useBatchLazyLoading(carousels, {
+    batchSize: 12,
+    threshold: 0.1,
+    rootMargin: '100px'
+  });
 
   // Fetch images and carousels from API
   useEffect(() => {
@@ -346,6 +368,62 @@ export default function GalleryPage() {
     }
   };
 
+  // Zoom functionality functions
+  const zoomIn = () => {
+    setZoom(prev => Math.min(prev * 1.2, 5)); // Max 5x zoom
+  };
+
+  const zoomOut = () => {
+    setZoom(prev => Math.max(prev / 1.2, 0.1)); // Min 0.1x zoom
+  };
+
+  const resetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
+      setPan({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+
+
+  const handleImageSelect = (image: ImageData) => {
+    setSelectedImage(image);
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (selectedImage || selectedCarousel) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup function to restore scrolling when component unmounts
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedImage, selectedCarousel]);
+
   if (isLoading) {
     return (
       <div className="container px-4 py-6 mx-auto">
@@ -446,17 +524,17 @@ export default function GalleryPage() {
             </div>
           ) : (
             <div className="space-y-4 sm:columns-2 md:columns-3 lg:columns-4 columns-1 gap-4">
-              {filteredImages.map((image) => (
+              {visibleImages.map((image) => (
                 <div key={image.id} className="relative mb-4 group break-inside-avoid">
                   <div 
                     className="rounded-sm cursor-pointer overflow-hidden"
-                    onClick={() => setSelectedImage(image)}
+                    onClick={() => handleImageSelect(image)}
                   >
-                    <WebPImage
+                    <LazyImage
                       src={image.url}
                       webpSrc={webpUrls.get(image.id)?.primaryUrl}
                       alt={`Generated event ${image.id}`}
-                      className="w-full h-auto transition- hover:scale-105 object-cover duration-200"
+                      className="w-full h-auto transition-transform hover:scale-105 object-cover duration-200"
                     />
                   </div>
                   {image.eventType && (
@@ -512,6 +590,21 @@ export default function GalleryPage() {
                   </div>
                 </div>
               ))}
+              
+              {/* Loading indicator */}
+              {imagesLoading && (
+                <div className="col-span-full flex justify-center py-8">
+                  <div className="flex items-center space-x-2">
+                    <div className="size-6 border-2 border-gray-300 border-t-purple-600 rounded-full animate-spin"></div>
+                    <span className="text-sm text-gray-600">Loading more images...</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Sentinel element for lazy loading */}
+              {hasMoreImages && (
+                <div ref={imagesSentinelRef} className="col-span-full h-4" />
+              )}
             </div>
           )}
         </TabsContent>
@@ -536,17 +629,17 @@ export default function GalleryPage() {
             </div>
           ) : (
             <div className="space-y-4 sm:columns-2 md:columns-3 lg:columns-4 columns-1 gap-4">
-              {carousels.map((carousel) => (
+              {visibleCarousels.map((carousel) => (
                 <div key={carousel.id} className="relative mb-4 group break-inside-avoid">
                   <div 
                     className="rounded-sm cursor-pointer overflow-hidden"
                     onClick={() => setSelectedCarousel(carousel)}
                   >
                     {/* Show first slide as preview */}
-                    <img 
+                    <LazyImage
                       src={carousel.slideUrls[0] || '/placeholder-carousel.png'} 
                       alt={`Carousel ${carousel.title}`} 
-                      className="w-full h-auto transition- hover:scale-105 object-cover duration-200"
+                      className="w-full h-auto transition-transform hover:scale-105 object-cover duration-200"
                     />
                   </div>
                   <div className="absolute px-2 py-1 bg-black/50 text-sm text-white rounded-md left-2 top-2">
@@ -600,6 +693,21 @@ export default function GalleryPage() {
                   </div>
                 </div>
               ))}
+              
+              {/* Loading indicator */}
+              {carouselsLoading && (
+                <div className="col-span-full flex justify-center py-8">
+                  <div className="flex items-center space-x-2">
+                    <div className="size-6 border-2 border-gray-300 border-t-purple-600 rounded-full animate-spin"></div>
+                    <span className="text-sm text-gray-600">Loading more carousels...</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Sentinel element for lazy loading */}
+              {hasMoreCarousels && (
+                <div ref={carouselsSentinelRef} className="col-span-full h-4" />
+              )}
             </div>
           )}
         </TabsContent>
@@ -609,7 +717,15 @@ export default function GalleryPage() {
       {selectedImage && (
         <div className="fixed flex bg-black/80 inset-0 z-50">
           {/* Main Image Area */}
-          <div className="relative flex flex-1 p-4 items-center justify-center">
+          <div 
+            className="relative flex flex-1 p-4 items-center justify-center overflow-hidden"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ cursor: isDragging ? 'grabbing' : zoom > 1 ? 'grab' : 'default' }}
+          >
+            {/* Close Button */}
             <Button
               variant="ghost"
               size="icon"
@@ -618,12 +734,60 @@ export default function GalleryPage() {
             >
               <X className="size-6" />
             </Button>
-            <WebPImage
-              src={selectedImage.url}
-              webpSrc={webpUrls.get(selectedImage.id)?.primaryUrl}
-              alt="Full size"
-              className="max-w-full max-h-[90vh] object-contain"
-            />
+
+            {/* Zoom Controls */}
+            <div className="absolute left-2 top-2 z-50 flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-black/50 text-white hover:bg-black/70"
+                onClick={zoomIn}
+              >
+                <ZoomIn className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-black/50 text-white hover:bg-black/70"
+                onClick={zoomOut}
+              >
+                <ZoomOut className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-black/50 text-white hover:bg-black/70"
+                onClick={resetZoom}
+              >
+                <RotateCcw className="size-4" />
+              </Button>
+            </div>
+
+            {/* Zoom Level Display */}
+            <div className="absolute left-2 bottom-2 z-50 bg-black/50 text-white px-2 py-1 rounded text-sm">
+              {Math.round(zoom * 100)}%
+            </div>
+
+            {/* Scrollable Image Container */}
+            <div 
+              className="w-full h-full flex items-center justify-center overflow-auto"
+              style={{
+                transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                transformOrigin: 'center',
+                transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+              }}
+            >
+              <WebPImage
+                src={selectedImage.url}
+                webpSrc={webpUrls.get(selectedImage.id)?.primaryUrl}
+                alt="Full size"
+                className="max-w-none max-h-none object-contain"
+                style={{ 
+                  minWidth: '100%',
+                  minHeight: '100%'
+                }}
+              />
+            </div>
           </div>
 
           {/* Side Panel */}

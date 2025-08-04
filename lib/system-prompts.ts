@@ -31,7 +31,7 @@ export const PROMPT_CATEGORIES: PromptCategory[] = [
     id: 'style_preset',
     name: 'Style Presets',
     description: 'Prompts for different artistic styles and presets',
-    subcategories: ['Wild Card', 'Pop Art', 'Children Book', 'Golden Harmony', 'Vintage Film Poster', 'Retro Game', 'Cyberpunk', 'Origami', 'Fantasy World', 'Street Art', 'Political Satire']
+    subcategories: ['Wild Card', 'Pop Art', 'Children Book', 'Golden Harmony', 'Vintage Film Poster', 'Retro Game', 'Cyberpunk', 'Origami', 'Fantasy World', 'Street Art', 'Political Satire', 'Unicorn Balloon Bash']
   },
   {
     id: 'carousel_background',

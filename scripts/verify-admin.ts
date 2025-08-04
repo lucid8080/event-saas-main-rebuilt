@@ -33,6 +33,8 @@ async function verifyAdminStatus() {
     
     if (user.role === 'ADMIN') {
       console.log('🎉 User has ADMIN privileges!')
+    } else if (user.role === 'HERO') {
+      console.log('🦸‍♂️ User has HERO (Super Admin) privileges!')
     } else {
       console.log('⚠️  User does NOT have admin privileges')
     }

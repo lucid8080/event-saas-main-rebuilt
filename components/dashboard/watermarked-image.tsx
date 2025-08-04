@@ -91,36 +91,27 @@ export function WatermarkedImage({
     );
   }
 
-  // If watermark is enabled but we have an original URL, show with CSS overlay as fallback
-  console.log('Watermark enabled, showing with CSS overlay (fallback)');
+  // If watermark is enabled but we have an original URL, show without CSS overlay
+  // The server-side watermark should handle this, so we just show the image normally
+  console.log('Watermark enabled, showing image without CSS overlay (server-side watermark should be applied)');
   if (!width || !height) {
     return (
-      <div className="relative inline-block">
-        <img
-          src={src}
-          alt={alt}
-          className={className}
-        />
-        <div className="absolute bottom-4 right-4 text-white text-sm font-medium opacity-70 pointer-events-none select-none">
-          <span className="drop-shadow-lg">Made using EventCraftAI.com</span>
-        </div>
-      </div>
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+      />
     );
   }
 
   return (
-    <div className="relative inline-block">
-      <Image
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        className={className}
-        priority={priority}
-      />
-      <div className="absolute bottom-4 right-4 text-white text-sm font-medium opacity-70 pointer-events-none select-none">
-        <span className="drop-shadow-lg">Made using EventCraftAI.com</span>
-      </div>
-    </div>
+    <Image
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      className={className}
+      priority={priority}
+    />
   );
 } 
