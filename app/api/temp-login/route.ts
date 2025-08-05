@@ -2,20 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    let email: string;
+    let password: string;
+    
+    // Check if it's JSON or form data
+    const contentType = request.headers.get("content-type");
+    
+    if (contentType?.includes("application/json")) {
+      const body = await request.json();
+      email = body.email;
+      password = body.password;
+    } else {
+      // Handle form data
+      const formData = await request.formData();
+      email = formData.get("email") as string;
+      password = formData.get("password") as string;
+    }
     
     // Simple temporary authentication - no database required
     if (email === "admin@example.com" && password === "temp123") {
-      const response = NextResponse.json({ 
-        success: true, 
-        user: { 
-          id: "temp-admin", 
-          email: "admin@example.com", 
-          name: "Admin User", 
-          role: "ADMIN" 
-        },
-        message: "Login successful"
-      });
+      const response = NextResponse.redirect(new URL("/dashboard", request.url));
       
       // Set a simple session cookie
       response.cookies.set("temp-session", "logged-in", {
@@ -28,16 +34,11 @@ export async function POST(request: NextRequest) {
       return response;
     }
     
-    return NextResponse.json(
-      { success: false, message: "Invalid credentials" },
-      { status: 401 }
-    );
+    // If credentials are wrong, redirect back to login with error
+    return NextResponse.redirect(new URL("/basic-login?error=invalid", request.url));
     
   } catch (error) {
     console.error("Temp login error:", error);
-    return NextResponse.json(
-      { success: false, message: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.redirect(new URL("/basic-login?error=server", request.url));
   }
 } 
