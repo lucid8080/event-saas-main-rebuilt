@@ -33,6 +33,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPage() {
   const user = await getCurrentUser();
   if (!user || (user.role !== "ADMIN" && user.role !== "HERO")) redirect("/login");

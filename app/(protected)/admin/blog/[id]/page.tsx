@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BlogPostEditor } from "@/components/admin/blog-post-editor";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 interface BlogPost {
   id?: string;
   title: string;

@@ -11,6 +11,9 @@ import { TicketmasterFlyerToggleForm } from "@/components/forms/ticketmaster-fly
 import { CarouselMakerToggleForm } from "@/components/forms/carousel-maker-toggle-form";
 import { WatermarkToggleForm } from "@/components/forms/watermark-toggle-form";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 export const metadata = constructMetadata({
   title: "Settings – EventCraftAI",
   description: "Configure your account and website settings.",

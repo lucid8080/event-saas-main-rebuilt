@@ -3,11 +3,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Download, Share2, Sparkles, Camera, Users, Calendar, Building2, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Heart, Download, Share2, Sparkles, Camera, Users, Calendar, Eye, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SkiperMarquee } from "@/components/ui/skiper-marquee";
+
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
 
 interface PublicImage {
   id: string;

@@ -109,6 +109,31 @@ const nextConfig = {
   
   // Optimize static generation
   generateEtags: false,
+
+  // Fix static generation issues
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Exclude problematic routes from static generation
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      },
+    ];
+  },
 };
 
 // TODO: Re-enable Contentlayer once dependency issues are resolved

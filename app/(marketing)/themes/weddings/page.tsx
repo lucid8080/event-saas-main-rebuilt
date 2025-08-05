@@ -10,6 +10,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { SkiperMarquee } from "@/components/ui/skiper-marquee";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 interface PublicImage {
   id: string;
   url: string;
