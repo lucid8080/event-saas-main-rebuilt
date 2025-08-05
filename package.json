@@ -75,7 +75,8 @@
     "test:new:webp:generation": "tsx scripts/test-new-image-generation-webp.ts",
     "test:webp:display": "tsx scripts/test-webp-display.ts",
     "test:webp:performance": "tsx scripts/test-webp-performance.ts",
-    "test:webp:integration:complete": "tsx scripts/test-webp-integration-complete.ts"
+    "test:webp:integration:complete": "tsx scripts/test-webp-integration-complete.ts",
+    "test:build": "node scripts/test-build.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",

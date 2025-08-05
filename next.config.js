@@ -13,47 +13,36 @@ const nextConfig = {
   
   // Bundle optimization
   webpack: (config, { dev, isServer }) => {
-    // Optimize bundle splitting
-    config.optimization.splitChunks = {
-      chunks: 'all',
-      cacheGroups: {
-        // Separate vendor chunks
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          priority: 10,
-        },
-        // Separate heavy UI libraries
-        radix: {
-          test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
-          name: 'radix-ui',
-          chunks: 'all',
-          priority: 20,
-        },
-        // Separate cloud services
-        cloud: {
-          test: /[\\/]node_modules[\\/](@aws-sdk|@google-cloud|googleapis)[\\/]/,
-          name: 'cloud-services',
-          chunks: 'all',
-          priority: 15,
-        },
-        // Separate image processing
-        images: {
-          test: /[\\/]node_modules[\\/](sharp|shiki)[\\/]/,
-          name: 'image-processing',
-          chunks: 'all',
-          priority: 15,
-        },
-        // Separate charts and animations
-        charts: {
-          test: /[\\/]node_modules[\\/](recharts|framer-motion|swiper)[\\/]/,
-          name: 'charts-animations',
-          chunks: 'all',
-          priority: 15,
-        },
-      },
+    // Fix for 'self is not defined' error with sharp and recharts
+    if (isServer) {
+      // Exclude sharp and recharts from server-side bundle
+      config.externals = config.externals || [];
+      config.externals.push({
+        'sharp': 'commonjs sharp',
+        'recharts': 'commonjs recharts',
+        'shiki': 'commonjs shiki'
+      });
+    }
+
+    // Ensure proper client/server separation for problematic libraries
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+      crypto: false,
+      stream: false,
+      url: false,
+      zlib: false,
+      http: false,
+      https: false,
+      assert: false,
+      os: false,
+      path: false,
     };
+
+    // Disable vendor chunk splitting to avoid 'self is not defined' error
+    config.optimization.splitChunks = false;
 
     // Tree shaking optimization (only in production to avoid caching conflicts)
     if (!dev) {
