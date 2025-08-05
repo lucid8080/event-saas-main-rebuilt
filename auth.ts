@@ -31,6 +31,8 @@ export const {
     signIn: "/login",
     // error: "/auth/error",
   },
+  // Add trusted hosts for production deployment
+  trustHost: true,
   callbacks: {
     async redirect({ url, baseUrl }) {
       try {

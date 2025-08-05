@@ -17,4 +17,6 @@ export default {
       // sendVerificationRequest,
     }),
   ],
+  // Add trusted hosts for production deployment
+  trustHost: true,
 } satisfies NextAuthConfig;
