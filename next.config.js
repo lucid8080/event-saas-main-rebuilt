@@ -13,16 +13,24 @@ const nextConfig = {
   
   // Bundle optimization
   webpack: (config, { dev, isServer }) => {
-    // Fix for 'self is not defined' error with sharp and recharts
-    if (isServer) {
-      // Exclude sharp and recharts from server-side bundle
-      config.externals = config.externals || [];
-      config.externals.push({
-        'sharp': 'commonjs sharp',
-        'recharts': 'commonjs recharts',
-        'shiki': 'commonjs shiki'
-      });
-    }
+    // Aggressive fix for 'self is not defined' error
+    // Completely exclude problematic libraries from the build
+    config.externals = config.externals || [];
+    
+    // Add problematic libraries to externals for both client and server
+    config.externals.push({
+      'sharp': 'commonjs sharp',
+      'recharts': 'commonjs recharts',
+      'shiki': 'commonjs shiki'
+    });
+
+    // Additional externals function to catch any remaining references
+    config.externals.push(({ context, request }, callback) => {
+      if (request === 'sharp' || request === 'recharts' || request === 'shiki') {
+        return callback(null, `commonjs ${request}`);
+      }
+      callback();
+    });
 
     // Ensure proper client/server separation for problematic libraries
     config.resolve.fallback = {
@@ -41,8 +49,16 @@ const nextConfig = {
       path: false,
     };
 
-    // Disable vendor chunk splitting to avoid 'self is not defined' error
+    // Completely disable vendor chunk splitting to avoid any issues
     config.optimization.splitChunks = false;
+
+    // Add alias to redirect problematic imports to empty modules
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'sharp': false,
+      'recharts': false,
+      'shiki': false,
+    };
 
     // Tree shaking optimization (only in production to avoid caching conflicts)
     if (!dev) {

@@ -30,6 +30,11 @@ try {
       if (content.includes('import') && content.includes('from "sharp"') && !content.includes('// import')) {
         throw new Error(`Active sharp import found in ${file}`);
       }
+
+      // Check for active shiki imports
+      if (content.includes('import') && content.includes('from "shiki"') && !content.includes('// import')) {
+        throw new Error(`Active shiki import found in ${file}`);
+      }
     }
     console.log(`✅ Chart components validated (${chartFiles.length} files)`);
   }
@@ -52,8 +57,42 @@ try {
       if (content.includes('import') && content.includes('from "sharp"') && !content.includes('// import')) {
         throw new Error(`Active sharp import found in lib/${file}`);
       }
+
+      // Check for active shiki imports
+      if (content.includes('import') && content.includes('from "shiki"') && !content.includes('// import')) {
+        throw new Error(`Active shiki import found in lib/${file}`);
+      }
     }
     console.log(`✅ Lib files validated (${libFiles.length} files)`);
+  }
+
+  // Check for problematic imports in components directory
+  const componentsDir = path.join(process.cwd(), 'components');
+  if (fs.existsSync(componentsDir)) {
+    const componentFiles = fs.readdirSync(componentsDir, { recursive: true })
+      .filter(file => typeof file === 'string' && (file.endsWith('.tsx') || file.endsWith('.ts')))
+      .filter(file => !file.includes('charts')); // Skip charts directory as it's already checked
+    
+    for (const file of componentFiles) {
+      const filePath = path.join(componentsDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      // Check for active recharts imports
+      if (content.includes('import') && content.includes('from "recharts"') && !content.includes('// import')) {
+        throw new Error(`Active recharts import found in components/${file}`);
+      }
+      
+      // Check for active sharp imports
+      if (content.includes('import') && content.includes('from "sharp"') && !content.includes('// import')) {
+        throw new Error(`Active sharp import found in components/${file}`);
+      }
+
+      // Check for active shiki imports
+      if (content.includes('import') && content.includes('from "shiki"') && !content.includes('// import')) {
+        throw new Error(`Active shiki import found in components/${file}`);
+      }
+    }
+    console.log(`✅ Components validated (${componentFiles.length} files)`);
   }
 
   // Check package.json for required dependencies
@@ -69,8 +108,20 @@ try {
       if (packageJson.dependencies.sharp) {
         console.log('ℹ️  sharp dependency found (should be externalized)');
       }
+      if (packageJson.dependencies.shiki) {
+        console.log('ℹ️  shiki dependency found (should be externalized)');
+      }
     }
     console.log('✅ package.json validated');
+  }
+
+  // Check next.config.js for proper configuration
+  const configContent = fs.readFileSync(configPath, 'utf8');
+  if (!configContent.includes('splitChunks: false')) {
+    console.log('⚠️  Warning: splitChunks not disabled in next.config.js');
+  }
+  if (!configContent.includes('sharp') || !configContent.includes('recharts')) {
+    console.log('⚠️  Warning: Problematic libraries not externalized in next.config.js');
   }
 
   console.log('\n✅ Build configuration test passed!');
@@ -79,6 +130,7 @@ try {
   console.log('1. Run "npm run build" to test the full build process');
   console.log('2. Deploy to production to verify the fix works');
   console.log('3. Monitor build logs for any remaining issues');
+  console.log('\nIMPORTANT: Make sure to commit and push these changes to production!');
   
 } catch (error) {
   console.error('❌ Build configuration test failed:', error.message);
@@ -87,5 +139,6 @@ try {
   console.log('2. Verify sharp is properly externalized');
   console.log('3. Ensure webpack configuration is correct');
   console.log('4. Check for any remaining "self is not defined" errors');
+  console.log('5. Make sure changes are committed and deployed to production');
   process.exit(1);
 } 
