@@ -75,7 +75,7 @@ export default function HeroLanding() {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           />
-          Flyers, Print/Socials Media Ready,{" "}
+          Flyers, Print/Social Media Ready,{" "}
           <span className="text-gradient_indigo-purple font-extrabold">
            No Design Skills Needed
           </span>
