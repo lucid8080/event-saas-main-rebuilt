@@ -33,6 +33,8 @@ export const {
   },
   // Add trusted hosts for production deployment
   trustHost: true,
+  // Enable debug mode to identify configuration issues
+  debug: process.env.NODE_ENV === "production",
   callbacks: {
     async redirect({ url, baseUrl }) {
       try {
@@ -99,5 +101,4 @@ export const {
     },
   },
   ...authConfig,
-  // debug: process.env.NODE_ENV !== "production"
 });
