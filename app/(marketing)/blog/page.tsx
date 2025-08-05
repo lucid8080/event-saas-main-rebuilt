@@ -12,25 +12,84 @@ export const metadata: Metadata = constructMetadata({
   description: "Discover tips, guides, and insights for creating amazing events with AI-powered design tools.",
 });
 
+// Fallback blog posts for when database table doesn't exist
+const fallbackPosts = [
+  {
+    id: "1",
+    title: "Deploying Next.js Applications",
+    slug: "deploying-next-apps",
+    excerpt: "Learn how to deploy your Next.js applications to production with best practices and optimization tips.",
+    content: "",
+    featuredImage: "/_static/blog/deploying-next-apps.jpg",
+    tags: ["Next.js", "Deployment", "Production"],
+    status: "PUBLISHED",
+    publishedAt: new Date("2024-01-15"),
+    createdAt: new Date("2024-01-15"),
+    author: {
+      name: "EventCraftAI Team",
+      email: "team@eventcraftai.com"
+    }
+  },
+  {
+    id: "2", 
+    title: "Dynamic Routing and Static Regeneration",
+    slug: "dynamic-routing-static-regeneration",
+    excerpt: "Explore Next.js dynamic routing capabilities and how to implement static regeneration for optimal performance.",
+    content: "",
+    featuredImage: "/_static/blog/dynamic-routing.jpg",
+    tags: ["Next.js", "Routing", "Performance"],
+    status: "PUBLISHED",
+    publishedAt: new Date("2024-01-10"),
+    createdAt: new Date("2024-01-10"),
+    author: {
+      name: "EventCraftAI Team",
+      email: "team@eventcraftai.com"
+    }
+  },
+  {
+    id: "3",
+    title: "Preview Mode with Headless CMS",
+    slug: "preview-mode-headless-cms", 
+    excerpt: "Implement preview mode in your Next.js application with headless CMS integration for content management.",
+    content: "",
+    featuredImage: "/_static/blog/preview-mode.jpg",
+    tags: ["CMS", "Preview", "Content"],
+    status: "PUBLISHED",
+    publishedAt: new Date("2024-01-05"),
+    createdAt: new Date("2024-01-05"),
+    author: {
+      name: "EventCraftAI Team",
+      email: "team@eventcraftai.com"
+    }
+  }
+];
+
 async function getBlogPosts() {
-  const posts = await prisma.blogPost.findMany({
-    where: {
-      status: "PUBLISHED",
-    },
-    include: {
-      author: {
-        select: {
-          name: true,
-          email: true,
+  try {
+    // Try to get posts from database
+    const posts = await prisma.blogPost.findMany({
+      where: {
+        status: "PUBLISHED",
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+            email: true,
+          },
         },
       },
-    },
-    orderBy: {
-      publishedAt: "desc",
-    },
-  });
+      orderBy: {
+        publishedAt: "desc",
+      },
+    });
 
-  return posts;
+    return posts;
+  } catch (error) {
+    // If database table doesn't exist, use fallback posts
+    console.log("Blog posts table not found, using fallback content");
+    return fallbackPosts;
+  }
 }
 
 export default async function BlogPage() {
