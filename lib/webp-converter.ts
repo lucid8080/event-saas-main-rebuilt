@@ -24,6 +24,7 @@ export async function getImageMetadata(imageBuffer: Buffer): Promise<{
   format: string;
   hasAlpha: boolean;
   hasProfile: boolean;
+  size: number;
 }> {
   console.warn('Image metadata extraction temporarily disabled for build compatibility');
   return {
@@ -32,6 +33,7 @@ export async function getImageMetadata(imageBuffer: Buffer): Promise<{
     format: 'png',
     hasAlpha: false,
     hasProfile: false,
+    size: imageBuffer.length,
   };
 }
 
@@ -44,4 +46,40 @@ export function calculateCompressionRatio(originalSize: number, webpSize: number
 export async function canConvertToWebP(imageBuffer: Buffer): Promise<boolean> {
   console.warn('WebP conversion validation temporarily disabled for build compatibility');
   return false;
+}
+
+export async function createWebPThumbnail(
+  imageBuffer: Buffer,
+  size: number = 300,
+  quality: number = 80
+): Promise<Buffer> {
+  console.warn('WebP thumbnail creation temporarily disabled for build compatibility');
+  return imageBuffer;
+}
+
+export async function resizeAndConvertToWebP(
+  imageBuffer: Buffer,
+  width: number,
+  height: number,
+  quality: number = 80
+): Promise<Buffer> {
+  console.warn('WebP resize and conversion temporarily disabled for build compatibility');
+  return imageBuffer;
+}
+
+export async function convertToWebP(imageBuffer: Buffer): Promise<Buffer> {
+  console.warn('WebP conversion temporarily disabled for build compatibility');
+  return imageBuffer;
+}
+
+export async function testWebPConversion(): Promise<{
+  success: boolean;
+  compressionRatio?: number;
+  error?: string;
+}> {
+  console.warn('WebP conversion test temporarily disabled for build compatibility');
+  return {
+    success: false,
+    error: 'WebP conversion temporarily disabled'
+  };
 } 

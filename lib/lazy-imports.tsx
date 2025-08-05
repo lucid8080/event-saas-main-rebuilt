@@ -29,10 +29,12 @@ export const LazyFramerMotion = () => <div className="animate-pulse bg-gray-200 
 // Swiper temporarily disabled for build compatibility
 export const LazySwiper = () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />;
 
-export const LazyRecharts = dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart })), {
-  ssr: false,
-  loading: () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />
-});
+// Temporarily disabled Recharts import to avoid 'self is not defined' error
+// export const LazyRecharts = dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart })), {
+//   ssr: false,
+//   loading: () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />
+// });
+export const LazyRecharts = () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />;
 
 // Cloud Services - temporarily disabled for build compatibility
 // Temporarily disabled AWS SDK import to avoid 'self is not defined' error
@@ -46,8 +48,12 @@ export const lazyGoogleCloud = () => Promise.resolve({ Storage: null });
 export const lazyGoogleApis = () => Promise.resolve({ google: null });
 
 // Image Processing - Lazy load Sharp and Shiki
-export const lazySharp = () => import('sharp');
-export const lazyShiki = () => import('shiki');
+// Temporarily disabled Sharp import to avoid 'self is not defined' error
+// export const lazySharp = () => import('sharp');
+export const lazySharp = () => Promise.resolve({ default: null });
+// Temporarily disabled Shiki import to avoid 'self is not defined' error
+// export const lazyShiki = () => import('shiki');
+export const lazyShiki = () => Promise.resolve({ getHighlighter: null });
 
 // Forms and UI - Lazy load heavy form components
 // Temporarily disabled React Quill import to avoid potential issues

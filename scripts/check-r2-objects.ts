@@ -1,21 +1,36 @@
 #!/usr/bin/env tsx
 
 import 'dotenv/config';
-import { S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
 
 console.log('🔍 Checking R2 Objects...\n');
 
-const s3Client = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
+// Dynamic imports to avoid 'self is not defined' error during build
+let S3Client: any;
+let HeadObjectCommand: any;
+let s3Client: any;
+
+async function initAwsSdk() {
+  if (!S3Client) {
+    const awsSdk = await import('@aws-sdk/client-s3');
+    S3Client = awsSdk.S3Client;
+    HeadObjectCommand = awsSdk.HeadObjectCommand;
+    
+    s3Client = new S3Client({
+      region: 'auto',
+      endpoint: process.env.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+      },
+    });
+  }
+}
 
 async function checkR2Objects() {
   try {
+    // Initialize AWS SDK
+    await initAwsSdk();
+    
     const bucketName = process.env.R2_BUCKET_NAME;
     
     if (!bucketName) {

@@ -24,8 +24,11 @@ const DEFAULT_WATERMARK_OPTIONS: WatermarkOptions = {
 // Stub for sharp to avoid linter errors
 const sharp = (input: any) => ({
   metadata: async () => ({ width: 100, height: 100, format: 'png' }),
-  composite: () => ({ toBuffer: async () => Buffer.from('stub') }),
-  png: () => ({ toBuffer: async () => Buffer.from('stub') }),
+  composite: (overlays: any) => ({
+    png: (options?: any) => ({ toBuffer: async () => Buffer.from('stub') }),
+    toBuffer: async () => Buffer.from('stub')
+  }),
+  png: (options?: any) => ({ toBuffer: async () => Buffer.from('stub') }),
 });
 
 export async function addWatermarkToImage(

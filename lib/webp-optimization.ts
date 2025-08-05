@@ -1,11 +1,10 @@
 import { 
-  convertToWebP, 
   convertToWebPWithPreset, 
   getImageMetadata,
   WEBP_QUALITY_PRESETS,
-  type WebPQualitySettings 
+  type WebPQualityPreset,
+  resizeAndConvertToWebP
 } from './webp-converter';
-import { resizeAndConvertToWebP } from './webp-converter';
 
 // WebP optimization presets for different use cases
 export interface WebPOptimizationPreset {

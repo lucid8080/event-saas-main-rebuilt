@@ -1,14 +1,14 @@
 #!/usr/bin/env tsx
 
 import { 
-  convertToWebP, 
+  convertToWebP,
   convertToWebPWithPreset, 
   getImageMetadata, 
   canConvertToWebP,
   calculateCompressionRatio,
   testWebPConversion,
   WEBP_QUALITY_PRESETS,
-  type WebPQualitySettings
+  type WebPQualityPreset
 } from '../lib/webp-converter';
 
 // Test image data (1x1 pixel PNG)

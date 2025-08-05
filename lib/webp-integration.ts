@@ -1,9 +1,8 @@
 import { 
-  convertToWebP, 
   convertToWebPWithPreset, 
   getImageMetadata,
   WEBP_QUALITY_PRESETS,
-  type WebPQualitySettings 
+  type WebPQualityPreset 
 } from './webp-converter';
 import { uploadImageToR2, generateEnhancedImageKey, type ImageMetadata } from './r2';
 import { validateWebPConversion, generateValidationReport, type WebPValidationResult } from './webp-validation';

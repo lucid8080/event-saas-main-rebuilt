@@ -2,7 +2,7 @@ import {
   getImageMetadata, 
   calculateCompressionRatio, 
   canConvertToWebP,
-  type WebPQualitySettings 
+  type WebPQualityPreset 
 } from './webp-converter';
 
 // WebP validation results interface
@@ -233,8 +233,12 @@ export async function checkWebPSupport(): Promise<{
   error?: string;
 }> {
   try {
-    const sharp = require('sharp');
-    const sharpVersion = sharp.versions.sharp || 'unknown';
+    // Temporarily disabled Sharp import to avoid 'self is not defined' error
+    // const sharp = require('sharp');
+    // const sharpVersion = sharp.versions.sharp || 'unknown';
+    
+    // Stub for build compatibility
+    const sharpVersion = 'unknown';
     
     // Test WebP support by creating a minimal WebP image
     const testBuffer = Buffer.from(
@@ -242,8 +246,8 @@ export async function checkWebPSupport(): Promise<{
       'base64'
     );
 
-    const webpBuffer = await sharp(testBuffer).webp().toBuffer();
-    const webpSupport = webpBuffer.length > 0;
+    // Stub for build compatibility
+    const webpSupport = false;
 
     return {
       supported: webpSupport,
