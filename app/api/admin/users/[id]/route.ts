@@ -7,15 +7,17 @@ export const PATCH = auth(async (req, ctx) => {
     const { params } = await ctx.params;
     const userId = params.id;
     
-    // Enhanced authentication check with detailed logging
+    // BULLETPROOF AUTHENTICATION CHECK
     console.log("🔍 API Debug: Starting PATCH request");
     console.log("🔍 API Debug: req.auth exists:", !!req.auth);
     
+    // Check if req.auth exists
     if (!req.auth) {
       console.error("❌ API Error: req.auth is undefined");
       return new Response("Not authenticated", { status: 401 });
     }
 
+    // Check if req.auth.user exists
     const currentUser = req.auth.user;
     console.log("🔍 API Debug: currentUser exists:", !!currentUser);
     
@@ -24,6 +26,7 @@ export const PATCH = auth(async (req, ctx) => {
       return new Response("User not found in session", { status: 401 });
     }
 
+    // Check if currentUser.id exists
     console.log("🔍 API Debug: currentUser.id exists:", !!currentUser.id);
     console.log("🔍 API Debug: currentUser.role:", currentUser.role);
     
@@ -32,22 +35,54 @@ export const PATCH = auth(async (req, ctx) => {
       return new Response("Invalid user session", { status: 401 });
     }
 
-    // Additional safety check for user role
+    // Check if currentUser.role exists
     if (!currentUser.role) {
       console.error("❌ API Error: currentUser.role is undefined", { currentUser });
       return new Response("Invalid user role", { status: 401 });
     }
 
+    // FALLBACK: If authentication is still failing, try to get user from database
+    let authenticatedUser = currentUser;
+    if (!authenticatedUser.id || !authenticatedUser.role) {
+      console.log("🔄 API Debug: Attempting database fallback authentication");
+      try {
+        const dbUser = await prisma.user.findFirst({
+          where: { 
+            email: authenticatedUser.email || '',
+            emailVerified: { not: null }
+          },
+          select: { id: true, email: true, role: true, name: true }
+        });
+        
+        if (dbUser) {
+          authenticatedUser = {
+            ...authenticatedUser,
+            id: dbUser.id,
+            role: dbUser.role,
+            email: dbUser.email,
+            name: dbUser.name
+          };
+          console.log("✅ API Debug: Database fallback successful", { user: dbUser.email });
+        } else {
+          console.error("❌ API Error: Database fallback failed - no verified user found");
+          return new Response("User not found in database", { status: 401 });
+        }
+      } catch (error) {
+        console.error("❌ API Error: Database fallback error:", error);
+        return new Response("Database authentication failed", { status: 500 });
+      }
+    }
+
     // Check if user can manage roles or credits
-    const canManageRoles = canHero(currentUser.role, 'roles:assign');
-    const canManageCredits = canAdmin(currentUser.role, 'credits:manage');
+    const canManageRoles = canHero(authenticatedUser.role, 'roles:assign');
+    const canManageCredits = canAdmin(authenticatedUser.role, 'credits:manage');
 
     console.log("🔍 API Debug: canManageRoles:", canManageRoles);
     console.log("🔍 API Debug: canManageCredits:", canManageCredits);
 
     if (!canManageRoles && !canManageCredits) {
       console.error("❌ API Error: Insufficient permissions", { 
-        userRole: currentUser.role, 
+        userRole: authenticatedUser.role, 
         canManageRoles, 
         canManageCredits 
       });
@@ -80,13 +115,13 @@ export const PATCH = auth(async (req, ctx) => {
       }
 
       // Prevent non-HERO users from assigning HERO role
-      if (role === "HERO" && !canHero(currentUser.role, 'roles:assign')) {
+      if (role === "HERO" && !canHero(authenticatedUser.role, 'roles:assign')) {
         console.error("❌ API Error: Cannot assign HERO role");
         return new Response("Only HERO users can assign HERO role", { status: 403 });
       }
 
       // Prevent users from assigning roles higher than their own
-      if (!isRoleHigherOrEqual(currentUser.role, role as any)) {
+      if (!isRoleHigherOrEqual(authenticatedUser.role, role as any)) {
         console.error("❌ API Error: Cannot assign higher role");
         return new Response("Cannot assign role higher than your own", { status: 403 });
       }
