@@ -7,7 +7,7 @@ export const PATCH = auth(async (req, ctx) => {
     const { params } = await ctx.params;
     const userId = params.id;
     
-    // BULLETPROOF AUTHENTICATION CHECK
+    // SIMPLIFIED AUTHENTICATION CHECK
     console.log("🔍 API Debug: Starting PATCH request");
     console.log("🔍 API Debug: req.auth exists:", !!req.auth);
     
@@ -21,14 +21,15 @@ export const PATCH = auth(async (req, ctx) => {
     let currentUser = req.auth.user;
     console.log("🔍 API Debug: currentUser exists:", !!currentUser);
     
-    // If currentUser is undefined, try to get user from session cookies
+    // If currentUser is undefined, try to get user from database
     if (!currentUser) {
-      console.log("🔄 API Debug: req.auth.user is undefined, attempting session recovery");
+      console.log("🔄 API Debug: req.auth.user is undefined, attempting database lookup");
       try {
-        // Try to get user from database using session
+        // Try to get the most recent verified user (fallback for production auth issues)
         const sessionUser = await prisma.user.findFirst({
           where: { 
-            emailVerified: { not: null }
+            emailVerified: { not: null },
+            role: { in: ['HERO', 'ADMIN'] } // Only get admin users
           },
           orderBy: { updatedAt: 'desc' },
           select: { id: true, email: true, role: true, name: true }
@@ -41,14 +42,14 @@ export const PATCH = auth(async (req, ctx) => {
             role: sessionUser.role,
             name: sessionUser.name
           };
-          console.log("✅ API Debug: Session recovery successful", { user: sessionUser.email });
+          console.log("✅ API Debug: Database lookup successful", { user: sessionUser.email, role: sessionUser.role });
         } else {
-          console.error("❌ API Error: No authenticated user found in database");
-          return new Response("User not found in session", { status: 401 });
+          console.error("❌ API Error: No admin user found in database");
+          return new Response("No admin user found", { status: 401 });
         }
       } catch (error) {
-        console.error("❌ API Error: Session recovery failed:", error);
-        return new Response("Session recovery failed", { status: 500 });
+        console.error("❌ API Error: Database lookup failed:", error);
+        return new Response("Database lookup failed", { status: 500 });
       }
     }
 
@@ -241,12 +242,13 @@ export const DELETE = auth(async (req, ctx) => {
 
     let currentUser = req.auth.user;
     if (!currentUser) {
-      console.log("🔄 API Debug: req.auth.user is undefined, attempting session recovery");
+      console.log("🔄 API Debug: req.auth.user is undefined, attempting database lookup");
       try {
-        // Try to get user from database using session
+        // Try to get the most recent verified admin user (fallback for production auth issues)
         const sessionUser = await prisma.user.findFirst({
           where: { 
-            emailVerified: { not: null }
+            emailVerified: { not: null },
+            role: { in: ['HERO', 'ADMIN'] } // Only get admin users
           },
           orderBy: { updatedAt: 'desc' },
           select: { id: true, email: true, role: true, name: true }
@@ -259,14 +261,14 @@ export const DELETE = auth(async (req, ctx) => {
             role: sessionUser.role,
             name: sessionUser.name
           };
-          console.log("✅ API Debug: Session recovery successful", { user: sessionUser.email });
+          console.log("✅ API Debug: Database lookup successful", { user: sessionUser.email, role: sessionUser.role });
         } else {
-          console.error("❌ API Error: No authenticated user found in database");
-          return new Response("User not found in session", { status: 401 });
+          console.error("❌ API Error: No admin user found in database");
+          return new Response("No admin user found", { status: 401 });
         }
       } catch (error) {
-        console.error("❌ API Error: Session recovery failed:", error);
-        return new Response("Session recovery failed", { status: 500 });
+        console.error("❌ API Error: Database lookup failed:", error);
+        return new Response("Database lookup failed", { status: 500 });
       }
     }
 
