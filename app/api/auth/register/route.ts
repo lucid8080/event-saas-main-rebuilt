@@ -17,10 +17,15 @@ const registerRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Registration request received");
     const body = await request.json();
+    console.log("Request body parsed successfully");
+    
     const { username, email, password } = registerRequestSchema.parse(body);
+    console.log("Request validation passed");
 
     // Check if user already exists
+    console.log("Checking for existing user...");
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
@@ -29,6 +34,7 @@ export async function POST(request: NextRequest) {
         ],
       },
     });
+    console.log("Existing user check completed");
 
     if (existingUser) {
       if (existingUser.username === username) {
@@ -46,9 +52,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash the password
+    console.log("Hashing password...");
     const hashedPassword = await hashPassword(password);
+    console.log("Password hashed successfully");
 
     // Create the user
+    console.log("Creating user in database...");
     const user = await prisma.user.create({
       data: {
         username,
@@ -57,6 +66,7 @@ export async function POST(request: NextRequest) {
         name: username, // Use username as default name
       },
     });
+    console.log("User created successfully");
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
@@ -78,8 +88,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check for specific database errors
+    if (error instanceof Error) {
+      // Prisma errors
+      if (error.message.includes("Unique constraint failed")) {
+        return NextResponse.json(
+          { error: "Username or email already exists" },
+          { status: 400 }
+        );
+      }
+      
+      if (error.message.includes("Database connection")) {
+        return NextResponse.json(
+          { error: "Database connection error" },
+          { status: 500 }
+        );
+      }
+      
+      // Log the specific error for debugging
+      console.error("Specific registration error:", error.message);
+    }
+
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

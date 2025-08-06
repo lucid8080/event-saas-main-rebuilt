@@ -6,8 +6,13 @@ import bcrypt from "bcryptjs";
  * @returns Promise<string> - The hashed password
  */
 export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 12;
-  return bcrypt.hash(password, saltRounds);
+  try {
+    const saltRounds = 12;
+    return await bcrypt.hash(password, saltRounds);
+  } catch (error) {
+    console.error("Password hashing error:", error);
+    throw new Error("Failed to hash password");
+  }
 }
 
 /**
@@ -20,7 +25,12 @@ export async function comparePassword(
   password: string,
   hashedPassword: string
 ): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
+  try {
+    return await bcrypt.compare(password, hashedPassword);
+  } catch (error) {
+    console.error("Password comparison error:", error);
+    return false;
+  }
 }
 
 /**
