@@ -85,7 +85,8 @@
     "fix:emergency:auth": "tsx scripts/emergency-auth-fix.ts",
     "fix:production:auth": "tsx scripts/fix-production-auth.ts",
     "fix:final:production": "tsx scripts/final-production-fix.ts",
-    "test:api:route": "tsx scripts/test-api-route.ts"
+    "test:api:route": "tsx scripts/test-api-route.ts",
+    "check:production:deployment": "tsx scripts/check-production-deployment.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",
