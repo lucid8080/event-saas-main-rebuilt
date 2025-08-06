@@ -77,9 +77,9 @@ async function testAPIWithEnhancedLogging() {
   }
 }
 
-async function checkDeploymentStatus() {
-  console.log('\n🔍 CHECKING DEPLOYMENT STATUS');
-  console.log('=============================');
+async function checkServerStatus() {
+  console.log('\n🔍 CHECKING SERVER STATUS');
+  console.log('=========================');
   
   try {
     // Check if the debug endpoint is working
@@ -94,7 +94,7 @@ async function checkDeploymentStatus() {
     }
     
   } catch (error) {
-    console.error('❌ Deployment check failed:', error.message);
+    console.error('❌ Server check failed:', error.message);
   }
 }
 
@@ -130,7 +130,7 @@ async function provideDiagnosticSummary() {
 }
 
 async function main() {
-  await checkDeploymentStatus();
+  await checkServerStatus();
   await testAPIWithEnhancedLogging();
   await provideDiagnosticSummary();
 }
