@@ -3,30 +3,44 @@ import { prisma } from "@/lib/db";
 import { canHero, canAdmin, isRoleHigherOrEqual } from "@/lib/role-based-access";
 
 export const PATCH = auth(async (req, ctx) => {
-  const { params } = await ctx.params;
-  const userId = params.id;
-  if (!req.auth) {
-    return new Response("Not authenticated", { status: 401 });
-  }
-
-  const currentUser = req.auth.user;
-  if (!currentUser) {
-    return new Response("Unauthorized", { status: 403 });
-  }
-
-  // Check if user can manage roles or credits
-  const canManageRoles = canHero(currentUser.role, 'roles:assign');
-  const canManageCredits = canAdmin(currentUser.role, 'credits:manage');
-
-  if (!canManageRoles && !canManageCredits) {
-    return new Response("Unauthorized", { status: 403 });
-  }
-
-  if (!userId) {
-    return new Response("User ID is required", { status: 400 });
-  }
-
   try {
+    const { params } = await ctx.params;
+    const userId = params.id;
+    
+    // Enhanced authentication check
+    if (!req.auth) {
+      console.error("API Error: req.auth is undefined");
+      return new Response("Not authenticated", { status: 401 });
+    }
+
+    const currentUser = req.auth.user;
+    if (!currentUser) {
+      console.error("API Error: req.auth.user is undefined");
+      return new Response("User not found in session", { status: 401 });
+    }
+
+    if (!currentUser.id) {
+      console.error("API Error: currentUser.id is undefined", { currentUser });
+      return new Response("Invalid user session", { status: 401 });
+    }
+
+    // Check if user can manage roles or credits
+    const canManageRoles = canHero(currentUser.role, 'roles:assign');
+    const canManageCredits = canAdmin(currentUser.role, 'credits:manage');
+
+    if (!canManageRoles && !canManageCredits) {
+      console.error("API Error: Insufficient permissions", { 
+        userRole: currentUser.role, 
+        canManageRoles, 
+        canManageCredits 
+      });
+      return new Response("Insufficient permissions", { status: 403 });
+    }
+
+    if (!userId) {
+      return new Response("User ID is required", { status: 400 });
+    }
+
     const body = await req.json();
     const { role, credits } = body;
 
@@ -89,32 +103,41 @@ export const PATCH = auth(async (req, ctx) => {
 });
 
 export const DELETE = auth(async (req, ctx) => {
-  const { params } = await ctx.params;
-  const userId = params.id;
-  if (!req.auth) {
-    return new Response("Not authenticated", { status: 401 });
-  }
-
-  const currentUser = req.auth.user;
-  if (!currentUser) {
-    return new Response("Unauthorized", { status: 403 });
-  }
-
-  // Only HERO users can delete users
-  if (!canHero(currentUser.role, 'users:delete')) {
-    return new Response("Unauthorized", { status: 403 });
-  }
-
-  if (!userId) {
-    return new Response("User ID is required", { status: 400 });
-  }
-
-  // Prevent users from deleting themselves
-  if (userId === currentUser.id) {
-    return new Response("Cannot delete your own account", { status: 400 });
-  }
-
   try {
+    const { params } = await ctx.params;
+    const userId = params.id;
+    
+    // Enhanced authentication check
+    if (!req.auth) {
+      console.error("API Error: req.auth is undefined");
+      return new Response("Not authenticated", { status: 401 });
+    }
+
+    const currentUser = req.auth.user;
+    if (!currentUser) {
+      console.error("API Error: req.auth.user is undefined");
+      return new Response("User not found in session", { status: 401 });
+    }
+
+    if (!currentUser.id) {
+      console.error("API Error: currentUser.id is undefined", { currentUser });
+      return new Response("Invalid user session", { status: 401 });
+    }
+
+    // Only HERO users can delete users
+    if (!canHero(currentUser.role, 'users:delete')) {
+      return new Response("Unauthorized", { status: 403 });
+    }
+
+    if (!userId) {
+      return new Response("User ID is required", { status: 400 });
+    }
+
+    // Prevent users from deleting themselves
+    if (userId === currentUser.id) {
+      return new Response("Cannot delete your own account", { status: 400 });
+    }
+
     await prisma.user.delete({
       where: { id: userId },
     });
