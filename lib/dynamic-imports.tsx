@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 
-// Re-enabled dynamic imports for production testing
+// Dynamic imports with problematic ones temporarily disabled for build compatibility
 export const dynamicImports = {
   // Charts and Data Visualization
   recharts: {
@@ -22,15 +22,10 @@ export const dynamicImports = {
     }),
   },
 
-  // Animations
+  // Animations - Temporarily disabled for build compatibility
   framerMotion: {
-    motion: dynamic(() => import('framer-motion').then(mod => ({ default: mod.motion })), {
-      ssr: false,
-      loading: () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />
-    }),
-    AnimatePresence: dynamic(() => import('framer-motion').then(mod => ({ default: mod.AnimatePresence })), {
-      ssr: false,
-    }),
+    motion: () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />,
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   },
 
   // Carousels and Sliders
@@ -57,19 +52,6 @@ export const dynamicImports = {
     Modal: dynamic(() => import('react-modal').then(mod => ({ default: mod.default })), {
       ssr: false,
       loading: () => <div className="fixed inset-0 bg-black/50 flex items-center justify-center" />
-    }),
-  },
-
-  // Cloud Services
-  aws: {
-    S3Client: dynamic(() => import('@aws-sdk/client-s3').then(mod => ({ default: mod.S3Client })), {
-      ssr: false,
-    }),
-  },
-
-  google: {
-    Storage: dynamic(() => import('@google-cloud/storage').then(mod => ({ default: mod.Storage })), {
-      ssr: false,
     }),
   },
 };
@@ -100,14 +82,6 @@ export const conditionalDynamicImport = (library: string, component: string) => 
     
     case 'reactModal':
       return dynamicImports.reactModal[component as keyof typeof dynamicImports.reactModal];
-    
-    case 'aws':
-      if (!featureFlags.cloudServices) return null;
-      return dynamicImports.aws[component as keyof typeof dynamicImports.aws];
-    
-    case 'google':
-      if (!featureFlags.cloudServices) return null;
-      return dynamicImports.google[component as keyof typeof dynamicImports.google];
     
     default:
       return null;
