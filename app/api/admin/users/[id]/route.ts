@@ -176,8 +176,27 @@ export const PATCH = auth(async (req, ctx) => {
     return Response.json(updatedUser);
     
   } catch (error) {
-    console.error("❌ API Error: Unexpected error:", error);
-    return new Response("Internal server error", { status: 500 });
+    console.error("❌ API Error: PATCH Unexpected error:", error);
+    console.error("❌ API Error: PATCH Error stack:", error?.stack);
+    console.error("❌ API Error: PATCH Error name:", error?.name);
+    console.error("❌ API Error: PATCH Error message:", error?.message);
+    console.error("❌ API Error: PATCH Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
+    // Return more detailed error for debugging
+    return new Response(
+      JSON.stringify({
+        error: "Internal server error",
+        message: error?.message || "Unknown error",
+        timestamp: new Date().toISOString(),
+        route: "PATCH /api/admin/users/[id]"
+      }), 
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 });
 
@@ -230,7 +249,25 @@ export const DELETE = auth(async (req, ctx) => {
     return new Response("User deleted successfully", { status: 200 });
     
   } catch (error) {
-    console.error("❌ API Error: Unexpected error:", error);
-    return new Response("Internal server error", { status: 500 });
+    console.error("❌ API Error: DELETE Unexpected error:", error);
+    console.error("❌ API Error: DELETE Error stack:", error?.stack);
+    console.error("❌ API Error: DELETE Error name:", error?.name);
+    console.error("❌ API Error: DELETE Error message:", error?.message);
+    console.error("❌ API Error: DELETE Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
+    return new Response(
+      JSON.stringify({
+        error: "Internal server error",
+        message: error?.message || "Unknown error",
+        timestamp: new Date().toISOString(),
+        route: "DELETE /api/admin/users/[id]"
+      }), 
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 }); 
