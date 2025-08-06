@@ -76,7 +76,9 @@
     "test:webp:display": "tsx scripts/test-webp-display.ts",
     "test:webp:performance": "tsx scripts/test-webp-performance.ts",
     "test:webp:integration:complete": "tsx scripts/test-webp-integration-complete.ts",
-    "test:build": "node scripts/test-build.js"
+    "test:build": "node scripts/test-build.js",
+    "fix:email:verification": "tsx scripts/fix-email-verification.ts",
+    "fix:email:verification:auto": "tsx scripts/auto-fix-email-verification.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",
