@@ -79,7 +79,8 @@
     "test:build": "node scripts/test-build.js",
     "fix:email:verification": "tsx scripts/fix-email-verification.ts",
     "fix:email:verification:auto": "tsx scripts/auto-fix-email-verification.ts",
-    "test:components": "tsx scripts/test-re-enabled-components.ts"
+    "test:components": "tsx scripts/test-re-enabled-components.ts",
+    "debug:production:credits": "tsx scripts/production-credit-debug.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",
