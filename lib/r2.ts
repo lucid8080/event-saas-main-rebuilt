@@ -1,33 +1,86 @@
-// Temporarily disabled AWS SDK imports to avoid 'self is not defined' error during build
-// TODO: Re-enable when build issues are resolved
-
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from '@/env.mjs';
 
-// Stub functions for build compatibility
+// Initialize S3 client for R2
+const s3Client = new S3Client({
+  region: 'auto',
+  endpoint: env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: env.R2_ACCESS_KEY_ID,
+    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+  },
+});
+
 export async function uploadImageToR2(
   key: string,
   imageBuffer: Buffer,
   contentType: string = 'image/png'
 ): Promise<string> {
-  console.warn('R2 upload temporarily disabled for build compatibility');
-  return key;
+  try {
+    const command = new PutObjectCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Key: key,
+      Body: imageBuffer,
+      ContentType: contentType,
+    });
+
+    await s3Client.send(command);
+    return key;
+  } catch (error) {
+    console.error('Error uploading to R2:', error);
+    throw new Error(`Failed to upload image to R2: ${error}`);
+  }
 }
 
 export async function generateSignedUrl(
   key: string,
   expiresIn: number = 3600
 ): Promise<string> {
-  console.warn('R2 signed URL generation temporarily disabled for build compatibility');
-  return `https://example.com/${key}`;
+  try {
+    const command = new GetObjectCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Key: key,
+    });
+
+    return await getSignedUrl(s3Client, command, { expiresIn });
+  } catch (error) {
+    console.error('Error generating signed URL:', error);
+    throw new Error(`Failed to generate signed URL: ${error}`);
+  }
 }
 
 export async function deleteImageFromR2(key: string): Promise<void> {
-  console.warn('R2 deletion temporarily disabled for build compatibility');
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Key: key,
+    });
+
+    await s3Client.send(command);
+  } catch (error) {
+    console.error('Error deleting from R2:', error);
+    throw new Error(`Failed to delete image from R2: ${error}`);
+  }
 }
 
 export async function testR2Connection(): Promise<boolean> {
-  console.warn('R2 connection test temporarily disabled for build compatibility');
-  return false;
+  try {
+    const command = new GetObjectCommand({
+      Bucket: env.R2_BUCKET_NAME,
+      Key: 'test-connection',
+    });
+
+    await s3Client.send(command);
+    return true;
+  } catch (error: any) {
+    // If the error is "NoSuchKey", the connection is working but the test file doesn't exist
+    if (error.name === 'NoSuchKey') {
+      return true;
+    }
+    console.error('R2 connection test failed:', error);
+    return false;
+  }
 }
 
 export function generateImageKey(userId: string, imageId: string, extension: string = 'png'): string {
@@ -57,8 +110,6 @@ export function getOriginalKeyFromWebP(webpKey: string): string {
   return webpKey.replace(/\.webp$/i, '');
 }
 
-// Stub types for build compatibility
-export type { ImageMetadata } from './enhanced-image-naming';
-
 // Re-export from enhanced-image-naming
-export { generateEnhancedImageKey } from './enhanced-image-naming'; 
+export { generateEnhancedImageKey } from './enhanced-image-naming';
+export type { ImageMetadata } from './enhanced-image-naming'; 

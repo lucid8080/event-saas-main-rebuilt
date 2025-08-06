@@ -1,26 +1,26 @@
 // Tree shaking utilities to help eliminate unused code
 
-// Temporarily disabled imports to avoid 'self is not defined' error during build
+// Re-enabled conditional imports for production testing
 const conditionalImport = {
-  // Charts and Data Visualization - temporarily disabled
-  recharts: () => Promise.resolve({ BarChart: null }),
-  framerMotion: () => Promise.resolve({ motion: null }),
-  swiper: () => Promise.resolve({ Swiper: null }),
+  // Charts and Data Visualization
+  recharts: () => import('recharts'),
+  framerMotion: () => import('framer-motion'),
+  swiper: () => import('swiper/react'),
   
-  // Rich Text Editor - temporarily disabled
-  reactQuill: () => Promise.resolve({ default: null }),
+  // Rich Text Editor
+  reactQuill: () => import('react-quill'),
   
-  // Modal - temporarily disabled
-  reactModal: () => Promise.resolve({ default: null }),
+  // Modal
+  reactModal: () => import('react-modal'),
   
-  // Cloud Services - temporarily disabled for build compatibility
-  awsS3: () => Promise.resolve({ S3Client: null }),
-  googleCloud: () => Promise.resolve({ Storage: null }),
-  googleApis: () => Promise.resolve({ google: null }),
+  // Cloud Services
+  awsS3: () => import('@aws-sdk/client-s3'),
+  googleCloud: () => import('@google-cloud/storage'),
+  googleApis: () => import('googleapis'),
   
-  // Image processing - temporarily disabled
-  sharp: () => Promise.resolve({ default: null }),
-  shiki: () => Promise.resolve({ getHighlighter: null }),
+  // Image processing
+  sharp: () => import('sharp'),
+  shiki: () => import('shiki'),
 };
 
 // Feature flags for conditional loading

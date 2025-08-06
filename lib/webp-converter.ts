@@ -1,5 +1,4 @@
-// Temporarily disabled entire file to avoid 'self is not defined' error during build
-// TODO: Re-enable when build issues are resolved
+import sharp from 'sharp';
 
 export const WEBP_QUALITY_PRESETS = {
   low: 60,
@@ -9,13 +8,19 @@ export const WEBP_QUALITY_PRESETS = {
 
 export type WebPQualityPreset = keyof typeof WEBP_QUALITY_PRESETS;
 
-// Stub functions for build compatibility
 export async function convertToWebPWithPreset(
   imageBuffer: Buffer,
   quality: WebPQualityPreset = 'medium'
 ): Promise<Buffer> {
-  console.warn('WebP conversion temporarily disabled for build compatibility');
-  return imageBuffer;
+  try {
+    const qualityValue = WEBP_QUALITY_PRESETS[quality];
+    return await sharp(imageBuffer)
+      .webp({ quality: qualityValue })
+      .toBuffer();
+  } catch (error) {
+    console.error('Error converting to WebP:', error);
+    throw new Error(`Failed to convert image to WebP: ${error}`);
+  }
 }
 
 export async function getImageMetadata(imageBuffer: Buffer): Promise<{
@@ -26,26 +31,35 @@ export async function getImageMetadata(imageBuffer: Buffer): Promise<{
   hasProfile: boolean;
   size: number;
 }> {
-  console.warn('Image metadata extraction temporarily disabled for build compatibility');
-  return {
-    width: 100,
-    height: 100,
-    format: 'png',
-    hasAlpha: false,
-    hasProfile: false,
-    size: imageBuffer.length,
-  };
+  try {
+    const metadata = await sharp(imageBuffer).metadata();
+    return {
+      width: metadata.width || 0,
+      height: metadata.height || 0,
+      format: metadata.format || 'unknown',
+      hasAlpha: metadata.hasAlpha || false,
+      hasProfile: metadata.hasProfile || false,
+      size: imageBuffer.length,
+    };
+  } catch (error) {
+    console.error('Error extracting image metadata:', error);
+    throw new Error(`Failed to extract image metadata: ${error}`);
+  }
 }
 
-// Additional stub functions for build compatibility
 export function calculateCompressionRatio(originalSize: number, webpSize: number): number {
-  console.warn('Compression ratio calculation temporarily disabled for build compatibility');
-  return 0;
+  if (originalSize === 0) return 0;
+  return ((originalSize - webpSize) / originalSize) * 100;
 }
 
 export async function canConvertToWebP(imageBuffer: Buffer): Promise<boolean> {
-  console.warn('WebP conversion validation temporarily disabled for build compatibility');
-  return false;
+  try {
+    const metadata = await sharp(imageBuffer).metadata();
+    return metadata.format !== 'webp'; // Can convert if not already WebP
+  } catch (error) {
+    console.error('Error checking WebP conversion capability:', error);
+    return false;
+  }
 }
 
 export async function createWebPThumbnail(
@@ -53,8 +67,15 @@ export async function createWebPThumbnail(
   size: number = 300,
   quality: number = 80
 ): Promise<Buffer> {
-  console.warn('WebP thumbnail creation temporarily disabled for build compatibility');
-  return imageBuffer;
+  try {
+    return await sharp(imageBuffer)
+      .resize(size, size, { fit: 'cover' })
+      .webp({ quality })
+      .toBuffer();
+  } catch (error) {
+    console.error('Error creating WebP thumbnail:', error);
+    throw new Error(`Failed to create WebP thumbnail: ${error}`);
+  }
 }
 
 export async function resizeAndConvertToWebP(
@@ -63,13 +84,26 @@ export async function resizeAndConvertToWebP(
   height: number,
   quality: number = 80
 ): Promise<Buffer> {
-  console.warn('WebP resize and conversion temporarily disabled for build compatibility');
-  return imageBuffer;
+  try {
+    return await sharp(imageBuffer)
+      .resize(width, height)
+      .webp({ quality })
+      .toBuffer();
+  } catch (error) {
+    console.error('Error resizing and converting to WebP:', error);
+    throw new Error(`Failed to resize and convert to WebP: ${error}`);
+  }
 }
 
 export async function convertToWebP(imageBuffer: Buffer): Promise<Buffer> {
-  console.warn('WebP conversion temporarily disabled for build compatibility');
-  return imageBuffer;
+  try {
+    return await sharp(imageBuffer)
+      .webp()
+      .toBuffer();
+  } catch (error) {
+    console.error('Error converting to WebP:', error);
+    throw new Error(`Failed to convert to WebP: ${error}`);
+  }
 }
 
 export async function testWebPConversion(): Promise<{
@@ -77,9 +111,34 @@ export async function testWebPConversion(): Promise<{
   compressionRatio?: number;
   error?: string;
 }> {
-  console.warn('WebP conversion test temporarily disabled for build compatibility');
-  return {
-    success: false,
-    error: 'WebP conversion temporarily disabled'
-  };
+  try {
+    // Create a test image
+    const testImage = await sharp({
+      create: {
+        width: 100,
+        height: 100,
+        channels: 3,
+        background: { r: 255, g: 0, b: 0 }
+      }
+    })
+    .png()
+    .toBuffer();
+
+    // Convert to WebP
+    const webpBuffer = await convertToWebP(testImage);
+    
+    // Calculate compression ratio
+    const compressionRatio = calculateCompressionRatio(testImage.length, webpBuffer.length);
+
+    return {
+      success: true,
+      compressionRatio,
+    };
+  } catch (error) {
+    console.error('WebP conversion test failed:', error);
+    return {
+      success: false,
+      error: `WebP conversion test failed: ${error}`,
+    };
+  }
 } 

@@ -1,44 +1,76 @@
 import dynamic from 'next/dynamic';
 
-// Temporarily disabled all dynamic imports to avoid 'self is not defined' error during build
+// Re-enabled dynamic imports for production testing
 export const dynamicImports = {
-  // Charts and Data Visualization - temporarily disabled
+  // Charts and Data Visualization
   recharts: {
-    BarChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
-    LineChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
-    AreaChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
-    RadarChart: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
+    BarChart: dynamic(() => import('recharts').then(mod => ({ default: mod.BarChart })), {
+      ssr: false,
+      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
+    }),
+    LineChart: dynamic(() => import('recharts').then(mod => ({ default: mod.LineChart })), {
+      ssr: false,
+      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
+    }),
+    AreaChart: dynamic(() => import('recharts').then(mod => ({ default: mod.AreaChart })), {
+      ssr: false,
+      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
+    }),
+    RadarChart: dynamic(() => import('recharts').then(mod => ({ default: mod.RadarChart })), {
+      ssr: false,
+      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
+    }),
   },
 
-  // Animations - temporarily disabled for build compatibility
+  // Animations
   framerMotion: {
-    motion: () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />,
-    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    motion: dynamic(() => import('framer-motion').then(mod => ({ default: mod.motion })), {
+      ssr: false,
+      loading: () => <div className="animate-pulse bg-gray-200 rounded h-8 w-full" />
+    }),
+    AnimatePresence: dynamic(() => import('framer-motion').then(mod => ({ default: mod.AnimatePresence })), {
+      ssr: false,
+    }),
   },
 
-  // Carousels and Sliders - temporarily disabled for build compatibility
+  // Carousels and Sliders
   swiper: {
-    Swiper: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />,
-    SwiperSlide: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    Swiper: dynamic(() => import('swiper/react').then(mod => ({ default: mod.Swiper })), {
+      ssr: false,
+      loading: () => <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
+    }),
+    SwiperSlide: dynamic(() => import('swiper/react').then(mod => ({ default: mod.SwiperSlide })), {
+      ssr: false,
+    }),
   },
 
-  // Rich Text Editor - temporarily disabled
+  // Rich Text Editor
   reactQuill: {
-    ReactQuill: () => <div className="w-full h-32 bg-gray-200 rounded-lg animate-pulse" />,
+    ReactQuill: dynamic(() => import('react-quill').then(mod => ({ default: mod.default })), {
+      ssr: false,
+      loading: () => <div className="w-full h-32 bg-gray-200 rounded-lg animate-pulse" />
+    }),
   },
 
-  // Modal - temporarily disabled
+  // Modal
   reactModal: {
-    Modal: () => <div className="fixed inset-0 bg-black/50 flex items-center justify-center" />,
+    Modal: dynamic(() => import('react-modal').then(mod => ({ default: mod.default })), {
+      ssr: false,
+      loading: () => <div className="fixed inset-0 bg-black/50 flex items-center justify-center" />
+    }),
   },
 
-  // Cloud Services - temporarily disabled for build compatibility
+  // Cloud Services
   aws: {
-    S3Client: () => null,
+    S3Client: dynamic(() => import('@aws-sdk/client-s3').then(mod => ({ default: mod.S3Client })), {
+      ssr: false,
+    }),
   },
 
   google: {
-    Storage: () => null,
+    Storage: dynamic(() => import('@google-cloud/storage').then(mod => ({ default: mod.Storage })), {
+      ssr: false,
+    }),
   },
 };
 
