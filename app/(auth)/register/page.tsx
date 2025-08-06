@@ -3,7 +3,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { Icons } from "@/components/shared/icons"
-import { UserAuthForm } from "@/components/forms/user-auth-form"
+import { CombinedAuthForm } from "@/components/forms/combined-auth-form"
 import { Suspense } from "react"
 
 export const metadata = {
@@ -25,18 +25,18 @@ export default function RegisterPage() {
       </Link>
       <div className="hidden h-full bg-muted lg:block" />
       <div className="lg:p-8">
-        <div className="flex flex-col w-full mx-auto space-y-6 sm:w-[350px] justify-center">
+        <div className="flex flex-col w-full mx-auto space-y-6 sm:w-[400px] justify-center">
           <div className="flex flex-col space-y-2 text-center">
             <Icons.logo className="size-6 mx-auto" />
             <h1 className="text-2xl font-semibold tracking-tight">
               Create an account
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter your email below to create your account
+              Choose your preferred sign-up method
             </p>
           </div>
           <Suspense>
-            <UserAuthForm type="register" />
+            <CombinedAuthForm type="register" />
           </Suspense>
           <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}

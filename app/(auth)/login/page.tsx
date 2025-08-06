@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { UserAuthForm } from "@/components/forms/user-auth-form";
+import { CombinedAuthForm } from "@/components/forms/combined-auth-form";
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
@@ -37,16 +37,16 @@ export default async function LoginPage() {
         </div>
       </div>
       <div className="lg:p-8">
-        <div className="flex flex-col w-full mx-auto space-y-6 sm:w-[350px] justify-center">
+        <div className="flex flex-col w-full mx-auto space-y-6 sm:w-[400px] justify-center">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
               Welcome back
             </h1>
             <p className="text-sm text-muted-foreground">
-              Enter your email to sign in to your account
+              Choose your preferred sign-in method
             </p>
           </div>
-          <UserAuthForm />
+          <CombinedAuthForm type="login" />
           
           <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
