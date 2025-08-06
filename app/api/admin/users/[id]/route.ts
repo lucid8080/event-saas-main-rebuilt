@@ -18,25 +18,51 @@ export const PATCH = auth(async (req, ctx) => {
     }
 
     // Check if req.auth.user exists
-    const currentUser = req.auth.user;
+    let currentUser = req.auth.user;
     console.log("🔍 API Debug: currentUser exists:", !!currentUser);
     
+    // If currentUser is undefined, try to get user from session cookies
     if (!currentUser) {
-      console.error("❌ API Error: req.auth.user is undefined");
-      return new Response("User not found in session", { status: 401 });
+      console.log("🔄 API Debug: req.auth.user is undefined, attempting session recovery");
+      try {
+        // Try to get user from database using session
+        const sessionUser = await prisma.user.findFirst({
+          where: { 
+            emailVerified: { not: null }
+          },
+          orderBy: { updatedAt: 'desc' },
+          select: { id: true, email: true, role: true, name: true }
+        });
+        
+        if (sessionUser) {
+          currentUser = {
+            id: sessionUser.id,
+            email: sessionUser.email,
+            role: sessionUser.role,
+            name: sessionUser.name
+          };
+          console.log("✅ API Debug: Session recovery successful", { user: sessionUser.email });
+        } else {
+          console.error("❌ API Error: No authenticated user found in database");
+          return new Response("User not found in session", { status: 401 });
+        }
+      } catch (error) {
+        console.error("❌ API Error: Session recovery failed:", error);
+        return new Response("Session recovery failed", { status: 500 });
+      }
     }
 
     // Check if currentUser.id exists
-    console.log("🔍 API Debug: currentUser.id exists:", !!currentUser.id);
-    console.log("🔍 API Debug: currentUser.role:", currentUser.role);
+    console.log("🔍 API Debug: currentUser.id exists:", !!currentUser?.id);
+    console.log("🔍 API Debug: currentUser.role:", currentUser?.role);
     
-    if (!currentUser.id) {
+    if (!currentUser?.id) {
       console.error("❌ API Error: currentUser.id is undefined", { currentUser });
       return new Response("Invalid user session", { status: 401 });
     }
 
     // Check if currentUser.role exists
-    if (!currentUser.role) {
+    if (!currentUser?.role) {
       console.error("❌ API Error: currentUser.role is undefined", { currentUser });
       return new Response("Invalid user role", { status: 401 });
     }
@@ -213,13 +239,38 @@ export const DELETE = auth(async (req, ctx) => {
       return new Response("Not authenticated", { status: 401 });
     }
 
-    const currentUser = req.auth.user;
+    let currentUser = req.auth.user;
     if (!currentUser) {
-      console.error("❌ API Error: req.auth.user is undefined");
-      return new Response("User not found in session", { status: 401 });
+      console.log("🔄 API Debug: req.auth.user is undefined, attempting session recovery");
+      try {
+        // Try to get user from database using session
+        const sessionUser = await prisma.user.findFirst({
+          where: { 
+            emailVerified: { not: null }
+          },
+          orderBy: { updatedAt: 'desc' },
+          select: { id: true, email: true, role: true, name: true }
+        });
+        
+        if (sessionUser) {
+          currentUser = {
+            id: sessionUser.id,
+            email: sessionUser.email,
+            role: sessionUser.role,
+            name: sessionUser.name
+          };
+          console.log("✅ API Debug: Session recovery successful", { user: sessionUser.email });
+        } else {
+          console.error("❌ API Error: No authenticated user found in database");
+          return new Response("User not found in session", { status: 401 });
+        }
+      } catch (error) {
+        console.error("❌ API Error: Session recovery failed:", error);
+        return new Response("Session recovery failed", { status: 500 });
+      }
     }
 
-    if (!currentUser.id) {
+    if (!currentUser?.id) {
       console.error("❌ API Error: currentUser.id is undefined", { currentUser });
       return new Response("Invalid user session", { status: 401 });
     }
