@@ -63,6 +63,10 @@ export const {
           session.user.role = token.role;
         }
 
+        if (token.username) {
+          (session.user as any).username = token.username;
+        }
+
         session.user.name = token.name;
         session.user.image = token.picture;
       }
@@ -78,6 +82,7 @@ export const {
         token.name = dbUser.name;
         token.email = dbUser.email;
         token.picture = dbUser.image;
+        token.username = (dbUser as any).username;
         return token;
       }
 
@@ -90,6 +95,7 @@ export const {
             token.email = dbUser.email;
             token.picture = dbUser.image;
             token.role = dbUser.role;
+            token.username = (dbUser as any).username;
             token.lastFetch = Date.now();
           }
         } catch (error) {
