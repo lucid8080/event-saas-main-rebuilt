@@ -8,7 +8,7 @@
  * 2. 500 Internal Server Error for /api/admin/users/[id]
  */
 
-const PRODUCTION_URL = 'https://event-saas-main-rebuilt.onrender.com';
+const DIAGNOSE_PRODUCTION_URL = 'https://event-saas-main-rebuilt.onrender.com';
 
 interface DiagnosticResult {
   test: string;
@@ -36,7 +36,7 @@ class ProductionDiagnostics {
     // Test the specific failing asset
     try {
       console.log('Testing /astronaut-logo.png...');
-      const response = await fetch(`${PRODUCTION_URL}/astronaut-logo.png`);
+      const response = await fetch(`${DIAGNOSE_PRODUCTION_URL}/astronaut-logo.png`);
       
       if (response.status === 502) {
         this.addResult(
@@ -81,7 +81,7 @@ class ProductionDiagnostics {
 
     for (const asset of staticAssets) {
       try {
-        const response = await fetch(`${PRODUCTION_URL}${asset}`);
+        const response = await fetch(`${DIAGNOSE_PRODUCTION_URL}${asset}`);
         if (response.status === 502) {
           this.addResult(
             `Static Asset - ${asset}`, 
@@ -115,7 +115,7 @@ class ProductionDiagnostics {
       console.log('Testing /api/admin/users/[id] endpoint...');
       
       // First, test with a non-existent user ID to see the error structure
-      const testResponse = await fetch(`${PRODUCTION_URL}/api/admin/users/test-user-id`, {
+      const testResponse = await fetch(`${DIAGNOSE_PRODUCTION_URL}/api/admin/users/test-user-id`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ class ProductionDiagnostics {
 
     for (const route of apiRoutes) {
       try {
-        const response = await fetch(`${PRODUCTION_URL}${route}`);
+        const response = await fetch(`${DIAGNOSE_PRODUCTION_URL}${route}`);
         if (response.status === 500) {
           this.addResult(
             `API Route - ${route}`, 
@@ -198,7 +198,7 @@ class ProductionDiagnostics {
 
     try {
       // Check basic server response
-      const response = await fetch(PRODUCTION_URL);
+      const response = await fetch(DIAGNOSE_PRODUCTION_URL);
       
       if (response.ok) {
         this.addResult(
@@ -240,7 +240,7 @@ class ProductionDiagnostics {
 
     // Check if environment debug endpoint works
     try {
-      const response = await fetch(`${PRODUCTION_URL}/api/debug-env`);
+      const response = await fetch(`${DIAGNOSE_PRODUCTION_URL}/api/debug-env`);
       if (response.ok) {
         const data = await response.text();
         this.addResult(
@@ -321,7 +321,7 @@ class ProductionDiagnostics {
 async function main() {
   console.log('🚀 PRODUCTION ERROR DIAGNOSTICS');
   console.log('===============================');
-  console.log(`🎯 Target: ${PRODUCTION_URL}`);
+  console.log(`🎯 Target: ${DIAGNOSE_PRODUCTION_URL}`);
   console.log('📅 Time:', new Date().toISOString());
   
   const diagnostics = new ProductionDiagnostics();

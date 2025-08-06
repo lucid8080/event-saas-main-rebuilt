@@ -1,75 +1,72 @@
 #!/usr/bin/env tsx
 
-import { PrismaClient } from '@prisma/client';
+/**
+ * Quick Deployment Check
+ * 
+ * Run this manually to check if the enhanced error logging is deployed
+ */
 
-const prisma = new PrismaClient();
+const QUICK_CHECK_PRODUCTION_URL = 'https://event-saas-main-rebuilt.onrender.com';
 
 async function quickCheck() {
-  console.log("🔍 Quick Database Check");
-  console.log("======================\n");
-
+  console.log('🔍 QUICK DEPLOYMENT CHECK');
+  console.log('=========================');
+  console.log(`🎯 Target: ${QUICK_CHECK_PRODUCTION_URL}`);
+  console.log('📅 Time:', new Date().toISOString());
+  
   try {
-    // Get all users with any subscription data
-    const users = await prisma.user.findMany({
-      where: {
-        OR: [
-          { stripeSubscriptionId: { not: null } },
-          { stripeCustomerId: { not: null } },
-          { credits: { gt: 0 } }
-        ]
+    const response = await fetch(`${QUICK_CHECK_PRODUCTION_URL}/api/admin/users/test-quick-check`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        credits: true,
-        stripeCustomerId: true,
-        stripeSubscriptionId: true,
-        stripePriceId: true,
-        stripeCurrentPeriodEnd: true,
-        updatedAt: true
-      }
+      body: JSON.stringify({ credits: 10 })
     });
 
-    console.log(`📊 Found ${users.length} users with subscription data:\n`);
-
-    if (users.length === 0) {
-      console.log("❌ No users found with subscription data");
-      console.log("   This could mean:");
-      console.log("   - No one has completed a Stripe checkout yet");
-      console.log("   - Webhook failed to update user records");
-      console.log("   - Database connection issues");
+    console.log(`📊 Status: ${response.status}`);
+    console.log(`📊 Content-Type: ${response.headers.get('content-type')}`);
+    
+    if (response.status === 500) {
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        // Enhanced logging is working!
+        const errorData = await response.json();
+        console.log('\n✅ ENHANCED ERROR LOGGING IS WORKING!');
+        console.log('🎯 DETAILED ERROR INFORMATION:');
+        console.log('=====================================');
+        console.log(JSON.stringify(errorData, null, 2));
+        
+        console.log('\n🔍 ERROR ANALYSIS:');
+        if (errorData.message) {
+          console.log(`Root Cause: ${errorData.message}`);
+        }
+        if (errorData.route) {
+          console.log(`Route: ${errorData.route}`);
+        }
+        if (errorData.timestamp) {
+          console.log(`Timestamp: ${errorData.timestamp}`);
+        }
+        
+      } else {
+        // Still old format
+        const text = await response.text();
+        console.log('\n⏳ STILL OLD FORMAT - NOT DEPLOYED YET');
+        console.log(`Response: ${text}`);
+        console.log('\n💡 The deployment is likely still in progress.');
+        console.log('   Check your Render dashboard or wait a few more minutes.');
+      }
     } else {
-      users.forEach((user, index) => {
-        console.log(`${index + 1}. ${user.name || 'Unknown'} (${user.email})`);
-        console.log(`   Credits: ${user.credits}`);
-        console.log(`   Stripe Customer ID: ${user.stripeCustomerId || 'None'}`);
-        console.log(`   Stripe Subscription ID: ${user.stripeSubscriptionId || 'None'}`);
-        console.log(`   Stripe Price ID: ${user.stripePriceId || 'None'}`);
-        console.log(`   Last Updated: ${user.updatedAt}`);
-        console.log("");
-      });
+      console.log(`\n⚠️ Unexpected status: ${response.status}`);
+      const text = await response.text();
+      console.log(`Response: ${text.substring(0, 200)}`);
     }
-
-    // Check recent webhook events (if any)
-    console.log("🌐 Recent Activity Check:");
-    console.log("   Check your server logs for webhook events");
-    console.log("   Look for lines starting with '🔄 Processing checkout.session.completed'");
-    console.log("   Or '❌ Error updating user:' for failures");
-
+    
   } catch (error) {
-    console.error("❌ Database connection error:", error);
-  } finally {
-    await prisma.$disconnect();
+    console.error('❌ Error:', error.message);
   }
 }
 
-quickCheck()
-  .then(() => {
-    console.log("\n✅ Quick check completed");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("❌ Quick check failed:", error);
-    process.exit(1);
-  }); 
+if (require.main === module) {
+  quickCheck().catch(console.error);
+}

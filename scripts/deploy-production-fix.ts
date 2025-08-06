@@ -7,19 +7,19 @@
  * and then tests the API endpoints to get detailed error information.
  */
 
-const PRODUCTION_URL = 'https://event-saas-main-rebuilt.onrender.com';
+const DEPLOY_PRODUCTION_URL = 'https://event-saas-main-rebuilt.onrender.com';
 
 async function testAPIWithEnhancedLogging() {
   console.log('🚀 TESTING API WITH ENHANCED ERROR LOGGING');
   console.log('==========================================');
-  console.log(`🎯 Target: ${PRODUCTION_URL}`);
+  console.log(`🎯 Target: ${DEPLOY_PRODUCTION_URL}`);
   console.log('📅 Time:', new Date().toISOString());
   
   try {
     console.log('\n🔍 Testing Credit Management API...');
     
     // Test the PATCH endpoint that was failing
-    const response = await fetch(`${PRODUCTION_URL}/api/admin/users/test-user-id`, {
+    const response = await fetch(`${DEPLOY_PRODUCTION_URL}/api/admin/users/test-user-id`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ async function checkDeploymentStatus() {
   
   try {
     // Check if the debug endpoint is working
-    const debugResponse = await fetch(`${PRODUCTION_URL}/api/debug-env`);
+    const debugResponse = await fetch(`${DEPLOY_PRODUCTION_URL}/api/debug-env`);
     
     if (debugResponse.ok) {
       console.log('✅ Production server is responding');
