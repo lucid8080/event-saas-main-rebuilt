@@ -79,9 +79,16 @@ export function TraditionalAuthForm({
         });
       }
 
-      return toast.success("Login successful", {
+      toast.success("Login successful", {
         description: "Welcome back! Redirecting to dashboard...",
       });
+
+      // Manually redirect after successful login
+      setTimeout(() => {
+        window.location.href = signInResult.url || "/dashboard";
+      }, 1000);
+
+      return;
     } else {
       // Registration logic will be handled by API route
       const registerData = data as RegisterFormData;

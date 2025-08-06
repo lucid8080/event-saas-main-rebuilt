@@ -27,10 +27,13 @@ export default {
       },
       async authorize(credentials: Record<"username" | "password", string> | undefined) {
         if (!credentials?.username || !credentials?.password) {
+          console.log("Missing credentials");
           return null;
         }
 
         try {
+          console.log("Attempting to authenticate user:", credentials.username);
+          
           const user = await prisma.user.findFirst({
             where: {
               OR: [
@@ -40,7 +43,13 @@ export default {
             },
           });
 
-          if (!user || !user.password) {
+          if (!user) {
+            console.log("User not found:", credentials.username);
+            return null;
+          }
+
+          if (!user.password) {
+            console.log("User has no password (OAuth user):", credentials.username);
             return null;
           }
 
@@ -50,9 +59,11 @@ export default {
           );
 
           if (!isPasswordValid) {
+            console.log("Invalid password for user:", credentials.username);
             return null;
           }
 
+          console.log("Authentication successful for user:", credentials.username);
           return {
             id: user.id,
             email: user.email,

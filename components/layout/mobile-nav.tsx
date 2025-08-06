@@ -87,15 +87,22 @@ export function NavMobile() {
           ) : (
             <>
               <li className="py-3">
-                <button
-                  onClick={() => {
-                    setOpen(false);
-                    // You can add sign in modal logic here
-                  }}
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
                   className="flex w-full font-medium capitalize"
                 >
-                  Sign In
-                </button>
+                  Login
+                </Link>
+              </li>
+              <li className="py-3">
+                <Link
+                  href="/register"
+                  onClick={() => setOpen(false)}
+                  className="flex w-full font-medium capitalize"
+                >
+                  Sign Up
+                </Link>
               </li>
             </>
           )}
