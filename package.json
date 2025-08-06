@@ -14,7 +14,7 @@
     "dev": "next dev",
     "dev:fast": "next dev --turbo --port 3000",
     "dev:analyze": "ANALYZE=true next dev",
-    "build": "node scripts/build-with-contentlayer.js",
+    "build": "node scripts/setup-database.js && node scripts/build-with-contentlayer.js",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
