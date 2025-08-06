@@ -81,7 +81,8 @@
     "fix:email:verification:auto": "tsx scripts/auto-fix-email-verification.ts",
     "test:components": "tsx scripts/test-re-enabled-components.ts",
     "debug:production:credits": "tsx scripts/production-credit-debug.ts",
-    "fix:runtime:auth": "tsx scripts/runtime-auth-fix.ts"
+    "fix:runtime:auth": "tsx scripts/runtime-auth-fix.ts",
+    "fix:emergency:auth": "tsx scripts/emergency-auth-fix.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",

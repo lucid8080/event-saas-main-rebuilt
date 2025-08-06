@@ -7,29 +7,46 @@ export const PATCH = auth(async (req, ctx) => {
     const { params } = await ctx.params;
     const userId = params.id;
     
-    // Enhanced authentication check
+    // Enhanced authentication check with detailed logging
+    console.log("🔍 API Debug: Starting PATCH request");
+    console.log("🔍 API Debug: req.auth exists:", !!req.auth);
+    
     if (!req.auth) {
-      console.error("API Error: req.auth is undefined");
+      console.error("❌ API Error: req.auth is undefined");
       return new Response("Not authenticated", { status: 401 });
     }
 
     const currentUser = req.auth.user;
+    console.log("🔍 API Debug: currentUser exists:", !!currentUser);
+    
     if (!currentUser) {
-      console.error("API Error: req.auth.user is undefined");
+      console.error("❌ API Error: req.auth.user is undefined");
       return new Response("User not found in session", { status: 401 });
     }
 
+    console.log("🔍 API Debug: currentUser.id exists:", !!currentUser.id);
+    console.log("🔍 API Debug: currentUser.role:", currentUser.role);
+    
     if (!currentUser.id) {
-      console.error("API Error: currentUser.id is undefined", { currentUser });
+      console.error("❌ API Error: currentUser.id is undefined", { currentUser });
       return new Response("Invalid user session", { status: 401 });
+    }
+
+    // Additional safety check for user role
+    if (!currentUser.role) {
+      console.error("❌ API Error: currentUser.role is undefined", { currentUser });
+      return new Response("Invalid user role", { status: 401 });
     }
 
     // Check if user can manage roles or credits
     const canManageRoles = canHero(currentUser.role, 'roles:assign');
     const canManageCredits = canAdmin(currentUser.role, 'credits:manage');
 
+    console.log("🔍 API Debug: canManageRoles:", canManageRoles);
+    console.log("🔍 API Debug: canManageCredits:", canManageCredits);
+
     if (!canManageRoles && !canManageCredits) {
-      console.error("API Error: Insufficient permissions", { 
+      console.error("❌ API Error: Insufficient permissions", { 
         userRole: currentUser.role, 
         canManageRoles, 
         canManageCredits 
@@ -38,30 +55,39 @@ export const PATCH = auth(async (req, ctx) => {
     }
 
     if (!userId) {
+      console.error("❌ API Error: userId is missing");
       return new Response("User ID is required", { status: 400 });
     }
+
+    console.log("🔍 API Debug: Processing request for userId:", userId);
 
     const body = await req.json();
     const { role, credits } = body;
 
+    console.log("🔍 API Debug: Request body:", { role, credits });
+
     // Validate role assignment permissions
     if (role) {
       if (!canManageRoles) {
+        console.error("❌ API Error: Cannot manage roles");
         return new Response("Insufficient permissions to manage roles", { status: 403 });
       }
 
       // Validate role value
       if (!["HERO", "ADMIN", "USER"].includes(role)) {
+        console.error("❌ API Error: Invalid role:", role);
         return new Response("Invalid role", { status: 400 });
       }
 
       // Prevent non-HERO users from assigning HERO role
       if (role === "HERO" && !canHero(currentUser.role, 'roles:assign')) {
+        console.error("❌ API Error: Cannot assign HERO role");
         return new Response("Only HERO users can assign HERO role", { status: 403 });
       }
 
       // Prevent users from assigning roles higher than their own
       if (!isRoleHigherOrEqual(currentUser.role, role as any)) {
+        console.error("❌ API Error: Cannot assign higher role");
         return new Response("Cannot assign role higher than your own", { status: 403 });
       }
     }
@@ -69,13 +95,28 @@ export const PATCH = auth(async (req, ctx) => {
     // Validate credits management permissions
     if (credits !== undefined) {
       if (!canManageCredits) {
+        console.error("❌ API Error: Cannot manage credits");
         return new Response("Insufficient permissions to manage credits", { status: 403 });
       }
 
       if (typeof credits !== "number" || credits < 0) {
+        console.error("❌ API Error: Invalid credits value:", credits);
         return new Response("Invalid credits value", { status: 400 });
       }
     }
+
+    // Verify target user exists before updating
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, role: true }
+    });
+
+    if (!targetUser) {
+      console.error("❌ API Error: Target user not found:", userId);
+      return new Response("User not found", { status: 404 });
+    }
+
+    console.log("🔍 API Debug: Target user found:", targetUser.email);
 
     // Update user
     const updatedUser = await prisma.user.update({
@@ -83,6 +124,7 @@ export const PATCH = auth(async (req, ctx) => {
       data: {
         ...(role && { role }),
         ...(credits !== undefined && { credits }),
+        updatedAt: new Date(),
       },
       select: {
         id: true,
@@ -95,9 +137,11 @@ export const PATCH = auth(async (req, ctx) => {
       },
     });
 
+    console.log("✅ API Success: User updated successfully:", updatedUser.email);
     return Response.json(updatedUser);
+    
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error("❌ API Error: Unexpected error:", error);
     return new Response("Internal server error", { status: 500 });
   }
 });
@@ -108,33 +152,38 @@ export const DELETE = auth(async (req, ctx) => {
     const userId = params.id;
     
     // Enhanced authentication check
+    console.log("🔍 API Debug: Starting DELETE request");
+    
     if (!req.auth) {
-      console.error("API Error: req.auth is undefined");
+      console.error("❌ API Error: req.auth is undefined");
       return new Response("Not authenticated", { status: 401 });
     }
 
     const currentUser = req.auth.user;
     if (!currentUser) {
-      console.error("API Error: req.auth.user is undefined");
+      console.error("❌ API Error: req.auth.user is undefined");
       return new Response("User not found in session", { status: 401 });
     }
 
     if (!currentUser.id) {
-      console.error("API Error: currentUser.id is undefined", { currentUser });
+      console.error("❌ API Error: currentUser.id is undefined", { currentUser });
       return new Response("Invalid user session", { status: 401 });
     }
 
     // Only HERO users can delete users
     if (!canHero(currentUser.role, 'users:delete')) {
+      console.error("❌ API Error: Cannot delete users");
       return new Response("Unauthorized", { status: 403 });
     }
 
     if (!userId) {
+      console.error("❌ API Error: userId is missing");
       return new Response("User ID is required", { status: 400 });
     }
 
     // Prevent users from deleting themselves
     if (userId === currentUser.id) {
+      console.error("❌ API Error: Cannot delete own account");
       return new Response("Cannot delete your own account", { status: 400 });
     }
 
@@ -142,9 +191,11 @@ export const DELETE = auth(async (req, ctx) => {
       where: { id: userId },
     });
 
+    console.log("✅ API Success: User deleted successfully");
     return new Response("User deleted successfully", { status: 200 });
+    
   } catch (error) {
-    console.error("Error deleting user:", error);
+    console.error("❌ API Error: Unexpected error:", error);
     return new Response("Internal server error", { status: 500 });
   }
 }); 
