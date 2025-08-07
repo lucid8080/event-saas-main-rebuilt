@@ -253,17 +253,52 @@ Based on the codebase analysis, several features were disabled for production st
   🔧 **Next Steps**: Resolve Windows permission issues for full build completion
 - **Priority**: RESOLVED - TypeScript errors fixed, only Windows permission issues remain
 
-### **🚨 NEW CRITICAL ISSUE: Event Generator R2 Corruption** ❌
-- **Issue**: Event Generator creates 4-byte corrupted PNG files in R2 storage
-- **User Report**: "after clicking generate no preview is shown. it does show a image place holder in the gallery but there is not image. also in the cloudflare r2 it creates a png file that not viewable."
-- **Root Cause Identified**: `NEXT_PUBLIC_ENABLE_CLOUD_SERVICES` is disabled
-- **Impact**: CRITICAL - Image generation completely broken
+### **✅ System Prompts Import/Export Feature** ✅
+- **Issue**: Need easy way to transfer system prompts between environments
+- **Root Cause**: Manual deployment process was complex and error-prone
+- **Impact**: HIGH - Streamlines prompt management across development and production
 - **Technical Details**:
-  ✅ **Ideogram API**: Working (generates images successfully)
-  ✅ **Image Download**: Working (downloads from Ideogram)
-  ❌ **R2 Upload**: FAILING due to disabled cloud services
-  ❌ **Fallback Logic**: Creating 4-byte corrupted files instead of proper fallback
-- **Immediate Fix Required**: Enable `NEXT_PUBLIC_ENABLE_CLOUD_SERVICES=true`
+  ✅ **Import/Export UI**: Added to System Prompts Management interface
+  ✅ **Export Functionality**: Downloads all prompts as JSON with metadata
+  ✅ **Import Functionality**: Supports file upload and direct JSON pasting
+  ✅ **API Endpoint**: Created `/api/admin/system-prompts/import` for bulk operations
+  ✅ **Validation**: Comprehensive JSON format and field validation
+- **Features Implemented**:
+  ✅ **Import/Export Button**: Toggle panel in System Prompts Management header
+  ✅ **Export All Prompts**: Downloads timestamped JSON file with all active prompts
+  ✅ **File Upload Import**: Drag-and-drop or file picker for JSON files
+  ✅ **Direct JSON Import**: Paste JSON data directly into text area
+  ✅ **Smart Import Logic**: Updates existing prompts or creates new ones
+  ✅ **Error Handling**: Detailed feedback on import/export results
+- **Benefits**:
+  - **Easy Production Deployment**: Export from dev, import to production
+  - **Backup & Restore**: Create backups before making changes
+  - **Team Collaboration**: Share prompt configurations between team members
+  - **Version Control**: Track prompt changes over time
+- **Status**: ✅ **COMPLETED** - Full import/export functionality ready for use
+
+### **✅ System Prompts Production Deployment** ✅
+- **Issue**: System Prompts Management changes not reflected in production
+- **Root Cause**: Production database missing the 43 optimized system prompts from local environment
+- **Impact**: CRITICAL - Image generation using hardcoded fallbacks instead of database prompts
+- **Technical Details**:
+  ✅ **Local Database**: 43 optimized system prompts available
+  ✅ **System Prompts Management**: Complete admin interface working
+  ✅ **Database Integration**: `generateEnhancedPromptWithSystemPrompts` function implemented
+  ✅ **Export Files**: SQL and JSON files generated for deployment
+  ❌ **Production Database**: Missing the optimized prompts
+- **Solution Implemented**:
+  ✅ **Export Script**: Created `deploy-system-prompts-to-production.ts`
+  ✅ **SQL File**: Generated `production-system-prompts.sql` with all 43 prompts
+  ✅ **JSON Backup**: Created `production-system-prompts.json` for alternative import
+  ✅ **Deployment Guide**: Created comprehensive deployment instructions
+  ✅ **Import/Export Feature**: Now available for easy production deployment
+- **Deployment Options**:
+  1. **Import/Export UI**: Use new System Prompts Management interface (RECOMMENDED)
+  2. **Direct SQL Execution**: Run `psql -d your_database -f production-system-prompts.sql`
+  3. **Database Migration**: Add SQL to new migration and run `npx prisma migrate deploy`
+  4. **Manual Database Insert**: Copy SQL statements to database management tool
+- **Status**: ✅ **READY FOR DEPLOYMENT** - Multiple deployment options available
 
 ### **Production Credit Application Issue** ✅
 - **Issue**: Admins cannot apply credits to users on production server

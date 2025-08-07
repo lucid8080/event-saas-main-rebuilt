@@ -1,0 +1,566 @@
+{
+  "version": "1.0",
+  "exportedAt": "2025-08-07T17:18:21.095Z",
+  "totalPrompts": 43,
+  "prompts": [
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Holiday Celebration Event",
+      "description": "Test import of Holiday Celebration Event",
+      "content": "festive holiday celebration with seasonal decorations, warm lighting, and traditional holiday elements, joyful and celebratory atmosphere with holiday color palettes, holiday flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrha0004jiv8rl2vnhz8"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Sports Event Event",
+      "description": "Test import of Sports Event Event",
+      "content": "action-packed sports event with dynamic movement, competitive energy, and athletic atmosphere, energetic and competitive mood with sports equipment and arena elements, sports flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrhe0006jiv8zy4pk1wo"
+      }
+    },
+    {
+      "category": "text_generation",
+      "subcategory": null,
+      "name": "TEST_body text generation",
+      "description": "Test import of body text generation",
+      "content": "Generate informative body text that provides details and context for the carousel content. The text should be clear, engaging, provide valuable information to the reader, and maintain consistent tone. Keep it concise (1-2 sentences) while being informative and compelling. Use only real, readable English words - no gibberish, .",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrhk000ajiv80r5svd0o"
+      }
+    },
+    {
+      "category": "text_generation",
+      "subcategory": null,
+      "name": "TEST_cta text generation",
+      "description": "Test import of cta text generation",
+      "content": "Generate a clear call-to-action text that encourages engagement or next steps. The text should be action-oriented, compelling, create urgency or excitement, and use strong verbs. Keep it short (2-4 words) and make it impossible to ignore. Use only real, readable English words - no gibberish, .",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrhm000bjiv8i8u9xdxu"
+      }
+    },
+    {
+      "category": "text_generation",
+      "subcategory": null,
+      "name": "TEST_header text generation",
+      "description": "Test import of header text generation",
+      "content": "Generate a compelling header text for a carousel slide that is attention-grabbing and clearly communicates the main message. The text should be concise (3-7 words), impactful, use strong action words, and create immediate visual impact. Focus on clarity, brevity, and emotional resonance. Use only real, readable English words - no gibberish, .",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrhj0009jiv8832g29jt"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Birthday Party Event",
+      "description": "Test import of Birthday Party Event",
+      "content": "vibrant birthday party celebration with colorful balloons, confetti, and festive decorations, warm and joyful atmosphere with bright lighting, event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrh00001jiv8m872pcn5"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Corporate Event Event",
+      "description": "Test import of Corporate Event Event",
+      "content": "corporate event with modern business aesthetics, clean lines, and sophisticated design elements, and trustworthy atmosphere with corporate color schemes, business flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrh70003jiv8l0yulqmx"
+      }
+    },
+    {
+      "category": "system_default",
+      "subcategory": null,
+      "name": "TEST_CONCERT",
+      "description": "Test import of CONCERT",
+      "content": "dynamic concert event with energetic lighting, stage effects, and musical atmosphere, exciting and vibrant mood with dramatic lighting and performance energy, concert flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrhc0005jiv8qmenn9ya"
+      }
+    },
+    {
+      "category": "system_default",
+      "subcategory": null,
+      "name": "TEST_WEDDING",
+      "description": "Test import of WEDDING",
+      "content": "elegant wedding celebration with romantic floral arrangements, soft lighting, and sophisticated decor, timeless and romantic atmosphere with warm golden tones, wedding flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrh50002jiv8qrj8zvqo"
+      }
+    },
+    {
+      "category": "system_default",
+      "subcategory": null,
+      "name": "TEST_NIGHTLIFE",
+      "description": "Test import of NIGHTLIFE",
+      "content": "vibrant nightlife event with neon lighting, urban atmosphere, and contemporary club aesthetics, exciting and energetic mood with modern urban elements and nightlife energy, nightlife flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrhg0007jiv88vfypf9g"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Fundraiser Event",
+      "description": "Test import of Fundraiser Event",
+      "content": "charitable fundraiser event with philanthropic atmosphere, donation elements, and cause-related imagery, inspiring and generous mood with altruistic themes and community support, fundraiser event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiz3000459rivp4d7it7"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Meetup Event",
+      "description": "Test import of Meetup Event",
+      "content": "casual meetup with relaxed atmosphere, networking elements, and social interaction, friendly and approachable mood with informal setting and connection opportunities, meetup event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiz7000659rix5i1og5w"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Nightlife Event",
+      "description": "Test import of Nightlife Event",
+      "content": "vibrant nightlife event with neon lighting, urban atmosphere, and contemporary club aesthetics, exciting and energetic mood with modern urban elements and nightlife energy, nightlife flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviwk3j00026eyhnr513g52"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Park Gathering Event",
+      "description": "Test import of Park Gathering Event",
+      "content": "outdoor park gathering with natural scenery, open spaces, and recreational elements, peaceful and community-focused atmosphere with natural lighting and park amenities, park event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiyy000259rik7rgd8f3"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Reunion Event",
+      "description": "Test import of Reunion Event",
+      "content": "emotional reunion with nostalgic atmosphere, connection elements, and shared memories, warm and sentimental mood with reconnection themes and meaningful moments, reunion event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizb000859riufx0pkqo"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Wedding Event",
+      "description": "Test import of Wedding Event",
+      "content": "elegant wedding celebration with romantic floral arrangements, soft lighting, and sophisticated decor, timeless and romantic atmosphere with warm golden tones, wedding flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviwk3a00006eyhnbny2fx3"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Workshop Event",
+      "description": "Test import of Workshop Event",
+      "content": "educational workshop with learning environment, instructional elements, and knowledge-sharing atmosphere, informative and engaging mood with educational tools and collaborative learning, workshop event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiz5000559rinp2ox7xm"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Celebration Event",
+      "description": "Test import of Celebration Event",
+      "content": "general celebration with festive atmosphere, party elements, and joyful mood, happy and celebratory atmosphere with universal appeal and positive energy, celebration event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiz9000759rislyz41lm"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Community Event Event",
+      "description": "Test import of Community Event Event",
+      "content": "community-focused event with diverse participants, inclusive atmosphere, and local cultural elements, welcoming and collaborative mood with community spirit and local pride, community event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiz0000359rigvijepww"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Concert Event",
+      "description": "Test import of Concert Event",
+      "content": "dynamic concert event with energetic lighting, stage effects, and musical atmosphere, exciting and vibrant mood with dramatic lighting and performance energy, concert flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviwk3f00016eyh5tf11byb"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Family Gathering Event",
+      "description": "Test import of Family Gathering Event",
+      "content": "warm family gathering with cozy atmosphere, comfortable seating, and family-friendly decor, welcoming and inclusive mood with natural lighting and home-like elements, family event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiys000059rid98cdwe5"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Book Club Event",
+      "description": "Test import of Book Club Event",
+      "content": "intellectual book club with literary atmosphere, reading elements, and discussion environment, thoughtful and engaging mood with literary themes and intellectual discourse, book club event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizi000b59risa4legq2"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Other Event",
+      "description": "Test import of Other Event",
+      "content": "versatile event design with adaptable styling, welcoming atmosphere, and inclusive visual elements, friendly and approachable mood with universal appeal and flexible design elements, event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizt000g59ri5rqdl460"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Potluck Event",
+      "description": "Test import of Potluck Event",
+      "content": "communal potluck with shared food atmosphere, culinary elements, and community dining, welcoming and collaborative mood with food sharing and social dining, potluck event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizd000959ribk3hzyyr"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Pottery Event",
+      "description": "Test import of Pottery Event",
+      "content": "creative pottery class with artistic atmosphere, ceramic elements, and hands-on crafting, peaceful and meditative mood with artistic tools and creative expression, pottery class event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizq000f59ri58m816x6"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Children Book Style",
+      "description": "Test import of Children Book Style",
+      "content": "whimsical children book illustration style with soft colors, friendly characters, and playful elements, warm and inviting atmosphere perfect for family events, gentle and approachable aesthetic with rounded shapes and cheerful colors",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyand0002122tgbqz9eqf"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Pop Art Style",
+      "description": "Test import of Pop Art Style",
+      "content": "vibrant pop art style reminiscent of Roy Lichtenstein and Andy Warhol, bold colors, comic book dots, and graphic design elements, retro pop culture aesthetic with bright primary colors and bold outlines, authentic pop art design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyanb0001122t3zyy0z2l"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Wild Card Style",
+      "description": "Test import of Wild Card Style",
+      "content": "unique and unpredictable artistic interpretation with creative freedom, experimental composition and unconventional visual elements, artistic and innovative style with unexpected color combinations and abstract elements, creative artistic design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyan80000122t0bruit7b"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Art Class Event",
+      "description": "Test import of Art Class Event",
+      "content": "creative art class with artistic atmosphere, creative elements, and artistic expression, inspiring and imaginative mood with artistic tools and creative exploration, art class event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizk000c59riou6i67t7"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Breakdancing Event",
+      "description": "Test import of Breakdancing Event",
+      "content": "dynamic breakdancing event with urban dance atmosphere, street dance elements, and hip-hop culture, energetic and rhythmic mood with urban dance moves and street culture, breakdancing event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizp000e59rij94dln7y"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Fitness Class Event",
+      "description": "Test import of Fitness Class Event",
+      "content": "energetic fitness class with active atmosphere, exercise elements, and health-focused environment, dynamic and motivating mood with fitness equipment and active lifestyle, fitness class event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizm000d59ri4lqej8m1"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Game Night Event",
+      "description": "Test import of Game Night Event",
+      "content": "entertaining game night with playful atmosphere, gaming elements, and fun activities, lively and engaging mood with entertainment and social gaming, game night event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixizg000a59rileyrq7qo"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Fantasy World Style",
+      "description": "Test import of Fantasy World Style",
+      "content": "magical and enchanting fantasy realm with mystical elements, ethereal lighting, and otherworldly atmosphere, dreamlike and fantastical aesthetic with magical visual effects and fantasy creatures, whimsical and imaginative style with fantasy world elements, enchanting fantasy design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyanq0008122ta0yt7v4l"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Golden Harmony Style",
+      "description": "Test import of Golden Harmony Style",
+      "content": "elegant celebration design with soft neutral tones, gold accents, and warm lighting, sophisticated and luxurious atmosphere with harmonious color balance, refined and upscale aesthetic with golden highlights and elegant composition, premium celebration design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyanf0003122tpc5v8rfx"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Cyberpunk Style",
+      "description": "Test import of Cyberpunk Style",
+      "content": "futuristic cyberpunk style with neon lighting, technological elements, and urban dystopia aesthetic, high-tech and edgy atmosphere with neon colors and futuristic design elements, modern and cutting-edge style with cyberpunk visual language, authentic cyberpunk design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyanm0006122twmk9amol"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Street Art Style",
+      "description": "Test import of Street Art Style",
+      "content": "urban street art style with bold graffiti elements, contemporary urban culture, and vibrant street aesthetics, edgy and urban atmosphere with graffiti techniques and street art visual language, modern and rebellious style with urban artistic elements, limited text and faces unless otherwise specified, authentic street art design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyans0009122tuip9lvuy"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Vintage Film Poster Style",
+      "description": "Test import of Vintage Film Poster Style",
+      "content": "vintage action movie poster style with bold colors, dramatic lighting, and 80s retro aesthetic, cinematic and dramatic atmosphere with vintage typography and film poster composition, nostalgic and energetic style with retro color palettes and dramatic shadows, authentic vintage poster design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdviyanh0004122t6as1xvl5"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Retro Game Style",
+      "description": "Test import of Retro Game Style",
+      "content": "retro game theme with pixel art graphics, 16-bit aesthetic, and nostalgic gaming elements, vintage video game atmosphere with pixelated textures and retro color palettes, nostalgic and playful style with classic gaming visual elements.",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cme1e7u4y0002xf8gsid55s5e"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Unicorn Balloon Bash Style",
+      "description": "Test import of Unicorn Balloon Bash Style",
+      "content": "whimsical sky scene with plush, pastel-colored draconicorns floating through a dreamy gradient sky—peachy blush fading into soft blue. 3D toy-like stars, curly streamers, sprinkle-shaped confetti, and glossy balloons drift around them. A playful depth of field blurs oversized foreground elements while keeping midground dragons crisp, creating a lively, immersive celebration in the clouds",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cme146ed40000hzolpmzos0pa"
+      }
+    },
+    {
+      "category": "carousel_background",
+      "subcategory": null,
+      "name": "TEST_Carousel Background Base",
+      "description": "Test import of Carousel Background Base",
+      "content": "Create a seamless background image with a continuous pattern. The background should be a unified design that flows smoothly from left to right across the entire width. Use simple, solid colors and subtle patterns that create visual interest without being distracting. The design should be cohesive and seamless, with no visible breaks, separations, or distinct sections. Choose colors that provide excellent contrast for white text overlay. Ensure , design suitable for social media carousels.",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvisrhi0008jiv8yt3awh0q"
+      }
+    },
+    {
+      "category": "event_type",
+      "subcategory": null,
+      "name": "TEST_Bbq Event",
+      "description": "Test import of Bbq Event",
+      "content": "outdoor barbecue event with grilling equipment, picnic atmosphere, and casual outdoor setting, relaxed and social mood with natural lighting and outdoor elements, BBQ event flyer design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cmdvixiyv000159ri7dczqxpk"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Origami Style",
+      "description": "Test import of Origami Style",
+      "content": "low-poly 3D character design in geometric, faceted style with warm shades, minimalist and modern aesthetic with clean geometric forms, contemporary and artistic style with polygonal shapes and warm color palette, modern geometric design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cme1k17a10009xf8g50bb31aa"
+      }
+    },
+    {
+      "category": "style_preset",
+      "subcategory": null,
+      "name": "TEST_Political Satire Style",
+      "description": "Test import of Political Satire Style",
+      "content": "detailed political caricature with formal government office backdrop, satirical and humorous political commentary, sophisticated and witty aesthetic with political symbolism and formal setting, political satire design",
+      "version": 1,
+      "isActive": true,
+      "metadata": {
+        "test": true,
+        "originalId": "cme1k4mrw0002jocmix9o4v2z"
+      }
+    }
+  ]
+}

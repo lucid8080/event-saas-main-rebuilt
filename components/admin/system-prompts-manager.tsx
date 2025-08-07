@@ -23,7 +23,10 @@ import {
   Settings,
   FileText,
   Palette,
-  MessageSquare
+  MessageSquare,
+  Download,
+  Upload,
+  Database
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdeogramRecommendations } from './ideogram-recommendations';
@@ -40,6 +43,9 @@ export function SystemPromptsManager({ className }: SystemPromptsManagerProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showImportExport, setShowImportExport] = useState(false);
+  const [importData, setImportData] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
 
   // Form state for creating/editing prompts
   const [formData, setFormData] = useState({
@@ -163,6 +169,113 @@ export function SystemPromptsManager({ className }: SystemPromptsManagerProps) {
     toast.success('Prompt copied to clipboard');
   };
 
+  const handleExportPrompts = async () => {
+    try {
+      setIsLoading(true);
+      // Fetch all prompts for export
+      const response = await fetch('/api/admin/system-prompts?isActive=true');
+      if (response.ok) {
+        const data = await response.json();
+        const prompts = data.prompts || [];
+        
+        // Create export data
+        const exportData = {
+          version: '1.0',
+          exportedAt: new Date().toISOString(),
+          totalPrompts: prompts.length,
+          prompts: prompts.map(prompt => ({
+            category: prompt.category,
+            subcategory: prompt.subcategory,
+            name: prompt.name,
+            description: prompt.description,
+            content: prompt.content,
+            version: prompt.version,
+            isActive: prompt.isActive,
+            metadata: prompt.metadata
+          }))
+        };
+
+        // Create and download file
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `system-prompts-export-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast.success(`Exported ${prompts.length} prompts successfully`);
+      } else {
+        toast.error('Failed to export prompts');
+      }
+    } catch (error) {
+      console.error('Error exporting prompts:', error);
+      toast.error('Failed to export prompts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImportPrompts = async () => {
+    if (!importData.trim()) {
+      toast.error('Please paste JSON data to import');
+      return;
+    }
+
+    try {
+      setIsImporting(true);
+      let importJson;
+      
+      try {
+        importJson = JSON.parse(importData);
+      } catch (error) {
+        toast.error('Invalid JSON format');
+        return;
+      }
+
+      if (!importJson.prompts || !Array.isArray(importJson.prompts)) {
+        toast.error('Invalid import format: missing prompts array');
+        return;
+      }
+
+      const response = await fetch('/api/admin/system-prompts/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompts: importJson.prompts })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success(`Imported ${result.imported} prompts successfully`);
+        setImportData('');
+        setShowImportExport(false);
+        fetchPrompts(); // Refresh the list
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Failed to import prompts');
+      }
+    } catch (error) {
+      console.error('Error importing prompts:', error);
+      toast.error('Failed to import prompts');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setImportData(content);
+    };
+    reader.readAsText(file);
+  };
+
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'event_type': return <FileText className="size-4" />;
@@ -186,11 +299,100 @@ export function SystemPromptsManager({ className }: SystemPromptsManagerProps) {
             Manage and edit system prompts for different features
           </p>
         </div>
-        <Button onClick={handleCreatePrompt} disabled={isLoading}>
-          <Plus className="size-4 mr-2" />
-          Create Prompt
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowImportExport(!showImportExport)}
+            disabled={isLoading}
+          >
+            <Database className="size-4 mr-2" />
+            Import/Export
+          </Button>
+          <Button onClick={handleCreatePrompt} disabled={isLoading}>
+            <Plus className="size-4 mr-2" />
+            Create Prompt
+          </Button>
+        </div>
       </div>
+
+      {/* Import/Export Panel */}
+      {showImportExport && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="size-4" />
+              Import/Export System Prompts
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Export Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Download className="size-4" />
+                  Export Prompts
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Export all system prompts to a JSON file for backup or transfer to another environment.
+                </p>
+                <Button 
+                  onClick={handleExportPrompts} 
+                  disabled={isLoading}
+                  className="w-full"
+                >
+                  <Download className="size-4 mr-2" />
+                  Export All Prompts
+                </Button>
+              </div>
+
+              {/* Import Section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Upload className="size-4" />
+                  Import Prompts
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Import prompts from a JSON file or paste JSON data directly.
+                </p>
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileUpload}
+                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                  />
+                  <div className="text-xs text-muted-foreground">
+                    Or paste JSON data below:
+                  </div>
+                  <Textarea
+                    placeholder="Paste JSON data here..."
+                    value={importData}
+                    onChange={(e) => setImportData(e.target.value)}
+                    rows={4}
+                    className="font-mono text-xs"
+                  />
+                  <Button 
+                    onClick={handleImportPrompts} 
+                    disabled={isImporting || !importData.trim()}
+                    className="w-full"
+                  >
+                    <Upload className="size-4 mr-2" />
+                    {isImporting ? 'Importing...' : 'Import Prompts'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Import Format Info */}
+            <Alert>
+              <AlertCircle className="size-4" />
+              <AlertDescription>
+                <strong>Import Format:</strong> The JSON should contain a <code>prompts</code> array with objects having: <code>category</code>, <code>subcategory</code>, <code>name</code>, <code>description</code>, <code>content</code>, <code>version</code>, <code>isActive</code>, and <code>metadata</code> fields.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Panel - Category Selection and Prompt List */}
