@@ -7,20 +7,20 @@ The pricing amounts shown on the `/pricing` page are not correctly reflected in 
 
 The application is configured with the following pricing:
 
-### **Starter Plan** ✅ **Already Correct**
-- **Monthly**: $30/month (100 credits)
-- **Yearly**: $288/year (100 credits) - 20% discount
+### **Starter Plan**
+- **Monthly**: $15/month (100 credits)
+- **Yearly**: $144/year (100 credits) - 20% discount
 - **Credits**: 100 credits per billing cycle
 
 ### **Pro Plan**
-- **Monthly**: $60/month (200 credits)
-- **Yearly**: $576/year (200 credits) - 20% discount
-- **Credits**: 200 credits per billing cycle
+- **Monthly**: $45/month (300 credits)
+- **Yearly**: $432/year (300 credits) - 20% discount
+- **Credits**: 300 credits per billing cycle
 
 ### **Business Plan**
-- **Monthly**: $120/month (500 credits)
-- **Yearly**: $1152/year (500 credits) - 20% discount
-- **Credits**: 500 credits per billing cycle
+- **Monthly**: $150/month (1000 credits)
+- **Yearly**: $1440/year (1000 credits) - 20% discount
+- **Credits**: 1000 credits per billing cycle
 
 ## 🛠️ **Step-by-Step Stripe Setup**
 
@@ -38,12 +38,12 @@ The application is configured with the following pricing:
 4. **Add pricing**:
 
    **Monthly Price:**
-   - Amount: `$30.00` (USD)
+   - Amount: `$15.00` (USD)
    - Billing period: `Monthly`
    - Click "Save price"
 
    **Yearly Price:**
-   - Amount: `$288.00` (USD)
+   - Amount: `$144.00` (USD)
    - Billing period: `Yearly`
    - Click "Save price"
 
@@ -53,16 +53,16 @@ The application is configured with the following pricing:
 
 1. **Click "Add product"** or find existing Pro product
 2. **Product name**: `Pro Plan`
-3. **Description**: `Best for growing businesses with 200 credits per month`
+3. **Description**: `Best for growing businesses with 300 credits per month`
 4. **Add pricing**:
 
    **Monthly Price:**
-   - Amount: `$60.00`
+   - Amount: `$45.00`
    - Billing period: `Monthly`
    - Click "Save price"
 
    **Yearly Price:**
-   - Amount: `$576.00`
+   - Amount: `$432.00`
    - Billing period: `Yearly`
    - Click "Save price"
 
@@ -72,16 +72,16 @@ The application is configured with the following pricing:
 
 1. **Click "Add product"** or find existing Business product
 2. **Product name**: `Business Plan`
-3. **Description**: `For larger organizations with 500 credits per month`
+3. **Description**: `For larger organizations with 1000 credits per month`
 4. **Add pricing**:
 
    **Monthly Price:**
-   - Amount: `$120.00`
+   - Amount: `$150.00`
    - Billing period: `Monthly`
    - Click "Save price"
 
    **Yearly Price:**
-   - Amount: `$1152.00`
+   - Amount: `$1440.00`
    - Billing period: `Yearly`
    - Click "Save price"
 

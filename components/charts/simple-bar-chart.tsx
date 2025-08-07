@@ -1,8 +1,6 @@
 "use client";
 
 import * as React from "react";
-// Dynamic import approach for recharts to avoid SSR issues
-import dynamic from "next/dynamic";
 import { format } from "date-fns";
 
 import {
@@ -12,12 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 
 interface DailyStats {
   date: string;
@@ -27,30 +19,13 @@ interface DailyStats {
   revenue: number;
 }
 
-interface RealInteractiveBarChartProps {
+interface SimpleBarChartProps {
   data: DailyStats[];
   loading?: boolean;
 }
 
-const chartConfig = {
-  newUsers: {
-    label: "New Users",
-    color: "hsl(var(--chart-1))",
-  },
-  imagesGenerated: {
-    label: "Images Generated",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig;
-
-// Dynamic imports for recharts components to avoid SSR issues
-const BarChart = dynamic(() => import("recharts").then(mod => ({ default: mod.BarChart })), { ssr: false });
-const CartesianGrid = dynamic(() => import("recharts").then(mod => ({ default: mod.CartesianGrid })), { ssr: false });
-const XAxis = dynamic(() => import("recharts").then(mod => ({ default: mod.XAxis })), { ssr: false });
-const Bar = dynamic(() => import("recharts").then(mod => ({ default: mod.Bar })), { ssr: false });
-
-export function RealInteractiveBarChart({ data, loading = false }: RealInteractiveBarChartProps) {
-  const [activeChart, setActiveChart] = React.useState<keyof typeof chartConfig>("newUsers");
+export function SimpleBarChart({ data, loading = false }: SimpleBarChartProps) {
+  const [activeChart, setActiveChart] = React.useState<"newUsers" | "imagesGenerated">("newUsers");
 
   const total = React.useMemo(
     () => ({
@@ -104,6 +79,11 @@ export function RealInteractiveBarChart({ data, loading = false }: RealInteracti
     );
   }
 
+  // Calculate max value for scaling
+  const maxValue = Math.max(
+    ...data.map(day => activeChart === "newUsers" ? day.newUsers : day.imagesGenerated)
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-col p-0 space-y-0 border-b sm:flex-row items-stretch">
@@ -114,20 +94,19 @@ export function RealInteractiveBarChart({ data, loading = false }: RealInteracti
           </CardDescription>
         </div>
         <div className="flex">
-          {["newUsers", "imagesGenerated"].map((key) => {
-            const chart = key as keyof typeof chartConfig;
+          {(["newUsers", "imagesGenerated"] as const).map((key) => {
             return (
               <button
-                key={chart}
-                data-active={activeChart === chart}
-                className="relative flex flex-1 flex-col px-6 py-4 text-left border-t sm:border-l sm:border-t-0 sm:px-8 sm:py-6 z-30 justify-center gap-1 even:border-l data-[active=true]:bg-muted/50"
-                onClick={() => setActiveChart(chart)}
+                key={key}
+                data-active={activeChart === key}
+                className="relative flex flex-1 flex-col px-6 py-4 text-left border-t sm:border-l sm:border-t-0 sm:px-8 sm:py-6 z-30 justify-center gap-1 even:border-l data-[active=true]:bg-muted/50 hover:bg-muted/30 transition-colors"
+                onClick={() => setActiveChart(key)}
               >
                 <span className="text-xs text-muted-foreground">
-                  {chartConfig[chart].label}
+                  {key === "newUsers" ? "New Users" : "Images Generated"}
                 </span>
                 <span className="text-lg sm:text-3xl font-bold leading-none">
-                  {total[key as keyof typeof total].toLocaleString()}
+                  {total[key].toLocaleString()}
                 </span>
               </button>
             );
@@ -135,45 +114,50 @@ export function RealInteractiveBarChart({ data, loading = false }: RealInteracti
         </div>
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
-        <ChartContainer
-          config={chartConfig}
-          className="w-full h-[250px] aspect-auto"
-        >
-          <BarChart
-            accessibilityLayer
-            data={data}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return format(date, "MMM dd");
-              }}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="value"
-                  labelFormatter={(value) => {
-                    return format(new Date(value), "MMM dd, yyyy");
-                  }}
+        <div className="w-full h-[250px] flex items-end justify-between gap-1 p-4">
+          {data.slice(-14).map((day, index) => {
+            const value = activeChart === "newUsers" ? day.newUsers : day.imagesGenerated;
+            const height = maxValue > 0 ? (value / maxValue) * 200 : 0;
+            
+            return (
+              <div
+                key={day.date}
+                className="flex flex-col items-center gap-1 flex-1 group"
+                title={`${format(new Date(day.date), "MMM dd, yyyy")}: ${value} ${activeChart === "newUsers" ? "new users" : "images generated"}`}
+              >
+                <div
+                  className={`w-full rounded-t transition-all duration-300 group-hover:opacity-80 ${
+                    activeChart === "newUsers" 
+                      ? "bg-blue-500 hover:bg-blue-600" 
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
+                  style={{ height: `${height}px`, minHeight: value > 0 ? "4px" : "0px" }}
                 />
-              }
-            />
-            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
-          </BarChart>
-        </ChartContainer>
+                <span className="text-xs text-muted-foreground rotate-45 origin-left whitespace-nowrap">
+                  {format(new Date(day.date), "MMM dd")}
+                </span>
+                {value > 0 && (
+                  <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    {value}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Legend */}
+        <div className="flex justify-center mt-4 gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-blue-500" />
+            <span className="text-sm text-muted-foreground">New Users</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-green-500" />
+            <span className="text-sm text-muted-foreground">Images Generated</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
-} 
+}

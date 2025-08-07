@@ -34,27 +34,27 @@ interface UpcomingPersonalEvent extends PersonalEvent {
 }
 
 const eventTypes = [
-  { value: "birthday", label: "Birthday", icon: Gift, color: "bg-pink-100 text-pink-800" },
-  { value: "anniversary", label: "Anniversary", icon: Heart, color: "bg-red-100 text-red-800" },
-  { value: "graduation", label: "Graduation", icon: GraduationCap, color: "bg-blue-100 text-blue-800" },
-  { value: "work", label: "Work Event", icon: Briefcase, color: "bg-gray-100 text-gray-800" },
-  { value: "travel", label: "Travel", icon: Plane, color: "bg-green-100 text-green-800" },
-  { value: "celebration", label: "Celebration", icon: Star, color: "bg-yellow-100 text-yellow-800" },
-  { value: "family", label: "Family Event", icon: Users, color: "bg-purple-100 text-purple-800" },
-  { value: "home", label: "Home Event", icon: Home, color: "bg-orange-100 text-orange-800" },
-  { value: "photo", label: "Photo Event", icon: Camera, color: "bg-indigo-100 text-indigo-800" },
+  { value: "birthday", label: "Birthday", icon: Gift, color: "bg-pink-600 text-white" },
+  { value: "anniversary", label: "Anniversary", icon: Heart, color: "bg-red-600 text-white" },
+  { value: "graduation", label: "Graduation", icon: GraduationCap, color: "bg-blue-600 text-white" },
+  { value: "work", label: "Work Event", icon: Briefcase, color: "bg-slate-600 text-white" },
+  { value: "travel", label: "Travel", icon: Plane, color: "bg-green-600 text-white" },
+  { value: "celebration", label: "Celebration", icon: Star, color: "bg-amber-600 text-white" },
+  { value: "family", label: "Family Event", icon: Users, color: "bg-purple-600 text-white" },
+  { value: "home", label: "Home Event", icon: Home, color: "bg-orange-600 text-white" },
+  { value: "photo", label: "Photo Event", icon: Camera, color: "bg-indigo-600 text-white" },
 ];
 
 const colorOptions = [
-  { value: "pink", label: "Pink", class: "bg-pink-100 text-pink-800" },
-  { value: "red", label: "Red", class: "bg-red-100 text-red-800" },
-  { value: "blue", label: "Blue", class: "bg-blue-100 text-blue-800" },
-  { value: "green", label: "Green", class: "bg-green-100 text-green-800" },
-  { value: "yellow", label: "Yellow", class: "bg-yellow-100 text-yellow-800" },
-  { value: "purple", label: "Purple", class: "bg-purple-100 text-purple-800" },
-  { value: "orange", label: "Orange", class: "bg-orange-100 text-orange-800" },
-  { value: "indigo", label: "Indigo", class: "bg-indigo-100 text-indigo-800" },
-  { value: "gray", label: "Gray", class: "bg-gray-100 text-gray-800" },
+  { value: "pink", label: "Pink", class: "bg-pink-600 text-white" },
+  { value: "red", label: "Red", class: "bg-red-600 text-white" },
+  { value: "blue", label: "Blue", class: "bg-blue-600 text-white" },
+  { value: "green", label: "Green", class: "bg-green-600 text-white" },
+  { value: "yellow", label: "Yellow", class: "bg-amber-600 text-white" },
+  { value: "purple", label: "Purple", class: "bg-purple-600 text-white" },
+  { value: "orange", label: "Orange", class: "bg-orange-600 text-white" },
+  { value: "indigo", label: "Indigo", class: "bg-indigo-600 text-white" },
+  { value: "gray", label: "Gray", class: "bg-slate-600 text-white" },
 ];
 
 export default function PersonalEventsPage() {

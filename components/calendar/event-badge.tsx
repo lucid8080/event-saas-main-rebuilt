@@ -12,12 +12,12 @@ interface EventBadgeProps {
 export function EventBadge({ event, onClick, compact = false }: EventBadgeProps) {
   const getEventTypeColor = (classification: string) => {
     const type = classification.toLowerCase();
-    if (type.includes('concert') || type.includes('music')) return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
-    if (type.includes('sport')) return 'bg-green-100 text-green-800 hover:bg-green-200';
-    if (type.includes('theatre') || type.includes('arts')) return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
-    if (type.includes('family')) return 'bg-pink-100 text-pink-800 hover:bg-pink-200';
-    if (type.includes('comedy')) return 'bg-orange-100 text-orange-800 hover:bg-orange-200';
-    return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+    if (type.includes('concert') || type.includes('music')) return 'bg-purple-600 text-white hover:bg-purple-700';
+    if (type.includes('sport')) return 'bg-green-600 text-white hover:bg-green-700';
+    if (type.includes('theatre') || type.includes('arts')) return 'bg-blue-600 text-white hover:bg-blue-700';
+    if (type.includes('family')) return 'bg-pink-600 text-white hover:bg-pink-700';
+    if (type.includes('comedy')) return 'bg-orange-600 text-white hover:bg-orange-700';
+    return 'bg-slate-600 text-white hover:bg-slate-700';
   };
 
   const formatTime = (time: string) => {

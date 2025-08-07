@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { RealInteractiveBarChart } from "@/components/charts/real-interactive-bar-chart";
-import { RealEventTypeChart } from "@/components/charts/real-event-type-chart";
+import { SimpleBarChart } from "@/components/charts/simple-bar-chart";
+import { SimpleEventTypeChart } from "@/components/charts/simple-event-type-chart";
 
 interface ChartStats {
   userActivity: Array<{
@@ -24,13 +24,26 @@ export default function RealCharts() {
 
   const fetchChartData = async () => {
     try {
+      console.log("🔍 RealCharts: Fetching chart data from /api/admin/charts");
       const response = await fetch("/api/admin/charts");
-      if (!response.ok) throw new Error("Failed to fetch chart data");
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("🔍 RealCharts: API response not ok:", response.status, errorText);
+        throw new Error(`Failed to fetch chart data: ${response.status} ${errorText}`);
+      }
       
       const data: ChartStats = await response.json();
+      console.log("🔍 RealCharts: Chart data received:", {
+        userActivity: data.userActivity?.length || 0,
+        deviceDistribution: data.deviceDistribution?.length || 0,
+        eventTypeDistribution: data.eventTypeDistribution?.length || 0,
+        hasUserActivityData: data.userActivity?.some(day => day.newUsers > 0 || day.imagesGenerated > 0)
+      });
+      
       setStats(data);
     } catch (error) {
-      console.error("Error fetching chart data:", error);
+      console.error("🔍 RealCharts: Error fetching chart data:", error);
     } finally {
       setLoading(false);
     }
@@ -44,7 +57,7 @@ export default function RealCharts() {
     <div className="space-y-6">
       {/* User Activity Trends */}
       <div className="space-y-4">
-        <RealInteractiveBarChart 
+        <SimpleBarChart 
           data={stats?.userActivity || []} 
           loading={loading} 
         />
@@ -53,7 +66,7 @@ export default function RealCharts() {
       {/* Event Type Distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="space-y-4">
-          <RealEventTypeChart 
+          <SimpleEventTypeChart 
             data={stats?.eventTypeDistribution || []} 
             loading={loading} 
           />

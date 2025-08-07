@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Settings, Sparkles, Ticket, MapPin } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Settings, Sparkles, Ticket, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
   holidays, 
   getHolidaysForDate, 
@@ -37,6 +38,12 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showDayEventsModal, setShowDayEventsModal] = useState(false);
   const [ticketmasterSettings, setTicketmasterSettings] = useState<TicketmasterSettingsType>(defaultTicketmasterSettings);
+  
+  // Collapsible sidebar sections state
+  const [isHolidaysCollapsed, setIsHolidaysCollapsed] = useState(false);
+  const [isPersonalEventsCollapsed, setIsPersonalEventsCollapsed] = useState(false);
+  const [isUpcomingEventsCollapsed, setIsUpcomingEventsCollapsed] = useState(false);
+  const [isHolidayTypesCollapsed, setIsHolidayTypesCollapsed] = useState(false);
   
   // Ticketmaster events hook
   const {
@@ -273,17 +280,17 @@ export default function CalendarPage() {
 
   const getColorClass = (color: string) => {
     const colorOptions: Record<string, string> = {
-      'pink': 'bg-pink-100 text-pink-800',
-      'red': 'bg-red-100 text-red-800',
-      'blue': 'bg-blue-100 text-blue-800',
-      'green': 'bg-green-100 text-green-800',
-      'yellow': 'bg-yellow-100 text-yellow-800',
-      'purple': 'bg-purple-100 text-purple-800',
-      'orange': 'bg-orange-100 text-orange-800',
-      'indigo': 'bg-indigo-100 text-indigo-800',
-      'gray': 'bg-gray-100 text-gray-800',
+      'pink': 'bg-pink-600 text-white',
+      'red': 'bg-red-600 text-white',
+      'blue': 'bg-blue-600 text-white',
+      'green': 'bg-green-600 text-white',
+      'yellow': 'bg-amber-600 text-white',
+      'purple': 'bg-purple-600 text-white',
+      'orange': 'bg-orange-600 text-white',
+      'indigo': 'bg-indigo-600 text-white',
+      'gray': 'bg-slate-600 text-white',
     };
-    return colorOptions[color] || 'bg-pink-100 text-pink-800';
+    return colorOptions[color] || 'bg-pink-600 text-white';
   };
 
   return (
@@ -602,199 +609,251 @@ export default function CalendarPage() {
         <div className="space-y-4">
           {/* Upcoming Holidays */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Upcoming Holidays</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {upcomingHolidays.length > 0 ? (
-                  upcomingHolidays.map((holiday, index) => (
-                    <div 
-                      key={index} 
-                      className="p-2 space-y-2 rounded-md transition-colors hover:bg-muted/50 cursor-pointer"
-                      onClick={() => handleHolidayClick(holiday)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex text-sm font-medium items-center gap-2">
-                            <Sparkles className="size-3 text-primary" />
-                            {holiday.name}
+            <Collapsible open={!isHolidaysCollapsed} onOpenChange={(open) => setIsHolidaysCollapsed(!open)}>
+              <CardHeader>
+                <CollapsibleTrigger asChild>
+                  <CardTitle className="text-lg flex items-center justify-between cursor-pointer hover:text-primary transition-colors">
+                    <span>Upcoming Holidays</span>
+                    {isHolidaysCollapsed ? (
+                      <ChevronDown className="size-4" />
+                    ) : (
+                      <ChevronUp className="size-4" />
+                    )}
+                  </CardTitle>
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent>
+                  <div className="space-y-3">
+                    {upcomingHolidays.length > 0 ? (
+                      upcomingHolidays.map((holiday, index) => (
+                        <div 
+                          key={index} 
+                          className="p-2 space-y-2 rounded-md transition-colors hover:bg-muted/50 cursor-pointer"
+                          onClick={() => handleHolidayClick(holiday)}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex text-sm font-medium items-center gap-2">
+                                <Sparkles className="size-3 text-primary" />
+                                {holiday.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {format(new Date(holiday.date), 'EEEE, MMMM d')}
+                              </div>
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className={`text-xs ${getHolidayTypeColor(holiday.type)}`}
+                            >
+                              {holiday.type}
+                            </Badge>
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {format(new Date(holiday.date), 'EEEE, MMMM d')}
+                            {holiday.description}
                           </div>
+                          <div className="text-xs text-muted-foreground">
+                            Regions: {holiday.region.join(', ')}
+                          </div>
+                          {index < upcomingHolidays.length - 1 && <Separator />}
                         </div>
-                        <Badge
-                          variant="secondary"
-                          className={`text-xs ${getHolidayTypeColor(holiday.type)}`}
-                        >
-                          {holiday.type}
-                        </Badge>
+                      ))
+                    ) : (
+                      <div className="py-4 text-center text-sm text-muted-foreground">
+                        No upcoming holidays with current preferences
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {holiday.description}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Regions: {holiday.region.join(', ')}
-                      </div>
-                      {index < upcomingHolidays.length - 1 && <Separator />}
-                    </div>
-                  ))
-                ) : (
-                  <div className="py-4 text-center text-sm text-muted-foreground">
-                    No upcoming holidays with current preferences
+                    )}
                   </div>
-                )}
-              </div>
-            </CardContent>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
 
           {/* Upcoming Personal Events */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Upcoming Personal Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {getUpcomingPersonalEvents().length > 0 ? (
-                  getUpcomingPersonalEvents().slice(0, 5).map((event, index) => (
-                    <div 
-                      key={event.id} 
-                      className="p-2 space-y-2 rounded-md transition-colors hover:bg-muted/50 cursor-pointer"
-                      onClick={() => handlePersonalEventClick(event)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex text-sm font-medium items-center gap-2">
-                            <Calendar className="size-3 text-primary" />
-                            <span className="truncate">{event.title}</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {format(new Date(event.date), 'EEEE, MMMM d')}
-                          </div>
-                        </div>
-                        <Badge
-                          variant="secondary"
-                          className={`text-xs ${getColorClass(event.color)}`}
+            <Collapsible open={!isPersonalEventsCollapsed} onOpenChange={(open) => setIsPersonalEventsCollapsed(!open)}>
+              <CardHeader>
+                <CollapsibleTrigger asChild>
+                  <CardTitle className="text-lg flex items-center justify-between cursor-pointer hover:text-primary transition-colors">
+                    <span>Upcoming Personal Events</span>
+                    {isPersonalEventsCollapsed ? (
+                      <ChevronDown className="size-4" />
+                    ) : (
+                      <ChevronUp className="size-4" />
+                    )}
+                  </CardTitle>
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent>
+                  <div className="space-y-3">
+                    {getUpcomingPersonalEvents().length > 0 ? (
+                      getUpcomingPersonalEvents().slice(0, 5).map((event, index) => (
+                        <div 
+                          key={event.id} 
+                          className="p-2 space-y-2 rounded-md transition-colors hover:bg-muted/50 cursor-pointer"
+                          onClick={() => handlePersonalEventClick(event)}
                         >
-                          {event.type}
-                        </Badge>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex text-sm font-medium items-center gap-2">
+                                <Calendar className="size-3 text-primary" />
+                                <span className="truncate">{event.title}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {format(new Date(event.date), 'EEEE, MMMM d')}
+                              </div>
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className={`text-xs ${getColorClass(event.color)}`}
+                            >
+                              {event.type}
+                            </Badge>
+                          </div>
+                          {event.description && (
+                            <div className="text-xs text-muted-foreground">
+                              {event.description}
+                            </div>
+                          )}
+                          {event.recurring && (
+                            <div className="text-xs text-muted-foreground">
+                              Recurring yearly
+                            </div>
+                          )}
+                          {index < Math.min(getUpcomingPersonalEvents().length, 5) - 1 && <Separator />}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-4 text-center text-sm text-muted-foreground">
+                        No upcoming personal events
                       </div>
-                      {event.description && (
-                        <div className="text-xs text-muted-foreground">
-                          {event.description}
-                        </div>
-                      )}
-                      {event.recurring && (
-                        <div className="text-xs text-muted-foreground">
-                          Recurring yearly
-                        </div>
-                      )}
-                      {index < Math.min(getUpcomingPersonalEvents().length, 5) - 1 && <Separator />}
-                    </div>
-                  ))
-                ) : (
-                  <div className="py-4 text-center text-sm text-muted-foreground">
-                    No upcoming personal events
+                    )}
                   </div>
-                )}
-              </div>
-            </CardContent>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
 
           {/* Upcoming Events */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                {ticketmasterSettings.enabled ? 'Upcoming Events' : 'Upcoming Events (Disabled)'}
-                {eventsLoading && <span className="ml-2 text-sm text-muted-foreground">(Loading...)</span>}
-                {eventsError && <span className="ml-2 text-sm text-red-500">(Error: {eventsError})</span>}
-                {!eventsLoading && !eventsError && ticketmasterSettings.enabled && (
-                  <span className="ml-2 text-sm text-muted-foreground">({ticketmasterEvents.length} events)</span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {!ticketmasterSettings.enabled ? (
-                <div className="py-4 text-center text-sm text-muted-foreground">
-                  Ticketmaster events are disabled. Enable them in settings to see upcoming events.
-                </div>
-              ) : eventsLoading ? (
-                <div className="py-4 text-center text-sm text-muted-foreground">
-                  Loading events...
-                </div>
-              ) : eventsError ? (
-                <div className="py-4 text-center text-sm text-muted-foreground">
-                  {eventsError}
-                </div>
-              ) : ticketmasterEvents.length > 0 ? (
-                <div className="space-y-3">
-                  {ticketmasterEvents.slice(0, 5).map((event, index) => (
-                    <div 
-                      key={event.id} 
-                      className="p-2 space-y-2 rounded-md transition-colors hover:bg-muted/50 cursor-pointer"
-                      onClick={() => handleEventClick(event)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex text-sm font-medium items-center gap-2">
-                            <Ticket className="size-3 text-primary" />
-                            <span className="truncate">{event.name}</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {format(event.date, 'EEEE, MMMM d')}
-                          </div>
-                        </div>
-                        <Badge
-                          variant="secondary"
-                          className="bg-purple-100 text-xs text-purple-800"
+            <Collapsible open={!isUpcomingEventsCollapsed} onOpenChange={(open) => setIsUpcomingEventsCollapsed(!open)}>
+              <CardHeader>
+                <CollapsibleTrigger asChild>
+                  <CardTitle className="text-lg flex items-center justify-between cursor-pointer hover:text-primary transition-colors">
+                    <span>
+                      {ticketmasterSettings.enabled ? 'Upcoming Events' : 'Upcoming Events (Disabled)'}
+                      {eventsLoading && <span className="ml-2 text-sm text-muted-foreground">(Loading...)</span>}
+                      {eventsError && <span className="ml-2 text-sm text-red-500">(Error: {eventsError})</span>}
+                      {!eventsLoading && !eventsError && ticketmasterSettings.enabled && (
+                        <span className="ml-2 text-sm text-muted-foreground">({ticketmasterEvents.length} events)</span>
+                      )}
+                    </span>
+                    {isUpcomingEventsCollapsed ? (
+                      <ChevronDown className="size-4 flex-shrink-0" />
+                    ) : (
+                      <ChevronUp className="size-4 flex-shrink-0" />
+                    )}
+                  </CardTitle>
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent>
+                  {!ticketmasterSettings.enabled ? (
+                    <div className="py-4 text-center text-sm text-muted-foreground">
+                      Ticketmaster events are disabled. Enable them in settings to see upcoming events.
+                    </div>
+                  ) : eventsLoading ? (
+                    <div className="py-4 text-center text-sm text-muted-foreground">
+                      Loading events...
+                    </div>
+                  ) : eventsError ? (
+                    <div className="py-4 text-center text-sm text-muted-foreground">
+                      {eventsError}
+                    </div>
+                  ) : ticketmasterEvents.length > 0 ? (
+                    <div className="space-y-3">
+                      {ticketmasterEvents.slice(0, 5).map((event, index) => (
+                        <div 
+                          key={event.id} 
+                          className="p-2 space-y-2 rounded-md transition-colors hover:bg-muted/50 cursor-pointer"
+                          onClick={() => handleEventClick(event)}
                         >
-                          {event.classification}
-                        </Badge>
-                      </div>
-                      <div className="flex text-xs text-muted-foreground items-center gap-1">
-                        <MapPin className="size-3" />
-                        <span className="truncate">{event.venue}</span>
-                      </div>
-                      {event.time && (
-                        <div className="text-xs text-muted-foreground">
-                          {event.time}
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex text-sm font-medium items-center gap-2">
+                                <Ticket className="size-3 text-primary" />
+                                <span className="truncate">{event.name}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {format(event.date, 'EEEE, MMMM d')}
+                              </div>
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className="bg-purple-100 text-xs text-purple-800"
+                            >
+                              {event.classification}
+                            </Badge>
+                          </div>
+                          <div className="flex text-xs text-muted-foreground items-center gap-1">
+                            <MapPin className="size-3" />
+                            <span className="truncate">{event.venue}</span>
+                          </div>
+                          {event.time && (
+                            <div className="text-xs text-muted-foreground">
+                              {event.time}
+                            </div>
+                          )}
+                          {index < Math.min(ticketmasterEvents.length, 5) - 1 && <Separator />}
+                        </div>
+                      ))}
+                      {ticketmasterEvents.length > 5 && (
+                        <div className="text-center">
+                          <Button variant="ghost" size="sm" className="text-xs">
+                            View all {ticketmasterEvents.length} events
+                          </Button>
                         </div>
                       )}
-                      {index < Math.min(ticketmasterEvents.length, 5) - 1 && <Separator />}
                     </div>
-                  ))}
-                  {ticketmasterEvents.length > 5 && (
-                    <div className="text-center">
-                      <Button variant="ghost" size="sm" className="text-xs">
-                        View all {ticketmasterEvents.length} events
-                      </Button>
+                  ) : (
+                    <div className="py-4 text-center text-sm text-muted-foreground">
+                      No upcoming events found
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="py-4 text-center text-sm text-muted-foreground">
-                  No upcoming events found
-                </div>
-              )}
-            </CardContent>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
 
           {/* Holiday Type Legend */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Holiday Types</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {allTypes.map((type) => (
-                  <div key={type} className="flex items-center gap-2">
-                    <div className={`size-3 rounded-full ${getHolidayTypeColor(type).split(' ')[0]}`} />
-                    <span className="text-sm">{type}</span>
+            <Collapsible open={!isHolidayTypesCollapsed} onOpenChange={(open) => setIsHolidayTypesCollapsed(!open)}>
+              <CardHeader>
+                <CollapsibleTrigger asChild>
+                  <CardTitle className="text-lg flex items-center justify-between cursor-pointer hover:text-primary transition-colors">
+                    <span>Holiday Types</span>
+                    {isHolidayTypesCollapsed ? (
+                      <ChevronDown className="size-4" />
+                    ) : (
+                      <ChevronUp className="size-4" />
+                    )}
+                  </CardTitle>
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent>
+                  <div className="space-y-2">
+                    {allTypes.map((type) => (
+                      <div key={type} className="flex items-center gap-2">
+                        <div className={`size-3 rounded-full ${getHolidayTypeColor(type).split(' ')[0]}`} />
+                        <span className="text-sm">{type}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
         </div>
       </div>

@@ -47,50 +47,54 @@ export function PricingCards({ userId, subscriptionPlan }: PricingCardsProps) {
     return (
       <div
         className={cn(
-          "relative flex flex-col overflow-hidden rounded-3xl border shadow-sm",
+          "relative flex flex-col overflow-hidden rounded-3xl border shadow-sm w-full max-w-sm mx-auto",
+          "min-w-[320px]", // Fixed minimum width
           offer.title.toLocaleLowerCase() === "pro"
             ? "-m-0.5 border-2 border-purple-400"
             : "",
         )}
         key={offer.title}
+        style={{ width: '320px' }} // Explicit fixed width
       >
-        <div className="min-h-[150px] p-6 space-y-4 bg-muted/50 items-start">
+        <div className="min-h-[180px] p-6 space-y-4 bg-muted/50 items-start">
           <p className="flex text-sm text-muted-foreground font-urban font-bold uppercase tracking-wider">
             {offer.title}
           </p>
 
-          <div className="flex flex-row">
-            <div className="flex items-end">
-              <div className="flex text-left text-3xl font-semibold leading-6">
+          <div className="flex flex-row min-h-[60px] items-start w-full">
+            <div className="flex items-end w-full">
+              <div className="flex text-left text-3xl font-semibold leading-6 flex-wrap">
                 {offer.prices.monthly === 0 ? (
                   "Free"
                 ) : isYearly && offer.prices.monthly > 0 ? (
                   <>
-                    <span className="mr-2 text-muted-foreground/80 line-through">
+                    <span className="mr-2 text-muted-foreground/80 line-through whitespace-nowrap">
                       ${offer.prices.monthly}
                     </span>
-                    <span>${offer.prices.yearly / 12}</span>
+                    <span className="whitespace-nowrap">${offer.prices.yearly / 12}</span>
                   </>
                 ) : (
-                  `$${offer.prices.monthly}`
+                  <span className="whitespace-nowrap">${offer.prices.monthly}</span>
                 )}
               </div>
               {offer.prices.monthly > 0 && (
-                <div className="ml-2 text-left text-sm text-muted-foreground -mb-1 font-medium">
+                <div className="ml-2 text-left text-sm text-muted-foreground -mb-1 font-medium whitespace-nowrap">
                   <div>/month</div>
                 </div>
               )}
             </div>
           </div>
           {offer.prices.monthly > 0 ? (
-            <div className="text-left text-sm text-muted-foreground">
-              {isYearly
-                ? `$${offer.prices.yearly} will be charged when annual`
-                : "when charged monthly"}
+            <div className="text-left text-sm text-muted-foreground min-h-[40px] flex items-start">
+              <span>
+                {isYearly
+                  ? `$${offer.prices.yearly} will be charged when annual`
+                  : "Billed monthly with no commitment"}
+              </span>
             </div>
           ) : (
-            <div className="text-left text-sm text-muted-foreground">
-              No credit card required
+            <div className="text-left text-sm text-muted-foreground min-h-[40px] flex items-start">
+              <span>No credit card required</span>
             </div>
           )}
         </div>

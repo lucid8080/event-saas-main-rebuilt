@@ -23,6 +23,7 @@ import { useState } from 'react';
 import { EventDetailModal } from './event-detail-modal';
 import { mapTicketmasterEvent } from '@/lib/ticketmaster-event-mapper';
 import { useTicketmasterFlyerToggle } from '@/hooks/use-ticketmaster-flyer-toggle';
+import { getHolidayTypeColor } from '@/lib/holidays';
 
 interface DayEventsModalProps {
   date: Date;
@@ -72,24 +73,15 @@ export function DayEventsModal({ date, events, holidays, personalEvents, isOpen,
 
   const getEventTypeColor = (classification: string) => {
     const type = classification.toLowerCase();
-    if (type.includes('concert') || type.includes('music')) return 'bg-purple-100 text-purple-800';
-    if (type.includes('sport')) return 'bg-green-100 text-green-800';
-    if (type.includes('theatre') || type.includes('arts')) return 'bg-blue-100 text-blue-800';
-    if (type.includes('family')) return 'bg-pink-100 text-pink-800';
-    if (type.includes('comedy')) return 'bg-orange-100 text-orange-800';
-    return 'bg-gray-100 text-gray-800';
+    if (type.includes('concert') || type.includes('music')) return 'bg-purple-600 text-white';
+    if (type.includes('sport')) return 'bg-green-600 text-white';
+    if (type.includes('theatre') || type.includes('arts')) return 'bg-blue-600 text-white';
+    if (type.includes('family')) return 'bg-pink-600 text-white';
+    if (type.includes('comedy')) return 'bg-orange-600 text-white';
+    return 'bg-slate-600 text-white';
   };
 
-  const getHolidayTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      'Public': 'bg-red-100 text-red-800',
-      'Religious': 'bg-purple-100 text-purple-800',
-      'Cultural': 'bg-blue-100 text-blue-800',
-      'National': 'bg-green-100 text-green-800',
-      'International': 'bg-yellow-100 text-yellow-800',
-    };
-    return colors[type] || 'bg-gray-100 text-gray-800';
-  };
+
 
   const allItems = [
     ...events.map(event => ({ type: 'event', data: event })),

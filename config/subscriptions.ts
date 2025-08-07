@@ -10,8 +10,8 @@ export const pricingData: SubscriptionPlan[] = [
     ],
     limitations: [],
     prices: {
-      monthly: 30,
-      yearly: 288,
+      monthly: 15,
+      yearly: 144,
     },
     stripeIds: {
       monthly: env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PLAN_ID,
@@ -26,40 +26,40 @@ export const pricingData: SubscriptionPlan[] = [
     title: "Pro",
     description: "Best for growing businesses",
     benefits: [
-      "200 credits",
+      "300 credits",
     ],
     limitations: [],
     prices: {
-      monthly: 60,
-      yearly: 576,
+      monthly: 45,
+      yearly: 432,
     },
     stripeIds: {
       monthly: env.NEXT_PUBLIC_STRIPE_PRO_MONTHLY_PLAN_ID,
       yearly: env.NEXT_PUBLIC_STRIPE_PRO_YEARLY_PLAN_ID,
     },
     credits: {
-      monthly: 200,
-      yearly: 2400,
+      monthly: 300,
+      yearly: 3600,
     },
   },
   {
     title: "Business",
     description: "For larger organizations",
     benefits: [
-      "500 credits",
+      "1000 credits",
     ],
     limitations: [],
     prices: {
-      monthly: 120,
-      yearly: 1152,
+      monthly: 150,
+      yearly: 1440,
     },
     stripeIds: {
       monthly: env.NEXT_PUBLIC_STRIPE_BUSINESS_MONTHLY_PLAN_ID,
       yearly: env.NEXT_PUBLIC_STRIPE_BUSINESS_YEARLY_PLAN_ID,
     },
     credits: {
-      monthly: 500,
-      yearly: 6000,
+      monthly: 1000,
+      yearly: 12000,
     },
   },
 ];

@@ -717,72 +717,77 @@ export default function GalleryPage() {
       {selectedImage && (
         <div className="fixed flex bg-black/80 inset-0 z-50">
           {/* Main Image Area */}
-          <div 
-            className="relative flex flex-1 p-4 items-center justify-center overflow-hidden"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            style={{ cursor: isDragging ? 'grabbing' : zoom > 1 ? 'grab' : 'default' }}
-          >
-            {/* Close Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute bg-black/50 text-white hover:bg-black/70 right-2 top-2 z-50"
-              onClick={() => setSelectedImage(null)}
-            >
-              <X className="size-6" />
-            </Button>
+          <div className="relative flex flex-1 overflow-auto">
+            {/* Fixed UI Controls */}
+            <div className="absolute inset-0 pointer-events-none z-50">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute bg-black/50 text-white hover:bg-black/70 right-2 top-2 pointer-events-auto"
+                onClick={() => setSelectedImage(null)}
+              >
+                <X className="size-6" />
+              </Button>
 
-            {/* Zoom Controls */}
-            <div className="absolute left-2 top-2 z-50 flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="bg-black/50 text-white hover:bg-black/70"
-                onClick={zoomIn}
-              >
-                <ZoomIn className="size-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="bg-black/50 text-white hover:bg-black/70"
-                onClick={zoomOut}
-              >
-                <ZoomOut className="size-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="bg-black/50 text-white hover:bg-black/70"
-                onClick={resetZoom}
-              >
-                <RotateCcw className="size-4" />
-              </Button>
-            </div>
+              {/* Zoom Controls */}
+              <div className="absolute left-2 top-2 flex gap-2 pointer-events-auto">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-black/50 text-white hover:bg-black/70"
+                  onClick={zoomIn}
+                >
+                  <ZoomIn className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-black/50 text-white hover:bg-black/70"
+                  onClick={zoomOut}
+                >
+                  <ZoomOut className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="bg-black/50 text-white hover:bg-black/70"
+                  onClick={resetZoom}
+                >
+                  <RotateCcw className="size-4" />
+                </Button>
+              </div>
 
-            {/* Zoom Level Display */}
-            <div className="absolute left-2 bottom-2 z-50 bg-black/50 text-white px-2 py-1 rounded text-sm">
-              {Math.round(zoom * 100)}%
+              {/* Zoom Level Display */}
+              <div className="absolute left-2 bottom-2 bg-black/50 text-white px-2 py-1 rounded text-sm pointer-events-none">
+                {Math.round(zoom * 100)}%
+              </div>
             </div>
 
             {/* Scrollable Image Container */}
             <div 
-              className="w-full h-full flex items-center justify-center overflow-auto"
-              style={{
-                transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-                transformOrigin: 'center',
-                transition: isDragging ? 'none' : 'transform 0.1s ease-out'
-              }}
+              className="w-full h-full overflow-auto p-4"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              style={{ cursor: isDragging ? 'grabbing' : zoom > 1 ? 'grab' : 'default' }}
             >
-              <WebPImage
-                src={selectedImage.url}
-                webpSrc={webpUrls.get(selectedImage.id)?.primaryUrl}
-                alt="Full size"
-                className="max-w-none max-h-none object-contain w-full h-full"
-              />
+              <div
+                className="flex items-start justify-center min-w-full min-h-full"
+                style={{
+                  transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                  transformOrigin: 'top center',
+                  transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                }}
+              >
+                <WebPImage
+                  src={selectedImage.url}
+                  webpSrc={webpUrls.get(selectedImage.id)?.primaryUrl}
+                  alt="Full size"
+                  className="max-w-none max-h-none object-contain"
+                />
+              </div>
             </div>
           </div>
 
