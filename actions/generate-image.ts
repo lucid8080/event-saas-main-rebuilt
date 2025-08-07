@@ -129,7 +129,10 @@ export async function generateImage(
         }
       }
 
-      // Download the image from Ideogram and upload to R2
+      // Check if cloud services are enabled before attempting R2 upload
+      const cloudServicesEnabled = process.env.NEXT_PUBLIC_ENABLE_CLOUD_SERVICES === 'true';
+      
+      // Download the image from Ideogram and upload to R2 (if enabled)
       let r2Key: string | null = null;
       let webpKey: string | null = null;
       let signedUrl: string | null = null;
@@ -159,65 +162,80 @@ export async function generateImage(
           imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
           contentType = imageResponse.headers.get('content-type') || 'image/png';
         }
-        
-        // Generate enhanced key for R2 storage with comprehensive metadata
-        const extension = getFileExtension(contentType);
-        const promptHash = generatePromptHash(prompt);
-        
-        const imageMetadata: ImageMetadata = {
-          userId: session.user.id,
-          eventType: eventType as any,
-          aspectRatio: aspectRatio,
-          watermarkEnabled: user.watermarkEnabled,
-          promptHash: promptHash,
-          generationModel: 'ideogram-v3',
-          customTags: eventDetails ? Object.keys(eventDetails).filter(key => eventDetails[key as keyof EventDetails]) : undefined
-        };
-        
-        // WebP Integration Configuration
-        const webpConfig: WebPIntegrationConfig = {
-          ...DEFAULT_WEBP_CONFIG,
-          defaultPreset: 'medium', // Good balance of quality and compression for generated images
-          validateConversions: true,
-          fallbackToOriginal: true
-        };
-        
-        // Upload with WebP conversion
-        const webpResult = await uploadImageWithWebP(
-          imageBuffer,
-          contentType,
-          imageMetadata,
-          webpConfig
-        );
-        
-        if (webpResult.success) {
-          r2Key = webpResult.r2Key;
-          originalFormat = contentType.includes('webp') ? 'webp' : 
-                          contentType.includes('png') ? 'png' : 
+
+        // Only attempt R2 upload if cloud services are enabled
+        if (!cloudServicesEnabled) {
+          console.warn('🚨 Cloud services disabled (NEXT_PUBLIC_ENABLE_CLOUD_SERVICES not set)');
+          console.warn('Skipping R2 upload, using original Ideogram URL');
+          // Don't attempt upload, just use the original URL
+          // Set defaults for non-R2 mode
+          r2Key = null;
+          webpKey = null;
+          signedUrl = null;
+          originalFormat = contentType.includes('png') ? 'png' : 
                           contentType.includes('jpeg') || contentType.includes('jpg') ? 'jpg' : 'png';
-          compressionRatio = webpResult.compressionRatio;
-          webpEnabled = webpResult.contentType.includes('webp');
-          
-          // If WebP conversion was successful, update the key to reflect WebP format
-          if (webpResult.contentType.includes('webp')) {
-            webpKey = webpResult.r2Key;
-          }
-          
-          console.log('Image successfully uploaded to R2 with WebP conversion:', {
-            r2Key,
-            webpKey,
-            originalFormat,
-            compressionRatio: `${compressionRatio.toFixed(2)}%`,
-            webpEnabled,
-            originalSize: webpResult.originalSize,
-            webpSize: webpResult.webpSize
-          });
+          compressionRatio = null;
+          webpEnabled = false;
         } else {
-          throw new Error(webpResult.error || 'WebP upload failed');
+          // Generate enhanced key for R2 storage with comprehensive metadata
+          const extension = getFileExtension(contentType);
+          const promptHash = generatePromptHash(prompt);
+          
+          const imageMetadata: ImageMetadata = {
+            userId: session.user.id,
+            eventType: eventType as any,
+            aspectRatio: aspectRatio,
+            watermarkEnabled: user.watermarkEnabled,
+            promptHash: promptHash,
+            generationModel: 'ideogram-v3',
+            customTags: eventDetails ? Object.keys(eventDetails).filter(key => eventDetails[key as keyof EventDetails]) : undefined
+          };
+          
+          // WebP Integration Configuration
+          const webpConfig: WebPIntegrationConfig = {
+            ...DEFAULT_WEBP_CONFIG,
+            defaultPreset: 'medium', // Good balance of quality and compression for generated images
+            validateConversions: true,
+            fallbackToOriginal: true
+          };
+          
+          // Upload with WebP conversion
+          const webpResult = await uploadImageWithWebP(
+            imageBuffer,
+            contentType,
+            imageMetadata,
+            webpConfig
+          );
+          
+          if (webpResult.success) {
+            r2Key = webpResult.r2Key;
+            originalFormat = contentType.includes('webp') ? 'webp' : 
+                            contentType.includes('png') ? 'png' : 
+                            contentType.includes('jpeg') || contentType.includes('jpg') ? 'jpg' : 'png';
+            compressionRatio = webpResult.compressionRatio;
+            webpEnabled = webpResult.contentType.includes('webp');
+            
+            // If WebP conversion was successful, update the key to reflect WebP format
+            if (webpResult.contentType.includes('webp')) {
+              webpKey = webpResult.r2Key;
+            }
+            
+            console.log('Image successfully uploaded to R2 with WebP conversion:', {
+              r2Key,
+              webpKey,
+              originalFormat,
+              compressionRatio: `${compressionRatio.toFixed(2)}%`,
+              webpEnabled,
+              originalSize: webpResult.originalSize,
+              webpSize: webpResult.webpSize
+            });
+            
+            // Generate signed URL for immediate access
+            signedUrl = await generateSignedUrl(r2Key, 3600); // 1 hour
+          } else {
+            throw new Error(webpResult.error || 'WebP upload failed');
+          }
         }
-        
-        // Generate signed URL for immediate access
-        signedUrl = await generateSignedUrl(r2Key, 3600); // 1 hour
         
       } catch (r2Error) {
         console.error('Error uploading to R2 with WebP:', r2Error);
@@ -229,6 +247,9 @@ export async function generateImage(
         });
         // Fallback to original URL if R2 upload fails
         console.log('Falling back to original Ideogram URL');
+        r2Key = null;
+        webpKey = null;
+        signedUrl = null;
       }
 
       // Save the generated image to the database

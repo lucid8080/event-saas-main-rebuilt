@@ -54,6 +54,7 @@ export default function UsersList() {
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
   const [editingCredits, setEditingCredits] = useState<string | null>(null);
   const [updatingCredits, setUpdatingCredits] = useState<string | null>(null);
+  const [creditInputValues, setCreditInputValues] = useState<Record<string, number>>({});
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -145,37 +146,71 @@ export default function UsersList() {
   };
 
   const handleCreditsEdit = (userId: string) => {
+    console.log("🔍 Credits Edit: Starting edit for user", userId);
     setEditingCredits(userId);
+    setCreditInputValues(prev => {
+      const newValues = {
+        ...prev,
+        [userId]: 0
+      };
+      console.log("🔍 Credits Edit: Set input values to", newValues);
+      return newValues;
+    });
   };
 
   const handleCreditsCancel = () => {
     setEditingCredits(null);
+    setCreditInputValues(prev => {
+      const newValues = { ...prev };
+      delete newValues[editingCredits!];
+      return newValues;
+    });
   };
 
-  const handleCreditsSave = async (userId: string, newCredits: number) => {
+  const handleCreditsSave = async (userId: string, creditsToAdd: number) => {
     setUpdatingCredits(userId);
     try {
+      // Find the current user to get their existing credits
+      const currentUser = users.find(user => user.id === userId);
+      if (!currentUser) {
+        throw new Error("User not found");
+      }
+
+      const newTotalCredits = currentUser.credits + creditsToAdd;
+
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ credits: newCredits }),
+        body: JSON.stringify({ credits: newTotalCredits }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to update user credits");
       }
 
-      // Update the user in the local state
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user.id === userId ? { ...user, credits: newCredits } : user
-        )
-      );
+      const updatedUser = await response.json();
+      console.log("🔍 Credits API Response:", updatedUser);
 
-      toast.success(`User credits updated to ${newCredits}`);
+      // Update the user in the local state using the API response
+      setUsers(prevUsers => {
+        const updatedUsers = prevUsers.map(user =>
+          user.id === userId ? { ...user, credits: updatedUser.credits } : user
+        );
+        console.log("🔍 Credits Update: Updated users state", updatedUsers.find(u => u.id === userId));
+        return updatedUsers;
+      });
+
+      toast.success(`Added ${creditsToAdd} credits to user (Total: ${updatedUser.credits})`);
       setEditingCredits(null);
+      
+      // Clear the input value for this user
+      setCreditInputValues(prev => {
+        const newValues = { ...prev };
+        delete newValues[userId];
+        return newValues;
+      });
     } catch (error) {
       console.error("Error updating user credits:", error);
       toast.error("Failed to update user credits");
@@ -389,25 +424,27 @@ export default function UsersList() {
                   </TableCell>
                   <TableCell>
                     {editingCredits === user.id ? (
-                      <div className="flex items-center gap-2">
-                        <Input
+                      <div className="flex flex-col gap-1">
+                        <div className="text-xs text-muted-foreground">Add credits:</div>
+                        <div className="flex items-center gap-2">
+                          <Input
                           type="number"
                           min="0"
-                          defaultValue={user.credits}
+                          placeholder="0"
+                          value={creditInputValues[user.id] || 0}
                           className="w-20"
                           onChange={(e) => {
                             const value = parseInt(e.target.value) || 0;
-                            setUsers(prevUsers =>
-                              prevUsers.map(u =>
-                                u.id === user.id ? { ...u, credits: value } : u
-                              )
-                            );
+                            setCreditInputValues(prev => ({
+                              ...prev,
+                              [user.id]: value
+                            }));
                           }}
                         />
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleCreditsSave(user.id, user.credits)}
+                          onClick={() => handleCreditsSave(user.id, creditInputValues[user.id] || 0)}
                           disabled={updatingCredits === user.id}
                         >
                           {updatingCredits === user.id ? (
@@ -424,6 +461,7 @@ export default function UsersList() {
                         >
                           <X className="size-4" />
                         </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">

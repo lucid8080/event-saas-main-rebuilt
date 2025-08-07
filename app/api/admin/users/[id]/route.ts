@@ -1,156 +1,116 @@
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { canHero, canAdmin, isRoleHigherOrEqual } from "@/lib/role-based-access";
 
-export const PATCH = auth(async (req, ctx) => {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { params } = await ctx.params;
-    const userId = params.id;
+    const { id: userId } = await params;
     
-    // SIMPLIFIED AUTHENTICATION CHECK
-    console.log("🔍 API Debug: Starting PATCH request");
-    console.log("🔍 API Debug: req.auth exists:", !!req.auth);
+    console.log("🔍 Manual Auth API Debug: Starting PATCH request");
+    console.log("🔍 Manual Auth API Debug: userId:", userId);
     
-    // Check if req.auth exists
-    if (!req.auth) {
-      console.error("❌ API Error: req.auth is undefined");
-      return new Response("Not authenticated", { status: 401 });
-    }
-
-    // Check if req.auth.user exists
-    let currentUser = req.auth.user;
-    console.log("🔍 API Debug: currentUser exists:", !!currentUser);
+    // Get session manually using auth() function
+    const session = await auth();
+    console.log("🔍 Manual Auth API Debug: session exists:", !!session);
+    console.log("🔍 Manual Auth API Debug: session user:", session?.user);
     
-    // If currentUser is undefined, try to get user from database
-    if (!currentUser) {
-      console.log("🔄 API Debug: req.auth.user is undefined, attempting database lookup");
-      try {
-        // Try to get the most recent verified user (fallback for production auth issues)
-        const sessionUser = await prisma.user.findFirst({
-          where: { 
-            emailVerified: { not: null },
-            role: { in: ['HERO', 'ADMIN'] } // Only get admin users
-          },
-          orderBy: { updatedAt: 'desc' },
-          select: { id: true, email: true, role: true, name: true }
-        });
-        
-        if (sessionUser) {
-          currentUser = {
-            id: sessionUser.id,
-            email: sessionUser.email,
-            role: sessionUser.role,
-            name: sessionUser.name
-          };
-          console.log("✅ API Debug: Database lookup successful", { user: sessionUser.email, role: sessionUser.role });
-        } else {
-          console.error("❌ API Error: No admin user found in database");
-          return new Response("No admin user found", { status: 401 });
-        }
-      } catch (error) {
-        console.error("❌ API Error: Database lookup failed:", error);
-        return new Response("Database lookup failed", { status: 500 });
-      }
+    if (!session || !session.user) {
+      console.log("🔍 Manual Auth API Debug: No session found");
+      return NextResponse.json({
+        error: "Authentication required",
+        message: "Please log in to access this resource",
+        timestamp: new Date().toISOString()
+      }, { status: 401 });
     }
-
-    // Check if currentUser.id exists
-    console.log("🔍 API Debug: currentUser.id exists:", !!currentUser?.id);
-    console.log("🔍 API Debug: currentUser.role:", currentUser?.role);
     
-    if (!currentUser?.id) {
-      console.error("❌ API Error: currentUser.id is undefined", { currentUser });
-      return new Response("Invalid user session", { status: 401 });
+    const currentUser = session.user;
+    console.log("🔍 Manual Auth API Debug: currentUser:", currentUser);
+    
+    // Check if user has required permissions
+    if (!currentUser.role || (currentUser.role !== 'HERO' && currentUser.role !== 'ADMIN')) {
+      console.log("🔍 Manual Auth API Debug: Insufficient permissions");
+      return NextResponse.json({
+        error: "Insufficient permissions",
+        message: "Admin access required",
+        timestamp: new Date().toISOString()
+      }, { status: 403 });
     }
 
-    // Check if currentUser.role exists
-    if (!currentUser?.role) {
-      console.error("❌ API Error: currentUser.role is undefined", { currentUser });
-      return new Response("Invalid user role", { status: 401 });
-    }
-
-    // FALLBACK: If authentication is still failing, try to get user from database
-    let authenticatedUser = currentUser;
-    if (!authenticatedUser.id || !authenticatedUser.role) {
-      console.log("🔄 API Debug: Attempting database fallback authentication");
-      try {
-        const dbUser = await prisma.user.findFirst({
-          where: { 
-            email: authenticatedUser.email || '',
-            emailVerified: { not: null }
-          },
-          select: { id: true, email: true, role: true, name: true }
-        });
-        
-        if (dbUser) {
-          authenticatedUser = {
-            ...authenticatedUser,
-            id: dbUser.id,
-            role: dbUser.role,
-            email: dbUser.email,
-            name: dbUser.name
-          };
-          console.log("✅ API Debug: Database fallback successful", { user: dbUser.email });
-        } else {
-          console.error("❌ API Error: Database fallback failed - no verified user found");
-          return new Response("User not found in database", { status: 401 });
-        }
-      } catch (error) {
-        console.error("❌ API Error: Database fallback error:", error);
-        return new Response("Database authentication failed", { status: 500 });
-      }
-    }
-
-    // Check if user can manage roles or credits
-    const canManageRoles = canHero(authenticatedUser.role, 'roles:assign');
-    const canManageCredits = canAdmin(authenticatedUser.role, 'credits:manage');
+    // Parse request body
+    const body = await request.json();
+    const { role, credits } = body;
+    
+    console.log("🔍 Manual Auth API Debug: Request body:", { role, credits });
+    
+    // Validate permissions
+    const canManageRoles = canHero(currentUser.role, 'roles:assign');
+    const canManageCredits = canAdmin(currentUser.role, 'credits:manage');
 
     console.log("🔍 API Debug: canManageRoles:", canManageRoles);
     console.log("🔍 API Debug: canManageCredits:", canManageCredits);
 
     if (!canManageRoles && !canManageCredits) {
       console.error("❌ API Error: Insufficient permissions", { 
-        userRole: authenticatedUser.role, 
+        userRole: currentUser.role, 
         canManageRoles, 
         canManageCredits 
       });
-      return new Response("Insufficient permissions", { status: 403 });
+      return NextResponse.json({
+        error: "Insufficient permissions",
+        message: "User does not have permission to manage users",
+        timestamp: new Date().toISOString()
+      }, { status: 403 });
     }
 
     if (!userId) {
       console.error("❌ API Error: userId is missing");
-      return new Response("User ID is required", { status: 400 });
+      return NextResponse.json({
+        error: "Missing user ID",
+        message: "User ID is required",
+        timestamp: new Date().toISOString()
+      }, { status: 400 });
     }
-
-    console.log("🔍 API Debug: Processing request for userId:", userId);
-
-    const body = await req.json();
-    const { role, credits } = body;
-
-    console.log("🔍 API Debug: Request body:", { role, credits });
 
     // Validate role assignment permissions
     if (role) {
       if (!canManageRoles) {
         console.error("❌ API Error: Cannot manage roles");
-        return new Response("Insufficient permissions to manage roles", { status: 403 });
+        return NextResponse.json({
+          error: "Insufficient permissions",
+          message: "Insufficient permissions to manage roles",
+          timestamp: new Date().toISOString()
+        }, { status: 403 });
       }
 
       // Validate role value
       if (!["HERO", "ADMIN", "USER"].includes(role)) {
         console.error("❌ API Error: Invalid role:", role);
-        return new Response("Invalid role", { status: 400 });
+        return NextResponse.json({
+          error: "Invalid role",
+          message: "Role must be HERO, ADMIN, or USER",
+          timestamp: new Date().toISOString()
+        }, { status: 400 });
       }
 
       // Prevent non-HERO users from assigning HERO role
-      if (role === "HERO" && !canHero(authenticatedUser.role, 'roles:assign')) {
+      if (role === "HERO" && !canHero(currentUser.role, 'roles:assign')) {
         console.error("❌ API Error: Cannot assign HERO role");
-        return new Response("Only HERO users can assign HERO role", { status: 403 });
+        return NextResponse.json({
+          error: "Insufficient permissions",
+          message: "Only HERO users can assign HERO role",
+          timestamp: new Date().toISOString()
+        }, { status: 403 });
       }
 
       // Prevent users from assigning roles higher than their own
-      if (!isRoleHigherOrEqual(authenticatedUser.role, role as any)) {
+      if (!isRoleHigherOrEqual(currentUser.role, role as any)) {
         console.error("❌ API Error: Cannot assign higher role");
-        return new Response("Cannot assign role higher than your own", { status: 403 });
+        return NextResponse.json({
+          error: "Insufficient permissions",
+          message: "Cannot assign role higher than your own",
+          timestamp: new Date().toISOString()
+        }, { status: 403 });
       }
     }
 
@@ -158,12 +118,20 @@ export const PATCH = auth(async (req, ctx) => {
     if (credits !== undefined) {
       if (!canManageCredits) {
         console.error("❌ API Error: Cannot manage credits");
-        return new Response("Insufficient permissions to manage credits", { status: 403 });
+        return NextResponse.json({
+          error: "Insufficient permissions",
+          message: "Insufficient permissions to manage credits",
+          timestamp: new Date().toISOString()
+        }, { status: 403 });
       }
 
       if (typeof credits !== "number" || credits < 0) {
         console.error("❌ API Error: Invalid credits value:", credits);
-        return new Response("Invalid credits value", { status: 400 });
+        return NextResponse.json({
+          error: "Invalid credits value",
+          message: "Credits must be a non-negative number",
+          timestamp: new Date().toISOString()
+        }, { status: 400 });
       }
     }
 
@@ -175,7 +143,11 @@ export const PATCH = auth(async (req, ctx) => {
 
     if (!targetUser) {
       console.error("❌ API Error: Target user not found:", userId);
-      return new Response("User not found", { status: 404 });
+      return NextResponse.json({
+        error: "User not found",
+        message: "Target user not found",
+        timestamp: new Date().toISOString()
+      }, { status: 404 });
     }
 
     console.log("🔍 API Debug: Target user found:", targetUser.email);
@@ -199,33 +171,18 @@ export const PATCH = auth(async (req, ctx) => {
       },
     });
 
-    console.log("✅ API Success: User updated successfully:", updatedUser.email);
-    return Response.json(updatedUser);
+    console.log("✅ Manual Auth API Success: User updated successfully:", updatedUser.email);
+    return NextResponse.json(updatedUser);
     
   } catch (error) {
-    console.error("❌ API Error: PATCH Unexpected error:", error);
-    console.error("❌ API Error: PATCH Error stack:", error?.stack);
-    console.error("❌ API Error: PATCH Error name:", error?.name);
-    console.error("❌ API Error: PATCH Error message:", error?.message);
-    console.error("❌ API Error: PATCH Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
-    
-    // Return more detailed error for debugging
-    return new Response(
-      JSON.stringify({
-        error: "Internal server error",
-        message: error?.message || "Unknown error",
-        timestamp: new Date().toISOString(),
-        route: "PATCH /api/admin/users/[id]"
-      }), 
-      { 
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    console.error("❌ Manual Auth API Error:", error);
+    return NextResponse.json({
+      error: "Internal server error",
+      message: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
   }
-});
+}
 
 export const DELETE = auth(async (req, ctx) => {
   try {

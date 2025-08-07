@@ -11,8 +11,18 @@ const nextConfig = {
   reactStrictMode: process.env.NODE_ENV === 'production',
   swcMinify: process.env.NODE_ENV === 'production',
   
+  experimental: {
+    serverComponentsExternalPackages: ["@prisma/client"],
+  },
+  
   // Bundle optimization
   webpack: (config, { dev, isServer }) => {
+    // Exclude scripts directory from build to avoid TypeScript errors
+    config.module.rules.push({
+      test: /scripts\/.*\.ts$/,
+      use: 'ignore-loader'
+    });
+
     // Aggressive fix for 'self is not defined' error
     // Completely exclude problematic libraries from the build
     config.externals = config.externals || [];
@@ -95,10 +105,6 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-  
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client"],
   },
 
   // Compression optimization

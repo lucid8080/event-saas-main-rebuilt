@@ -51,8 +51,11 @@ export const fontGeist = localFont({
 // Additional fonts for carousel maker
 export const fontPoppins = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "arial"],
 })
 
 export const fontRoboto = Roboto({

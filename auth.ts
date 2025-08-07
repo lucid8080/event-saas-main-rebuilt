@@ -50,25 +50,31 @@ export const {
       }
     },
     async session({ token, session }) {
-      if (session.user) {
-        if (token.sub) {
+      // Add safety checks to prevent undefined errors
+      if (session && session.user) {
+        if (token && token.sub) {
           session.user.id = token.sub;
         }
 
-        if (token.email) {
+        if (token && token.email) {
           session.user.email = token.email;
         }
 
-        if (token.role) {
+        if (token && token.role) {
           session.user.role = token.role;
         }
 
-        if (token.username) {
+        if (token && token.username) {
           (session.user as any).username = token.username;
         }
 
-        session.user.name = token.name;
-        session.user.image = token.picture;
+        if (token && token.name) {
+          session.user.name = token.name;
+        }
+
+        if (token && token.picture) {
+          session.user.image = token.picture;
+        }
       }
 
       return session;
@@ -78,19 +84,21 @@ export const {
       if (user) {
         // This runs when the user first signs in
         const dbUser = user as User;
-        token.role = dbUser.role;
-        token.name = dbUser.name;
-        token.email = dbUser.email;
-        token.picture = dbUser.image;
-        token.username = (dbUser as any).username;
+        if (token) {
+          token.role = dbUser.role;
+          token.name = dbUser.name;
+          token.email = dbUser.email;
+          token.picture = dbUser.image;
+          token.username = (dbUser as any).username;
+        }
         return token;
       }
 
       // Only fetch user data if we don't have it or if it's been more than 5 minutes
-      if (token.sub && (!token.lastFetch || Date.now() - (token.lastFetch || 0) > 300000)) {
+      if (token && token.sub && (!token.lastFetch || Date.now() - (token.lastFetch || 0) > 300000)) {
         try {
           const dbUser = await getUserById(token.sub);
-          if (dbUser) {
+          if (dbUser && token) {
             token.name = dbUser.name;
             token.email = dbUser.email;
             token.picture = dbUser.image;

@@ -7,12 +7,12 @@
     "npm": ">=8.0.0"
   },
   "author": {
-    "name": "mickasmt",
-    "url": "https://twitter.com/mickasmt"
+    "name": "eventcraftai",
+    "url": "https://twitter.com/eventcraftai"
   },
   "scripts": {
     "dev": "next dev",
-    "dev:fast": "next dev --turbo --port 3000",
+    "dev:fast": "next dev --port 3000",
     "dev:analyze": "ANALYZE=true next dev",
     "build": "node scripts/setup-database.js && node scripts/build-with-contentlayer.js && npx tsx scripts/build-hero-setup.ts",
     "build:analyze": "ANALYZE=true next build",
