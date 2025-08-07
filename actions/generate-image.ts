@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { EventDetails } from "@/lib/prompt-generator";
+import { EventDetails, generateEnhancedPromptWithSystemPrompts } from "@/lib/prompt-generator";
 import { addWatermarkToImageFromUrl } from "@/lib/watermark";
 import { uploadImageToR2, generateImageKey, getFileExtension, generateSignedUrl, generateEnhancedImageKey, type ImageMetadata } from "@/lib/r2";
 import { generatePromptHash } from "@/lib/enhanced-image-naming";
@@ -13,7 +13,9 @@ export async function generateImage(
   prompt: string, 
   aspectRatio: string, 
   eventType?: string, 
-  eventDetails?: EventDetails
+  eventDetails?: EventDetails,
+  styleName?: string,
+  customStyle?: string
 ) {
   try {
     const session = await auth();
@@ -42,6 +44,18 @@ export async function generateImage(
       throw new Error("Ideogram API key is not configured. Please add NEXT_PUBLIC_IDEOGRAM_API_KEY to your environment variables.");
     }
 
+    // Generate enhanced prompt using system prompts from database
+    let finalPrompt = prompt;
+    if (eventType && eventDetails) {
+      finalPrompt = await generateEnhancedPromptWithSystemPrompts(
+        prompt,
+        eventType,
+        eventDetails,
+        styleName,
+        customStyle
+      );
+    }
+
     // Convert aspect ratio format to Ideogram 3.0 API format
     const convertAspectRatio = (ratio: string): string => {
       const aspectRatioMap: { [key: string]: string } = {
@@ -68,7 +82,7 @@ export async function generateImage(
     const formData = new FormData();
 
     // Add the prompt
-    formData.append("prompt", prompt);
+    formData.append("prompt", finalPrompt);
 
     // Add aspect ratio
     formData.append("aspect_ratio", ideogramAspectRatio);
@@ -179,7 +193,7 @@ export async function generateImage(
         } else {
           // Generate enhanced key for R2 storage with comprehensive metadata
           const extension = getFileExtension(contentType);
-          const promptHash = generatePromptHash(prompt);
+          const promptHash = generatePromptHash(finalPrompt);
           
           const imageMetadata: ImageMetadata = {
             userId: session.user.id,
@@ -256,7 +270,7 @@ export async function generateImage(
       const savedImage = await prisma.generatedImage.create({
         data: {
           userId: session.user.id,
-          prompt: prompt,
+          prompt: finalPrompt,
           url: signedUrl || finalImageUrl, // Use signed URL if available, fallback to original
           r2Key: r2Key, // Store R2 key for future signed URL generation
           webpKey: webpKey, // Store WebP key if conversion was successful

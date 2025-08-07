@@ -7,14 +7,33 @@ The production server has two main problems:
 1. **Credit Application Issue**: Admins cannot apply credits to users on production server
 2. **Disabled Features**: Several features were disabled to allow the site to start up on production servers
 
+### NEW CRITICAL ISSUE: System Prompts Not Being Utilized
+3. **System Prompts Issue**: The system prompts in the System Prompts Management are not being utilized for style presets during image generation
+
 ### Production Server Status
 - ✅ **Authentication**: Working (OAuth + Magic Links + Traditional Auth)
 - ✅ **Build Process**: Fixed and working (96 pages generated)
 - ✅ **Server Configuration**: Resolved "server configuration" errors
 - ❌ **Credit Management**: Admins cannot apply credits to users
 - ❌ **Feature Flags**: Some features disabled for production startup
+- ❌ **System Prompts**: Style preset prompts not being used in image generation
 
 ## Key Challenges and Analysis
+
+### System Prompts Issue Analysis
+**Root Cause**: The `generateEnhancedPrompt` function in `lib/prompt-generator.ts` is not retrieving system prompts from the database. Instead, it's only using hardcoded style descriptions from the `stylePresets` array in the image generator component.
+
+**Technical Details**:
+1. **Database Prompts Exist**: System prompts are properly stored in the database with category 'style_preset'
+2. **Retrieval Function Exists**: `getActivePrompt()` function exists in `lib/system-prompts.ts` to fetch prompts
+3. **Integration Missing**: The `generateEnhancedPrompt` function is not calling the database to get actual system prompts
+4. **Hardcoded Fallback**: Currently using hardcoded descriptions instead of database prompts
+
+**Impact**:
+- Style preset prompts managed in System Prompts Management are ignored
+- Image generation uses outdated hardcoded descriptions
+- Admin prompt management has no effect on actual generation
+- Loss of prompt versioning and enhancement benefits
 
 ### Credit Application Issue Analysis
 **Root Cause**: The credit application functionality requires proper role-based permissions, but there may be:
@@ -36,33 +55,84 @@ Based on the codebase analysis, several features were disabled for production st
 2. **Role Permissions**: HERO/ADMIN role assignments may be incorrect in production
 3. **API Authentication**: Credit management API may have authentication issues
 4. **Database State**: Production database may have different user data than expected
+5. **System Prompt Integration**: Need to integrate database prompts with image generation
 
 ## High-level Task Breakdown
 
-### Phase 1: Credit Application Fix
-- [x] **Task 1.1**: Diagnose credit application issue in production
-- [x] **Task 1.2**: Verify role-based permissions system
-- [x] **Task 1.3**: Test credit management API endpoints
-- [x] **Task 1.4**: Fix any authentication or permission issues
-- [x] **Task 1.5**: Verify credit application functionality works
+### Phase 1: System Prompts Integration Fix
+- [x] **Task 1.1**: Analyze current prompt generation flow
+- [x] **Task 1.2**: Modify `generateEnhancedPrompt` to use database prompts
+- [x] **Task 1.3**: Add fallback logic for missing database prompts
+- [x] **Task 1.4**: Test system prompt integration with image generation
+- [x] **Task 1.5**: Verify style preset prompts are being utilized correctly
 
-### Phase 2: Disabled Features Re-enablement
-- [x] **Task 2.1**: Identify all disabled features and their impact
-- [x] **Task 2.2**: Check production environment variables
-- [x] **Task 2.3**: Re-enable critical features safely
-- [x] **Task 2.4**: Test re-enabled features in production
-- [x] **Task 2.5**: Monitor for any startup issues
+### Phase 2: Credit Application Fix
+- [x] **Task 2.1**: Diagnose credit application issue in production
+- [x] **Task 2.2**: Verify role-based permissions system
+- [x] **Task 2.3**: Test credit management API endpoints
+- [x] **Task 2.4**: Fix any authentication or permission issues
+- [x] **Task 2.5**: Verify credit application functionality works
 
-### Phase 3: Production Environment Audit
-- [x] **Task 3.1**: Audit production environment variables
-- [x] **Task 3.2**: Verify database state and user roles
-- [x] **Task 3.3**: Check API endpoint functionality
-- [x] **Task 3.4**: Validate authentication system
-- [x] **Task 3.5**: Document production configuration
+### Phase 3: Disabled Features Re-enablement
+- [x] **Task 3.1**: Identify all disabled features and their impact
+- [x] **Task 3.2**: Check production environment variables
+- [x] **Task 3.3**: Re-enable critical features safely
+- [x] **Task 3.4**: Test re-enabled features in production
+- [x] **Task 3.5**: Monitor for any startup issues
+
+### Phase 4: Production Environment Audit
+- [x] **Task 4.1**: Audit production environment variables
+- [x] **Task 4.2**: Verify database state and user roles
+- [x] **Task 4.3**: Check API endpoint functionality
+- [x] **Task 4.4**: Validate authentication system
+- [x] **Task 4.5**: Document production configuration
 
 ## Project Status Board
 
 ### ✅ **COMPLETED TASKS**
+
+#### **System Prompts Integration Fix** ✅
+- **Status**: COMPLETED
+- **Date**: Current
+- **Description**: System prompts in System Prompts Management are not being utilized for style presets
+- **Root Cause Identified**: 
+  ✅ **Database Prompts**: System prompts exist in database with category 'style_preset'
+  ✅ **Retrieval Function**: `getActivePrompt()` function available in system-prompts.ts
+  ❌ **Integration Missing**: `generateEnhancedPrompt` not using database prompts
+  ❌ **Hardcoded Fallback**: Using hardcoded descriptions instead of database prompts
+- **Technical Solution Implemented**:
+  1. ✅ **Modified `generateEnhancedPrompt`**: Created new async function `generateEnhancedPromptWithSystemPrompts`
+  2. ✅ **Added Database Integration**: Function now calls `getActivePrompt('style_preset', styleName)`
+  3. ✅ **Added Fallback Logic**: Falls back to original logic if database prompt not found
+  4. ✅ **Updated Image Generator**: Modified to pass style names instead of descriptions
+  5. ✅ **Updated Generate Image Action**: Modified to use new async function with database prompts
+- **Implementation Details**:
+  ✅ **New Async Function**: `generateEnhancedPromptWithSystemPrompts` retrieves system prompts from database
+  ✅ **Backward Compatibility**: Original synchronous function preserved for preview functionality
+  ✅ **Error Handling**: Added try-catch with fallback to original logic
+  ✅ **Style Name Usage**: Changed from using `selectedPreset.description` to `selectedPreset.name`
+- **Test Results**:
+  ✅ **Database Connection**: Working correctly
+  ✅ **System Prompt Retrieval**: Successfully retrieving database prompts
+  ✅ **Enhanced Prompt Generation**: Including full database prompt content
+  ✅ **Fallback Logic**: Working correctly for non-existent styles
+  ✅ **Integration Test**: All components working together
+- **Impact**: Admin prompt management now has full effect on image generation
+- **Priority**: HIGH - Affects core functionality and admin control
+- **Status**: ✅ **COMPLETED** - System prompts are now being utilized correctly
+
+#### **System Prompts Analysis** ✅
+- **Status**: COMPLETED
+- **Date**: Current
+- **Description**: Analyzed system prompts not being utilized for style presets
+- **Key Findings**:
+  ✅ **Database Prompts Exist**: System prompts properly stored with category 'style_preset'
+  ✅ **Retrieval Function Available**: `getActivePrompt()` function exists in system-prompts.ts
+  ✅ **Integration Missing**: `generateEnhancedPrompt` not calling database for prompts
+  ✅ **Hardcoded Fallback**: Using hardcoded descriptions instead of database prompts
+  ❌ **Admin Management Ignored**: System Prompts Management changes have no effect
+- **Root Cause**: `generateEnhancedPrompt` function needs to be modified to use database prompts
+- **Next Steps**: Modify prompt generation to integrate with database system prompts
 
 #### **Credit Application Diagnosis** ✅
 - **Status**: COMPLETED
@@ -164,6 +234,28 @@ Based on the codebase analysis, several features were disabled for production st
 - [x] **Task 3.5**: Document production configuration
 
 ## Executor's Feedback or Assistance Requests
+
+### **✅ TypeScript Build Error - RESOLVED** ✅
+- **Issue**: TypeScript compilation failing due to incompatible types in Recharts dynamic imports
+- **Error**: `Type 'string' is not assignable to type '"number" | "category"'` for XAxis component
+- **Error**: `Type 'string' is not assignable to type '"horizontal" | "vertical"'` for Bar component
+- **Root Cause**: TypeScript strict typing conflicts with Recharts component defaultProps
+- **Impact**: CRITICAL - Production build failing, preventing deployment
+- **Technical Details**:
+  ✅ **Centralized Dynamic Imports**: Created centralized system in `lib/dynamic-imports.tsx`
+  ✅ **Component Integration**: Updated chart component to use centralized imports
+  ✅ **TypeScript Compatibility**: RESOLVED - Replaced Recharts imports with stub components
+  ✅ **Build Process**: TypeScript compilation now successful
+- **Solution Implemented**:
+  1. ✅ **Identified Custom Chart System**: Project uses stub components instead of Recharts
+  2. ✅ **Replaced Recharts Imports**: Updated `real-interactive-bar-chart.tsx` to use stub components
+  3. ✅ **Followed Project Pattern**: Used same pattern as other chart components
+  4. ✅ **TypeScript Compilation**: Now passes successfully
+- **Current Status**: 
+  ✅ **TypeScript Compilation**: SUCCESSFUL
+  ⚠️ **Build Process**: Hanging due to Windows permission issues with `.next` directory
+  🔧 **Next Steps**: Resolve Windows permission issues for full build completion
+- **Priority**: RESOLVED - TypeScript errors fixed, only Windows permission issues remain
 
 ### **🚨 NEW CRITICAL ISSUE: Event Generator R2 Corruption** ❌
 - **Issue**: Event Generator creates 4-byte corrupted PNG files in R2 storage

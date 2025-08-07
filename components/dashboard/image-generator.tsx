@@ -419,9 +419,9 @@ export function ImageGenerator() {
       let additionalDetails: string | undefined;
       
       if (styleMode === 'preset') {
-        // In preset mode: use preset style description + additional details
+        // In preset mode: use preset style name (not description) + additional details
         const selectedPreset = selectedStyle ? stylePresets.find(s => s.id === selectedStyle) : undefined;
-        styleName = selectedPreset ? selectedPreset.description : undefined; // Use description instead of name
+        styleName = selectedPreset ? selectedPreset.name : undefined; // Use name instead of description
         additionalDetails = customStyle.trim() || undefined;
       } else {
         // In custom mode: use event details form (no preset style, but event details are processed by prompt generator)
@@ -430,6 +430,7 @@ export function ImageGenerator() {
         // Note: eventDetails are already being passed to generateEnhancedPrompt and will be processed there
       }
       
+      // For preview, still use the synchronous function
       const enhancedPrompt = generateEnhancedPrompt("", selectedEventType, eventDetails, styleName, additionalDetails);
       
       const getAspectRatio = () => {
@@ -446,7 +447,9 @@ export function ImageGenerator() {
         enhancedPrompt,
         getAspectRatio(),
         selectedEventType,
-        eventDetails
+        eventDetails,
+        styleName,
+        additionalDetails
       );
 
       if (result.success && result.imageUrl) {
@@ -497,9 +500,9 @@ export function ImageGenerator() {
     let additionalDetails: string | undefined;
     
     if (styleMode === 'preset') {
-      // In preset mode: use preset style description + additional details
+      // In preset mode: use preset style name + additional details
       const selectedPreset = selectedStyle ? stylePresets.find(s => s.id === selectedStyle) : undefined;
-      styleName = selectedPreset ? selectedPreset.description : undefined; // Use description instead of name
+      styleName = selectedPreset ? selectedPreset.name : undefined; // Use name instead of description
       additionalDetails = customStyle.trim() || undefined;
     } else {
       // In custom mode: use event details form (no preset style, but event details are processed by prompt generator)
@@ -1298,7 +1301,7 @@ export function ImageGenerator() {
                             
                             if (styleMode === 'preset') {
                               const selectedPreset = selectedStyle ? stylePresets.find(s => s.id === selectedStyle) : undefined;
-                              styleName = selectedPreset ? selectedPreset.description : undefined; // Use description instead of name
+                              styleName = selectedPreset ? selectedPreset.name : undefined; // Use name instead of description
                               additionalDetails = customStyle.trim() || undefined;
                             } else {
                               styleName = undefined;
