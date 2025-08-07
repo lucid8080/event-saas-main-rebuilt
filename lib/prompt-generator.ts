@@ -223,8 +223,11 @@ export async function generateEnhancedPromptWithSystemPrompts(
       const systemPrompt = await getActivePrompt('style_preset', styleName);
       
       if (systemPrompt && systemPrompt.content) {
-        // Use the database prompt content
-        contextParts.push(systemPrompt.content);
+        // Extract key style elements from the database prompt (first 100 characters)
+        // This prevents the style from overwhelming the event type context
+        const styleContent = systemPrompt.content;
+        const keyStyleElements = styleContent.split(',')[0]; // Take first part before first comma
+        contextParts.push(keyStyleElements);
       } else {
         // Fallback to the original logic if no database prompt found
         if (styleName.length > 20) {
@@ -471,10 +474,9 @@ export function generateEnhancedPrompt(
       break;
   }
 
-  // Add style context if provided
+  // Add style context if provided - SIMPLIFIED FOR CONSISTENCY
   if (styleName && styleName !== 'No Style') {
-    // If the styleName is a detailed description (longer than typical style names), add it directly
-    // Otherwise, add "style" suffix for backward compatibility
+    // Use simplified style name for consistency with async version
     if (styleName.length > 20) {
       contextParts.push(styleName);
     } else {

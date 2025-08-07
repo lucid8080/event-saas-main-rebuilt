@@ -54,20 +54,15 @@ export async function PUT(
       return NextResponse.json({ error: 'Prompt not found' }, { status: 404 });
     }
 
-    // Create a new version instead of updating the existing one
-    const newVersion = existingPrompt.version + 1;
-
-    const updatedPrompt = await prisma.systemPrompt.create({
+    // Update the existing prompt in place (no versioning)
+    const updatedPrompt = await prisma.systemPrompt.update({
+      where: { id: params.id },
       data: {
-        category: existingPrompt.category,
-        subcategory: existingPrompt.subcategory,
         name: name || existingPrompt.name,
         description: description !== undefined ? description : existingPrompt.description,
         content: content || existingPrompt.content,
-        version: newVersion,
         isActive: isActive !== undefined ? isActive : existingPrompt.isActive,
         metadata: metadata || existingPrompt.metadata,
-        createdBy: existingPrompt.createdBy,
         updatedBy: user.id
       }
     });

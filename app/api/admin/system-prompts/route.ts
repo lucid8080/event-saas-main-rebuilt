@@ -21,12 +21,12 @@ export async function GET(request: NextRequest) {
     if (subcategory) where.subcategory = subcategory;
     if (isActive !== null) where.isActive = isActive === 'true';
 
+    // Get all prompts (no version filtering needed)
     const prompts = await prisma.systemPrompt.findMany({
       where,
       orderBy: [
         { category: 'asc' },
-        { subcategory: 'asc' },
-        { version: 'desc' }
+        { subcategory: 'asc' }
       ]
     });
 
@@ -58,33 +58,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the latest version for this category/subcategory combination
-    const latestVersion = await prisma.systemPrompt.findFirst({
+    // Check if a prompt already exists for this category/subcategory
+    const existingPrompt = await prisma.systemPrompt.findFirst({
       where: {
         category,
         subcategory: subcategory || null
-      },
-      orderBy: { version: 'desc' },
-      select: { version: true }
-    });
-
-    const newVersion = (latestVersion?.version || 0) + 1;
-
-    const prompt = await prisma.systemPrompt.create({
-      data: {
-        category,
-        subcategory: subcategory || null,
-        name,
-        description: description || null,
-        content,
-        version: newVersion,
-        metadata: metadata || {},
-        createdBy: user.id,
-        updatedBy: user.id
       }
     });
 
-    return NextResponse.json({ prompt }, { status: 201 });
+    if (existingPrompt) {
+      // Update existing prompt instead of creating a new one
+      const prompt = await prisma.systemPrompt.update({
+        where: { id: existingPrompt.id },
+        data: {
+          name,
+          description: description || null,
+          content,
+          metadata: metadata || {},
+          updatedBy: user.id
+        }
+      });
+      return NextResponse.json({ prompt }, { status: 200 });
+    } else {
+      // Create new prompt with version 1
+      const prompt = await prisma.systemPrompt.create({
+        data: {
+          category,
+          subcategory: subcategory || null,
+          name,
+          description: description || null,
+          content,
+          version: 1,
+          metadata: metadata || {},
+          createdBy: user.id,
+          updatedBy: user.id
+        }
+      });
+      return NextResponse.json({ prompt }, { status: 201 });
+    }
   } catch (error) {
     console.error('Error creating system prompt:', error);
     return NextResponse.json(

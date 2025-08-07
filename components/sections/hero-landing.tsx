@@ -75,7 +75,7 @@ export default function HeroLanding() {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           />
-          Flyers, Print/Social Media Ready,{" "}
+          Flyers{" "}
           <span className="text-gradient_indigo-purple font-extrabold">
            No Design Skills Needed
           </span>
@@ -86,8 +86,8 @@ export default function HeroLanding() {
           style={{ animationDelay: "0.35s", animationFillMode: "forwards" }}
         >
           Generate eye-catching, digital & print-ready event flyers in seconds. 
-          Perfect for weddings, birthdays, and more—EventCraftAI brings PRO design 
-          to your fingertips, without the cost or hassle of hiring a designer!
+          Perfect for weddings, birthdays, and more. PRO design at your fingertips, 
+          without the cost or hassle of hiring a designer!
         </p>
 
         <div
@@ -95,14 +95,14 @@ export default function HeroLanding() {
           style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}
         >
           <Link
-            href="/pricing"
+            href="/register"
             prefetch={true}
             className={cn(
               buttonVariants({ size: "lg", rounded: "full" }),
-              "gap-2",
+              "gap-2 animate-pulsate",
             )}
           >
-            <span>Go Pricing</span>
+            <span>Get Started</span>
             <Icons.arrowRight className="size-4" />
           </Link>
           

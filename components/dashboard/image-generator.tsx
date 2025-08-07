@@ -1098,7 +1098,7 @@ export function ImageGenerator() {
                 ) : (
                   <div className="flex items-center gap-2">
                     <Sparkles className="size-5" />
-                    Generate Event (1 Credit)
+                    Generate Event
                   </div>
                 )}
               </Button>

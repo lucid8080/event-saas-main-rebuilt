@@ -96,41 +96,53 @@ export async function getPromptsByCategory(category: string): Promise<SystemProm
 // Create a new prompt
 export async function createPrompt(data: SystemPromptData, userId: string): Promise<SystemPromptData | null> {
   try {
-    // Get the latest version for this category/subcategory combination
-    const latestVersion = await prisma.systemPrompt.findFirst({
+    // Check if a prompt already exists for this category/subcategory
+    const existingPrompt = await prisma.systemPrompt.findFirst({
       where: {
         category: data.category,
         subcategory: data.subcategory || null
-      },
-      orderBy: { version: 'desc' },
-      select: { version: true }
-    });
-
-    const newVersion = (latestVersion?.version || 0) + 1;
-
-    const prompt = await prisma.systemPrompt.create({
-      data: {
-        category: data.category,
-        subcategory: data.subcategory || null,
-        name: data.name,
-        description: data.description || null,
-        content: data.content,
-        version: newVersion,
-        isActive: data.isActive !== false,
-        metadata: data.metadata || {},
-        createdBy: userId,
-        updatedBy: userId
       }
     });
 
-    return prompt;
+    if (existingPrompt) {
+      // Update existing prompt instead of creating a new one
+      const prompt = await prisma.systemPrompt.update({
+        where: { id: existingPrompt.id },
+        data: {
+          name: data.name,
+          description: data.description || null,
+          content: data.content,
+          isActive: data.isActive !== false,
+          metadata: data.metadata || {},
+          updatedBy: userId
+        }
+      });
+      return prompt;
+    } else {
+      // Create new prompt with version 1
+      const prompt = await prisma.systemPrompt.create({
+        data: {
+          category: data.category,
+          subcategory: data.subcategory || null,
+          name: data.name,
+          description: data.description || null,
+          content: data.content,
+          version: 1,
+          isActive: data.isActive !== false,
+          metadata: data.metadata || {},
+          createdBy: userId,
+          updatedBy: userId
+        }
+      });
+      return prompt;
+    }
   } catch (error) {
     console.error('Error creating prompt:', error);
     return null;
   }
 }
 
-// Update a prompt (creates new version)
+// Update a prompt (updates in place)
 export async function updatePrompt(id: string, data: Partial<SystemPromptData>, userId: string): Promise<SystemPromptData | null> {
   try {
     const existingPrompt = await prisma.systemPrompt.findUnique({
@@ -141,19 +153,14 @@ export async function updatePrompt(id: string, data: Partial<SystemPromptData>, 
       return null;
     }
 
-    const newVersion = existingPrompt.version + 1;
-
-    const updatedPrompt = await prisma.systemPrompt.create({
+    const updatedPrompt = await prisma.systemPrompt.update({
+      where: { id },
       data: {
-        category: existingPrompt.category,
-        subcategory: existingPrompt.subcategory,
         name: data.name || existingPrompt.name,
         description: data.description !== undefined ? data.description : existingPrompt.description,
         content: data.content || existingPrompt.content,
-        version: newVersion,
         isActive: data.isActive !== undefined ? data.isActive : existingPrompt.isActive,
         metadata: data.metadata || existingPrompt.metadata,
-        createdBy: existingPrompt.createdBy,
         updatedBy: userId
       }
     });
@@ -165,18 +172,17 @@ export async function updatePrompt(id: string, data: Partial<SystemPromptData>, 
   }
 }
 
-// Get prompt history
+// Get prompt history (deprecated - no longer needed with simplified versioning)
 export async function getPromptHistory(category: string, subcategory?: string): Promise<SystemPromptData[]> {
   try {
-    const prompts = await prisma.systemPrompt.findMany({
+    const prompt = await prisma.systemPrompt.findFirst({
       where: {
         category,
         subcategory: subcategory || null
-      },
-      orderBy: { version: 'desc' }
+      }
     });
 
-    return prompts;
+    return prompt ? [prompt] : [];
   } catch (error) {
     console.error('Error getting prompt history:', error);
     return [];
