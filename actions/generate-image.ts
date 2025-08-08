@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { EventDetails, generateEnhancedPromptWithSystemPrompts } from "@/lib/prompt-generator";
+import { EventDetails, generateEnhancedPromptWithSystemPrompts, generateFullPromptWithSystemPrompts } from "@/lib/prompt-generator";
 import { addWatermarkToImageFromUrl } from "@/lib/watermark";
 import { uploadImageToR2, generateImageKey, getFileExtension, generateSignedUrl, generateEnhancedImageKey, type ImageMetadata } from "@/lib/r2";
 import { generatePromptHash } from "@/lib/enhanced-image-naming";
@@ -44,10 +44,10 @@ export async function generateImage(
       throw new Error("Ideogram API key is not configured. Please add NEXT_PUBLIC_IDEOGRAM_API_KEY to your environment variables.");
     }
 
-    // Generate enhanced prompt using system prompts from database
+    // Build the final combined prompt using FULL database prompts
     let finalPrompt = prompt;
     if (eventType && eventDetails) {
-      finalPrompt = await generateEnhancedPromptWithSystemPrompts(
+      finalPrompt = await generateFullPromptWithSystemPrompts(
         prompt,
         eventType,
         eventDetails,

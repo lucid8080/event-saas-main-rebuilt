@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { IdeogramRecommendations } from './ideogram-recommendations';
+import { PromptPreviewTool } from './prompt-preview-tool';
 import { PROMPT_CATEGORIES, SystemPromptData } from '@/lib/system-prompts';
 
 interface SystemPromptsManagerProps {
@@ -393,6 +394,19 @@ export function SystemPromptsManager({ className }: SystemPromptsManagerProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Prompt Preview Tool */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Eye className="size-4" />
+            Prompt Preview Tool
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PromptPreviewTool />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Panel - Category Selection and Prompt List */}

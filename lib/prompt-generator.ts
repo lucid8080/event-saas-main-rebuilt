@@ -6,6 +6,184 @@ export interface EventDetails {
   [key: string]: string | number;
 }
 
+// Full prompt generation function for testing and preview purposes
+export async function generateFullPromptWithSystemPrompts(
+  basePrompt: string,
+  eventType: string,
+  eventDetails: EventDetails,
+  styleName?: string,
+  customStyle?: string
+): Promise<string> {
+  const eventConfig = getEventTypeConfig(eventType);
+  if (!eventConfig) {
+    return basePrompt;
+  }
+
+  // Build context from event details
+  const contextParts: string[] = [];
+  
+  // Add relevant details based on event type (same logic as the enhanced function)
+  switch (eventType) {
+    case 'BIRTHDAY_PARTY':
+      if (eventDetails.age) {
+        contextParts.push(`${eventDetails.age}th birthday celebration`);
+      }
+      if (eventDetails.theme) {
+        contextParts.push(`${eventDetails.theme} theme`);
+      }
+      if (eventDetails.venue) {
+        contextParts.push(`at ${eventDetails.venue}`);
+      }
+      if (eventDetails.guests) {
+        contextParts.push(`${eventDetails.guests} guests`);
+      }
+      if (eventDetails.activities) {
+        contextParts.push(`featuring ${eventDetails.activities}`);
+      }
+      if (eventDetails.decorations) {
+        contextParts.push(`with ${eventDetails.decorations}`);
+      }
+      break;
+
+    case 'WEDDING':
+      if (eventDetails.style) {
+        contextParts.push(`${eventDetails.style} style wedding`);
+      }
+      if (eventDetails.colors) {
+        contextParts.push(`${eventDetails.colors} color scheme`);
+      }
+      if (eventDetails.venue) {
+        contextParts.push(`at ${eventDetails.venue}`);
+      }
+      if (eventDetails.season) {
+        contextParts.push(`${eventDetails.season} season`);
+      }
+      if (eventDetails.guests) {
+        contextParts.push(`${eventDetails.guests} guests`);
+      }
+      if (eventDetails.elements) {
+        contextParts.push(`with ${eventDetails.elements}`);
+      }
+      break;
+
+    case 'CORPORATE_EVENT':
+      if (eventDetails.eventType) {
+        contextParts.push(`${eventDetails.eventType} corporate event`);
+      }
+      if (eventDetails.industry) {
+        contextParts.push(`${eventDetails.industry} industry`);
+      }
+      if (eventDetails.attendees) {
+        contextParts.push(`${eventDetails.attendees} attendees`);
+      }
+      if (eventDetails.venue) {
+        contextParts.push(`at ${eventDetails.venue}`);
+      }
+      if (eventDetails.formality) {
+        contextParts.push(`${eventDetails.formality} dress code`);
+      }
+      if (eventDetails.branding) {
+        contextParts.push(`${eventDetails.branding} branding`);
+      }
+      break;
+
+    case 'HOLIDAY_CELEBRATION':
+      if (eventDetails.holiday) {
+        contextParts.push(`${eventDetails.holiday} celebration`);
+      }
+      if (eventDetails.context) {
+        contextParts.push(`${eventDetails.context} context`);
+      }
+      if (eventDetails.venue) {
+        contextParts.push(`at ${eventDetails.venue}`);
+      }
+      if (eventDetails.people) {
+        contextParts.push(`${eventDetails.people} people`);
+      }
+      if (eventDetails.traditions) {
+        contextParts.push(`featuring ${eventDetails.traditions}`);
+      }
+      if (eventDetails.decorations) {
+        contextParts.push(`with ${eventDetails.decorations}`);
+      }
+      break;
+
+    // Add other event types as needed
+    default:
+      if (eventDetails.venue) {
+        contextParts.push(`at ${eventDetails.venue}`);
+      }
+      if (eventDetails.atmosphere) {
+        contextParts.push(`${eventDetails.atmosphere} atmosphere`);
+      }
+      if (eventDetails.activities) {
+        contextParts.push(`featuring ${eventDetails.activities}`);
+      }
+      if (eventDetails.decorations) {
+        contextParts.push(`with ${eventDetails.decorations}`);
+      }
+      break;
+  }
+
+  // Get the FULL event type prompt from database and add it directly
+  try {
+    console.log('FULL PROMPT MODE: Looking up event type:', eventType);
+    const eventTypePrompt = await getActivePrompt('event_type', eventType);
+    if (eventTypePrompt && eventTypePrompt.content) {
+      console.log('FULL PROMPT MODE: Found event type prompt:', eventTypePrompt.content.length, 'chars');
+      contextParts.push(eventTypePrompt.content);
+    } else {
+      console.log('FULL PROMPT MODE: No event type prompt found for:', eventType);
+      // Fallback to a minimal event context if DB is missing
+      contextParts.unshift(`${eventConfig.name} flyer theme`);
+    }
+  } catch (error) {
+    console.error('Error retrieving event type prompt:', error);
+    // On error, still add a minimal event context so the prompt remains meaningful
+    contextParts.unshift(`${eventConfig.name} flyer theme`);
+  }
+
+  // If DB event type prompt exists but does not contain the minimal context, prepend it
+  // This avoids duplicates like "Wedding flyer theme, Wedding flyer theme"
+  const minimalEventContext = `${eventConfig.name} flyer theme`;
+  const hasEventContextAlready = contextParts.join(' ').toLowerCase().includes(minimalEventContext.toLowerCase());
+  if (!hasEventContextAlready) {
+    contextParts.unshift(minimalEventContext);
+  }
+
+  // Get the FULL style preset prompt from database and add it directly
+  if (styleName && styleName !== 'No Style') {
+    try {
+      console.log('FULL PROMPT MODE: Looking up style preset:', styleName);
+      const stylePrompt = await getActivePrompt('style_preset', styleName);
+      if (stylePrompt && stylePrompt.content) {
+        console.log('FULL PROMPT MODE: Found style preset prompt:', stylePrompt.content.length, 'chars');
+        contextParts.push(stylePrompt.content);
+      } else {
+        console.log('FULL PROMPT MODE: No style preset prompt found for:', styleName);
+      }
+    } catch (error) {
+      console.error('Error retrieving style preset prompt:', error);
+    }
+  }
+  
+  // Add custom text if provided
+  if (eventDetails.customText && eventDetails.customText.toString().trim() !== '') {
+    contextParts.push(`with text: "${eventDetails.customText.toString().trim()}"`);
+  }
+  
+  // Add additional custom details if provided
+  if (customStyle && customStyle.trim() !== '') {
+    contextParts.push(`${customStyle.trim()}`);
+  }
+
+  // Combine context with base prompt
+  const context = contextParts.join(', ');
+  const fullPrompt = `${context}, ${basePrompt}`.trim();
+
+  return fullPrompt;
+}
+
 // New async function that uses database system prompts
 export async function generateEnhancedPromptWithSystemPrompts(
   basePrompt: string,
@@ -223,11 +401,56 @@ export async function generateEnhancedPromptWithSystemPrompts(
       const systemPrompt = await getActivePrompt('style_preset', styleName);
       
       if (systemPrompt && systemPrompt.content) {
-        // Extract key style elements from the database prompt (first 100 characters)
-        // This prevents the style from overwhelming the event type context
+        // Extract key style elements from the database prompt
+        // Take the main style description (before quality control phrases)
         const styleContent = systemPrompt.content;
-        const keyStyleElements = styleContent.split(',')[0]; // Take first part before first comma
-        contextParts.push(keyStyleElements);
+        
+        // Split by quality control phrases to separate style from quality control
+        const qualityControlPhrases = [
+          'no text unless otherwise specified',
+          'no blur',
+          'no distortion', 
+          'high quality',
+          'no gibberish text',
+          'no fake letters',
+          'no strange characters',
+          'only real readable words if text is included'
+        ];
+        
+        // Find where quality control phrases start
+        let styleDescription = styleContent;
+        let textQualityControl = '';
+        for (const phrase of qualityControlPhrases) {
+          const index = styleContent.toLowerCase().indexOf(phrase.toLowerCase());
+          if (index !== -1) {
+            styleDescription = styleContent.substring(0, index).trim();
+            // Extract text-specific quality control phrases
+            const remainingText = styleContent.substring(index);
+            const textQualityPhrases = [
+              'no gibberish text',
+              'no fake letters', 
+              'no strange characters',
+              'only real readable words if text is included'
+            ];
+            const foundTextPhrases = textQualityPhrases.filter(phrase => 
+              remainingText.toLowerCase().includes(phrase.toLowerCase())
+            );
+            if (foundTextPhrases.length > 0) {
+              textQualityControl = foundTextPhrases.join(', ');
+            }
+            break;
+          }
+        }
+        
+        // Clean up the style description (remove trailing commas)
+        styleDescription = styleDescription.replace(/,\s*$/, '');
+        
+        contextParts.push(styleDescription);
+        
+        // Add text quality control phrases if found
+        if (textQualityControl) {
+          contextParts.push(textQualityControl);
+        }
       } else {
         // Fallback to the original logic if no database prompt found
         if (styleName.length > 20) {

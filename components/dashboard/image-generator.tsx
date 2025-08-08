@@ -429,9 +429,9 @@ export function ImageGenerator() {
         additionalDetails = undefined;
         // Note: eventDetails are already being passed to generateEnhancedPrompt and will be processed there
       }
-      
-      // For preview, still use the synchronous function
-      const enhancedPrompt = generateEnhancedPrompt("", selectedEventType, eventDetails, styleName, additionalDetails);
+      // Always let the server build the final combined prompt from DB prompts.
+      // Send only the base control prompt so the server can append event/style sections correctly.
+      const baseControlPrompt = "no text unless otherwise specified, no blur, no distortion, high quality, professional event flyer design";
       
       const getAspectRatio = () => {
         if (!selectedShape) return "1:1"; // Default fallback
@@ -444,7 +444,7 @@ export function ImageGenerator() {
       };
 
       const result = await generateImage(
-        enhancedPrompt,
+        baseControlPrompt,
         getAspectRatio(),
         selectedEventType,
         eventDetails,

@@ -537,7 +537,7 @@
     "subcategory": "Golden Harmony",
     "name": "Golden Harmony Style",
     "description": "Default prompt for Golden Harmony style preset",
-    "content": "elegant celebration design with soft neutral tones, gold accents, and warm lighting, sophisticated and luxurious atmosphere with harmonious color balance, refined and upscale aesthetic with golden highlights and elegant composition, premium celebration design",
+    "content": "elegant celebration design with soft neutral tones, gold accents, and warm lighting, sophisticated and luxurious atmosphere with harmonious color balance, refined and upscale aesthetic with golden highlights and elegant composition, no text unless otherwise specified, no blur, no distortion, high quality, premium celebration design",
     "version": 1,
     "isActive": true,
     "metadata": {

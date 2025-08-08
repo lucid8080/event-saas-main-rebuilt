@@ -516,7 +516,7 @@ INSERT INTO system_prompts (
   'Golden Harmony',
   'Golden Harmony Style',
   'Default prompt for Golden Harmony style preset',
-  'elegant celebration design with soft neutral tones, gold accents, and warm lighting, sophisticated and luxurious atmosphere with harmonious color balance, refined and upscale aesthetic with golden highlights and elegant composition, premium celebration design',
+  'elegant celebration design with soft neutral tones, gold accents, and warm lighting, sophisticated and luxurious atmosphere with harmonious color balance, refined and upscale aesthetic with golden highlights and elegant composition, no text unless otherwise specified, no blur, no distortion, high quality, premium celebration design',
   1,
   true,
   '{"seeded":true,"source":"comprehensive_seeding","originalKey":"Golden Harmony"}',
