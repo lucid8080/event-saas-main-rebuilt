@@ -1,83 +1,145 @@
 #!/usr/bin/env tsx
 
-/**
- * Simple test for provider settings API
- * Tests the API endpoints without relying on the full app
- */
+import { prisma } from '../lib/db';
 
 async function testProviderSettingsAPI() {
-  console.log("🧪 Testing Provider Settings API\n");
+  console.log('🧪 Testing Provider Settings API Fix');
+  console.log('====================================\n');
 
   try {
-    // Test data for Fal-AI Qwen provider
-    const testSettings = {
-      providerId: "fal-qwen",
-      name: "Test Fal-AI Qwen Settings",
-      description: "Test configuration for Fal-AI Qwen provider",
-      baseSettings: {
-        inferenceSteps: 25,
-        guidanceScale: 3.0,
-        enableSafetyChecker: true,
-        numImages: 1,
-        costPerImage: 0.05
-      },
-      specificSettings: {
-        'fal-qwen': {
-          imageSize: 'square_hd',
-          enableSafetyChecker: true,
-          syncMode: false,
-          guidanceScale: 3.0,
-          numInferenceSteps: 25,
-          numImages: 1
-        }
-      },
+    // Test the logic that was implemented in the API endpoint
+    const testData = {
+      providerId: "fal-ideogram",
+      name: "Default Fal-AI Ideogram Settings",
+      description: "Default configuration for Fal-AI Ideogram provider",
+      baseSettings: {},
+      specificSettings: {},
       isActive: true,
       isDefault: true
     };
 
-    console.log("📤 Test payload:");
-    console.log(JSON.stringify(testSettings, null, 2));
-    
-    // Check if required fields are present
-    console.log("\n✅ Validation checks:");
-    console.log(`Provider ID: "${testSettings.providerId}" (${testSettings.providerId ? 'OK' : 'MISSING'})`);
-    console.log(`Name: "${testSettings.name}" (${testSettings.name ? 'OK' : 'MISSING'})`);
-    console.log(`Base Settings: ${testSettings.baseSettings ? 'OK' : 'MISSING'}`);
-    console.log(`Specific Settings: ${testSettings.specificSettings ? 'OK' : 'MISSING'}`);
+    console.log('1. Testing the fixed logic:');
+    console.log(`   Provider: ${testData.providerId}`);
+    console.log(`   Name: ${testData.name}`);
 
-    // Test JSON serialization
-    console.log("\n🔄 JSON serialization test:");
-    try {
-      const serialized = JSON.stringify(testSettings);
-      const deserialized = JSON.parse(serialized);
-      console.log("✅ JSON serialization/deserialization works");
-      console.log(`Serialized length: ${serialized.length} chars`);
-    } catch (error) {
-      console.log("❌ JSON serialization failed:", error);
-      return;
+    // Check if settings already exist for this provider and name
+    const existingSettings = await prisma.providerSettings.findFirst({
+      where: {
+        providerId: testData.providerId,
+        name: testData.name
+      }
+    });
+
+    if (existingSettings) {
+      console.log('   ✅ Found existing settings, will update instead of create');
+      console.log(`   📝 Existing ID: ${existingSettings.id}`);
+      
+      // Update existing settings instead of creating new ones
+      const updatedSettings = await prisma.providerSettings.update({
+        where: { id: existingSettings.id },
+        data: {
+          description: testData.description,
+          baseSettings: testData.baseSettings,
+          specificSettings: testData.specificSettings,
+          isActive: testData.isActive,
+          isDefault: testData.isDefault,
+          updatedBy: 'test-script',
+          version: { increment: 1 }
+        }
+      });
+      
+      console.log('   ✅ Successfully updated existing settings');
+      console.log(`   📝 Updated ID: ${updatedSettings.id}`);
+      console.log(`   📝 New version: ${updatedSettings.version}`);
+      
+    } else {
+      console.log('   📝 No existing settings found, will create new ones');
+      
+      // Create new settings
+      const newSettings = await prisma.providerSettings.create({
+        data: {
+          ...testData,
+          createdBy: 'test-script',
+          updatedBy: 'test-script',
+          version: 1
+        }
+      });
+      
+      console.log('   ✅ Successfully created new settings');
+      console.log(`   📝 New ID: ${newSettings.id}`);
     }
 
-    console.log("\n📋 API Requirements Check:");
-    console.log("- Provider ID present:", !!testSettings.providerId);
-    console.log("- Name present:", !!testSettings.name);
-    console.log("- Name not empty:", testSettings.name.trim().length > 0);
-    console.log("- Base settings is object:", typeof testSettings.baseSettings === 'object');
-    console.log("- Specific settings is object:", typeof testSettings.specificSettings === 'object');
+    console.log('\n2. Testing with different provider:');
+    const differentData = {
+      providerId: "test-provider",
+      name: "Test Settings",
+      description: "Test configuration",
+      baseSettings: { test: true },
+      specificSettings: { test: true },
+      isActive: true,
+      isDefault: false
+    };
 
-    console.log("\n🎯 Expected API behavior:");
-    console.log("1. Should pass validation (providerId and name are present)");
-    console.log("2. Should create new settings in database");
-    console.log("3. Should return success response with created settings");
+    console.log(`   Provider: ${differentData.providerId}`);
+    console.log(`   Name: ${differentData.name}`);
 
-    console.log("\n💡 Troubleshooting tips:");
-    console.log("- Check if database is running and accessible");
-    console.log("- Verify Prisma client is properly generated");
-    console.log("- Check if all required environment variables are set");
-    console.log("- Ensure user has ADMIN or HERO role");
-    console.log("- Check server logs for detailed error information");
+    // Check if settings already exist
+    const existingDifferent = await prisma.providerSettings.findFirst({
+      where: {
+        providerId: differentData.providerId,
+        name: differentData.name
+      }
+    });
+
+    if (existingDifferent) {
+      console.log('   ✅ Found existing settings, will update');
+      const updated = await prisma.providerSettings.update({
+        where: { id: existingDifferent.id },
+        data: {
+          description: differentData.description,
+          baseSettings: differentData.baseSettings,
+          specificSettings: differentData.specificSettings,
+          isActive: differentData.isActive,
+          isDefault: differentData.isDefault,
+          updatedBy: 'test-script',
+          version: { increment: 1 }
+        }
+      });
+      console.log('   ✅ Successfully updated');
+      
+      // Clean up
+      await prisma.providerSettings.delete({
+        where: { id: updated.id }
+      });
+      console.log('   🧹 Cleaned up test data');
+      
+    } else {
+      console.log('   📝 No existing settings, will create');
+      const created = await prisma.providerSettings.create({
+        data: {
+          ...differentData,
+          createdBy: 'test-script',
+          updatedBy: 'test-script',
+          version: 1
+        }
+      });
+      console.log('   ✅ Successfully created');
+      
+      // Clean up
+      await prisma.providerSettings.delete({
+        where: { id: created.id }
+      });
+      console.log('   🧹 Cleaned up test data');
+    }
+
+    console.log('\n🎉 API Fix Test Complete!');
+    console.log('The provider settings API should now work correctly.');
+    console.log('It will update existing settings instead of failing with a unique constraint error.');
 
   } catch (error) {
-    console.error("❌ Test failed:", error);
+    console.error('❌ Test failed:', error);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 

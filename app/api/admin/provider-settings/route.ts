@@ -144,23 +144,51 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Create new settings
-    const newSettings = await prisma.providerSettings.create({
-      data: {
+    // Check if settings already exist for this provider and name
+    const existingSettings = await prisma.providerSettings.findFirst({
+      where: {
         providerId,
-        name,
-        description,
-        baseSettings: baseSettings || {},
-        specificSettings: specificSettings || {},
-        isActive,
-        isDefault,
-        createdBy: session.user.id,
-        updatedBy: session.user.id,
-        version: 1
+        name
       }
     });
+
+    let newSettings;
     
-    console.log(`[ProviderSettings] Created new settings: ${providerId}/${name}`);
+    if (existingSettings) {
+      // Update existing settings instead of creating new ones
+      newSettings = await prisma.providerSettings.update({
+        where: { id: existingSettings.id },
+        data: {
+          description,
+          baseSettings: baseSettings || {},
+          specificSettings: specificSettings || {},
+          isActive,
+          isDefault,
+          updatedBy: session.user.id,
+          version: { increment: 1 }
+        }
+      });
+      
+      console.log(`[ProviderSettings] Updated existing settings: ${providerId}/${name}`);
+    } else {
+      // Create new settings
+      newSettings = await prisma.providerSettings.create({
+        data: {
+          providerId,
+          name,
+          description,
+          baseSettings: baseSettings || {},
+          specificSettings: specificSettings || {},
+          isActive,
+          isDefault,
+          createdBy: session.user.id,
+          updatedBy: session.user.id,
+          version: 1
+        }
+      });
+      
+      console.log(`[ProviderSettings] Created new settings: ${providerId}/${name}`);
+    }
     
     return NextResponse.json({
       success: true,
@@ -180,13 +208,27 @@ export async function POST(request: NextRequest) {
     
     if (error.code === 'P2002') {
       return NextResponse.json(
-        { error: "Settings with this provider ID and name already exist" },
+        { error: "Settings with this provider ID and name already exist. The system will update the existing settings instead." },
         { status: 409 }
       );
     }
     
+    if (error.code === 'P2003') {
+      return NextResponse.json(
+        { error: "Invalid reference - check that all required fields are provided" },
+        { status: 400 }
+      );
+    }
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: "Record not found" },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: "Failed to create provider settings" },
+      { error: "Failed to create provider settings", details: error.message },
       { status: 500 }
     );
   }
