@@ -14,8 +14,8 @@ try {
   const allProviders = providerConfig.getAvailableProviders();
   console.log("📋 Available Providers:");
   for (const provider of allProviders) {
-    const config = providerConfig.getProviderConfig(provider.type);
-    console.log(`   ${provider.type.padEnd(12)} | Priority: ${config?.priority || 0} | Enabled: ${config?.enabled ? '✅' : '❌'} | Configured: ${provider.configured ? '✅' : '❌'}`);
+    const config = providerConfig.getProviderConfig(provider);
+    console.log(`   ${provider.padEnd(12)} | Priority: ${config?.priority || 0} | Enabled: ${config?.enabled ? '✅' : '❌'}`);
   }
 
   // Get the default provider

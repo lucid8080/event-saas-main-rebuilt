@@ -43,8 +43,7 @@ async function testFalAIProvider() {
       const capabilities = falQwenProvider.getCapabilities();
       console.log(`   ✅ Capabilities loaded:`);
       console.log(`      - Supports seeds: ${capabilities.supportsSeeds}`);
-      console.log(`      - Max images: ${capabilities.maxConcurrentRequests}`);
-      console.log(`      - Cost: $${capabilities.costEstimate?.basePrice}/megapixel`);
+      console.log(`      - Cost: $${capabilities.pricing.costPerImage}/image`);
       console.log(`      - Qualities: ${capabilities.supportedQualities.join(", ")}`);
       console.log(`      - Aspect ratios: ${capabilities.supportedAspectRatios.join(", ")}`);
       
@@ -109,13 +108,13 @@ async function testFalAIProvider() {
         quality: "standard" as const
       };
       
-      const cost = falQwenProvider.getCostEstimate(testParams);
+      const cost = await falQwenProvider.estimateCost(testParams);
       console.log(`   ✅ Cost estimate for 1:1 image: $${cost}`);
       
       // Test different aspect ratios
       const aspectRatios = ["16:9", "9:16", "4:3"] as const;
       for (const ratio of aspectRatios) {
-        const costForRatio = falQwenProvider.getCostEstimate({
+        const costForRatio = await falQwenProvider.estimateCost({
           ...testParams,
           aspectRatio: ratio
         });

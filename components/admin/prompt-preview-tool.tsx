@@ -193,7 +193,7 @@ export function PromptPreviewTool({ className }: PromptPreviewToolProps) {
           if (eventDetails.traditions) eventDetailsParts.push(`featuring ${eventDetails.traditions}`);
           
           // Only add decorations if they're not redundant with holiday details
-          if (eventDetails.decorations) {
+          if (eventDetails.decorations && typeof eventDetails.decorations === 'string') {
             const { getHolidayDetailsByName } = await import('@/lib/holidays');
             const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
             const isRedundantDecoration = holidayDetails && 

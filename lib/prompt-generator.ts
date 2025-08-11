@@ -121,7 +121,7 @@ export async function generateFullPromptWithSystemPrompts(
       }
       
       // Only add decorations if they're not redundant with holiday details
-      if (eventDetails.decorations) {
+      if (eventDetails.decorations && typeof eventDetails.decorations === 'string') {
         const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
         const isRedundantDecoration = holidayDetails && 
           eventDetails.decorations.toLowerCase().includes(holidayDetails.region[0].toLowerCase()) &&
@@ -324,7 +324,7 @@ export async function generateEnhancedPromptWithSystemPrompts(
       }
       
       // Only add decorations if they're not redundant with holiday details
-      if (eventDetails.decorations) {
+      if (eventDetails.decorations && typeof eventDetails.decorations === 'string') {
         const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
         const isRedundantDecoration = holidayDetails && 
           eventDetails.decorations.toLowerCase().includes(holidayDetails.region[0].toLowerCase()) &&
@@ -639,7 +639,7 @@ export function generateEnhancedPrompt(
       }
       
       // Only add decorations if they're not redundant with holiday details
-      if (eventDetails.decorations) {
+      if (eventDetails.decorations && typeof eventDetails.decorations === 'string') {
         const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
         const isRedundantDecoration = holidayDetails && 
           eventDetails.decorations.toLowerCase().includes(holidayDetails.region[0].toLowerCase()) &&

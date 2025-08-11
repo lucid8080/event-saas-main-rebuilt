@@ -185,7 +185,7 @@ export class IdeogramProvider implements ImageGenerationProvider {
     return this.calculateCost(params);
   }
 
-  validateParams(params: ImageGenerationParams): void {
+  async validateParams(params: ImageGenerationParams): Promise<void> {
     if (!params.prompt || params.prompt.trim().length === 0) {
       throw new ImageGenerationError(
         "Prompt is required",

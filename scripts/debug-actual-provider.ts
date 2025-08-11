@@ -29,7 +29,7 @@ async function debugActualProvider() {
         const provider = imageProviders.getProvider(providerType as any);
         if (provider) {
           const capabilities = provider.getCapabilities();
-          console.log(`✅ ${providerType}: Available (${capabilities.name})`);
+          console.log(`✅ ${providerType}: Available`);
         }
       } catch (error) {
         console.log(`❌ ${providerType}: ${error.message}`);
@@ -43,7 +43,7 @@ async function debugActualProvider() {
       if (defaultProvider) {
         const providerType = defaultProvider.getProviderType();
         const capabilities = defaultProvider.getCapabilities();
-        console.log(`Default: ${providerType} (${capabilities.name})`);
+        console.log(`Default: ${providerType}`);
         
         // Test parameter conversion for 9:16
         console.log('\n🧪 Testing 9:16 Quality Compensation:');

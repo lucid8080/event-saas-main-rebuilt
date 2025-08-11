@@ -62,7 +62,7 @@ export class HuggingFaceInferenceProvider extends BaseImageProvider {
   /**
    * Override validateParams to ignore seed parameters
    */
-  protected async validateParams(params: ImageGenerationParams): Promise<void> {
+  public async validateParams(params: ImageGenerationParams): Promise<void> {
     // Call parent validation but catch seed-related errors
     try {
       await super.validateParams(params);

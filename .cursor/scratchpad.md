@@ -1531,3 +1531,101 @@ The system has excellent security implementation. Users can only access their ow
 - [ ] Verify all functionality works correctly
 
 The production server has core functionality working but authentication is failing for the credit management API. The local environment is working perfectly, and all required environment variables are set. The issue is with authentication handling in production.
+
+## NEW CRITICAL ISSUE: TypeScript Build Error - generatePromptHash Function
+
+### Background and Motivation
+
+**Current Situation**: Production build is failing due to TypeScript errors in carousel background generation files. The `generatePromptHash` function is being called with 2 parameters but only accepts 1 parameter.
+
+**Error Details**:
+```
+./actions/generate-carousel-background-v2.ts:104:42
+Type error: Expected 1 arguments, but got 2.
+  102 |     const enhancedKey = generateEnhancedImageKey(
+  103 |       session.user.id,
+> 104 |       generatePromptHash(enhancedPrompt, aspectRatio),
+      |                                          ^
+Next.js build worker exited with code: 1 and signal: null
+Next.js build failed: Command failed: next build
+```
+
+**Root Cause**: 
+- `generatePromptHash` function signature: `generatePromptHash(prompt: string): string`
+- Incorrect calls in v2 files: `generatePromptHash(enhancedPrompt, aspectRatio)`
+- Multiple files affected: `generate-carousel-background-v2.ts`, `generate-carousel-long-image-v2.ts`, `generate-image-v3-v2.ts`
+
+**Impact**: CRITICAL - Production build failing, preventing deployment
+
+### Key Challenges and Analysis
+
+#### **Files Affected**
+1. **`actions/generate-carousel-background-v2.ts`**: Line 104 - `generatePromptHash(enhancedPrompt, aspectRatio)`
+2. **`actions/generate-carousel-long-image-v2.ts`**: Line 105 - `generatePromptHash(enhancedPrompt, aspectRatio)`
+3. **`actions/generate-image-v3-v2.ts`**: Line 158 - `generatePromptHash(prompt, aspectRatio)`
+
+#### **Correct Usage Pattern**
+- **Working files**: `generatePromptHash(prompt)` - single parameter
+- **Broken files**: `generatePromptHash(prompt, aspectRatio)` - two parameters
+
+#### **Technical Solution**
+1. **Fix Function Calls**: Remove second parameter from all incorrect calls
+2. **Maintain Functionality**: Ensure prompt hashing still works correctly
+3. **Verify Build**: Ensure TypeScript compilation passes
+4. **Test Functionality**: Verify carousel generation still works
+
+### High-level Task Breakdown
+
+#### **Phase 1: Fix TypeScript Errors**
+- [x] **Task 1.1**: Fix `generate-carousel-background-v2.ts` - remove second parameter ✅
+- [x] **Task 1.2**: Fix `generate-carousel-long-image-v2.ts` - remove second parameter ✅
+- [x] **Task 1.3**: Fix `generate-image-v3-v2.ts` - remove second parameter ✅
+- [ ] **Task 1.4**: Verify TypeScript compilation passes
+- [ ] **Task 1.5**: Test carousel generation functionality
+
+### Resources Needed
+
+#### **Technical Resources**
+1. **TypeScript Compiler**: For build verification
+2. **Development Environment**: For testing fixes
+3. **Carousel Generation**: For functionality testing
+
+#### **Code Resources**
+1. **`lib/enhanced-image-naming.ts`**: Contains correct `generatePromptHash` function
+2. **Working examples**: `generate-carousel-background.ts` shows correct usage
+3. **Affected files**: v2 versions that need fixing
+
+### Success Criteria
+
+#### **Technical Success**
+1. **TypeScript Compilation**: Build passes without errors
+2. **Function Calls**: All `generatePromptHash` calls use correct signature
+3. **Functionality**: Carousel generation works correctly
+4. **No Regressions**: Existing functionality remains intact
+
+#### **Business Success**
+1. **Production Deployment**: Application can be deployed to production
+2. **User Experience**: Carousel generation continues to work
+3. **System Stability**: No new issues introduced
+
+### Priority: CRITICAL - Blocking production deployment
+
+### **CURRENT STATUS: COMPLEX V2 API ISSUES IDENTIFIED**
+
+**Additional Issues Found**:
+1. **V2 Files Use Different API**: The v2 files are using a completely different `uploadImageWithWebP` API that doesn't exist
+2. **Multiple API Incompatibilities**: V2 files expect different parameters and return types than the working v1 files
+3. **Complex Type Errors**: Multiple TypeScript errors beyond just the `generatePromptHash` issue
+4. **V2 Files Not Used in Production**: These v2 functions are only used in test scripts, not in the actual application
+
+**Simplified Approach**:
+1. **Fix generatePromptHash Calls**: ✅ COMPLETED - Removed second parameter from all calls
+2. **Comment Out Problematic V2 Code**: Temporarily disable complex v2 implementations
+3. **Focus on Build Success**: Get TypeScript compilation working first
+4. **Address V2 Issues Later**: Fix v2 API compatibility in separate task
+
+**Next Steps**:
+1. Comment out problematic v2 code sections
+2. Verify TypeScript compilation passes
+3. Test that production functionality still works
+4. Create separate task for v2 API compatibility

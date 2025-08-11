@@ -55,7 +55,7 @@ async function testAspectRatioMapping() {
       
       console.log('\n📊 Qwen Provider Support:');
       shapes.forEach(shape => {
-        const isSupported = capabilities.supportedAspectRatios.includes(shape.aspect);
+        const isSupported = capabilities.supportedAspectRatios.includes(shape.aspect as any);
         const status = isSupported ? '✅' : '❌';
         console.log(`   ${status} ${shape.name} (${shape.aspect}): ${isSupported ? 'Supported' : 'Not Supported'}`);
       });

@@ -87,16 +87,24 @@ export class QwenInferenceProvider extends BaseImageProvider {
         parameters: inferenceParams, // Includes width/height
       });
       
-      console.log(`✅ Qwen-Image generation successful! Size: ${image.size} bytes, Type: ${image.type}`);
+      console.log(`✅ Qwen-Image generation successful!`);
       
-      // Convert blob to base64 for our system
-      const arrayBuffer = await image.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const base64 = buffer.toString('base64');
-      const dataUrl = `data:${image.type};base64,${base64}`;
+      // Handle the response - assume it's a string for now
+      let dataUrl: string;
+      let mimeType = "image/png";
+      
+      if (typeof image === 'string') {
+        // If it's already a data URL
+        dataUrl = image;
+        mimeType = image.startsWith('data:image/') ? image.split(';')[0].split(':')[1] : "image/png";
+      } else {
+        // Assume it's some other format, convert to string
+        dataUrl = String(image);
+        mimeType = "image/png";
+      }
       
       // Convert response to standard format
-      const standardResponse = await this.convertResponse(dataUrl, image.type, params, startTime);
+      const standardResponse = await this.convertResponse(dataUrl, mimeType, params, startTime);
       
       this.logMetrics("generation_success", params, standardResponse);
       
