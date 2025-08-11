@@ -1,0 +1,327 @@
+// Hugging Face provider implementation for image generation
+
+import { Client } from "@gradio/client";
+import { 
+  ImageGenerationParams, 
+  ImageGenerationResponse, 
+  ProviderCapabilities, 
+  ProviderType,
+  AspectRatio,
+  ImageQuality,
+  ImageGenerationError,
+  ErrorCodes
+} from "./types";
+import { BaseImageProvider } from "./base";
+
+/**
+ * Hugging Face provider using Qwen/Qwen-Image Space API
+ */
+export class HuggingFaceProvider extends BaseImageProvider {
+  private client: Client | null = null;
+  private spaceName = "Qwen/Qwen-Image";
+  
+  getProviderType(): ProviderType {
+    return "huggingface";
+  }
+  
+  getCapabilities(): ProviderCapabilities {
+    return {
+      supportedAspectRatios: [
+        "1:1",
+        "16:9", 
+        "9:16",
+        "4:3",
+        "3:4",
+        "3:2",
+        "2:3"
+        // Note: Qwen supports these ratios. 10:16, 16:10, 1:3, 3:1 not supported
+      ],
+      supportedQualities: ["fast", "standard", "high"],
+      maxPromptLength: 1000, // Conservative estimate
+      supportsSeeds: true,
+      supportsStyleImages: false, // Qwen Space API doesn't support style images
+      supportsImageEditing: false, // Would need separate implementation
+      rateLimits: {
+        requestsPerMinute: 10, // Conservative based on GPU quota
+        requestsPerHour: 60,
+        requestsPerDay: 100 // Based on ~120s GPU time daily quota
+      },
+      pricing: {
+        costPerImage: 0, // Free tier
+        currency: "USD",
+        freeQuota: 100 // Approx daily quota based on GPU time
+      }
+    };
+  }
+  
+  async generateImage(params: ImageGenerationParams): Promise<ImageGenerationResponse> {
+    const startTime = Date.now();
+    
+    try {
+      // Validate parameters
+      await this.validateParams(params);
+      
+      // Connect to Space if not already connected
+      await this.ensureConnection();
+      
+      // Convert parameters to Hugging Face format
+      const hfParams = this.convertParams(params);
+      
+      this.logMetrics("generation_start", params);
+      
+      // Make the API call
+      const result = await this.client!.predict("/infer", hfParams);
+      
+      // Convert response to standard format
+      const response = await this.convertResponse(result, params, startTime);
+      
+      this.logMetrics("generation_success", params, response);
+      
+      return response;
+      
+    } catch (error) {
+      const generationError = this.handleError(error, "generateImage");
+      this.logMetrics("generation_error", params, undefined, generationError);
+      throw generationError;
+    }
+  }
+  
+  /**
+   * Ensure Space connection is established
+   */
+  private async ensureConnection(): Promise<void> {
+    if (!this.client) {
+      try {
+        console.log(`[HuggingFace] Connecting to ${this.spaceName}...`);
+        this.client = await Client.connect(this.spaceName);
+        console.log(`[HuggingFace] Connected successfully to ${this.spaceName}`);
+      } catch (error) {
+        throw new ImageGenerationError(
+          `Failed to connect to Hugging Face Space: ${error}`,
+          ErrorCodes.SERVICE_UNAVAILABLE,
+          "huggingface",
+          true,
+          error
+        );
+      }
+    }
+  }
+  
+  /**
+   * Convert standard parameters to Hugging Face format
+   */
+  private convertParams(params: ImageGenerationParams): any {
+    // Convert quality to inference steps
+    const qualityToSteps = {
+      fast: 15,
+      standard: 25,
+      high: 40,
+      ultra: 50
+    };
+    
+    const inferenceSteps = qualityToSteps[params.quality || "standard"];
+    
+    // Convert aspect ratio (Qwen uses ":" format)
+    const aspectRatio = this.convertAspectRatio(params.aspectRatio);
+    
+    return {
+      prompt: params.prompt,
+      seed: params.seed || 0,
+      randomize_seed: params.randomizeSeed !== false, // Default to true
+      aspect_ratio: aspectRatio,
+      guidance_scale: 4, // Qwen recommended default
+      num_inference_steps: inferenceSteps,
+      prompt_enhance: true // Always enhance prompts for better quality
+    };
+  }
+  
+  /**
+   * Convert Hugging Face response to standard format
+   */
+  private async convertResponse(
+    result: any, 
+    params: ImageGenerationParams, 
+    startTime: number
+  ): Promise<ImageGenerationResponse> {
+    if (!result.data || !Array.isArray(result.data) || result.data.length < 2) {
+      throw new ImageGenerationError(
+        "Invalid response format from Hugging Face API",
+        ErrorCodes.GENERATION_FAILED,
+        "huggingface"
+      );
+    }
+    
+    const [imageData, usedSeed] = result.data;
+    
+    if (!imageData || typeof imageData !== "string") {
+      throw new ImageGenerationError(
+        "No image data received from Hugging Face API",
+        ErrorCodes.GENERATION_FAILED,
+        "huggingface"
+      );
+    }
+    
+    // Extract dimensions from aspect ratio
+    const dimensions = this.getImageDimensions(params.aspectRatio);
+    
+    return {
+      imageData,
+      mimeType: "image/png",
+      seed: usedSeed,
+      provider: "huggingface",
+      cost: 0, // Free tier
+      generationTime: Date.now() - startTime,
+      metadata: {
+        width: dimensions.width,
+        height: dimensions.height,
+        aspectRatio: params.aspectRatio,
+        prompt: params.prompt,
+        quality: params.quality || "standard"
+      },
+      providerData: {
+        model: "Qwen/Qwen-Image",
+        spaceApi: true,
+        guidanceScale: 4,
+        inferenceSteps: this.convertQuality(params.quality || "standard")
+      }
+    };
+  }
+  
+  /**
+   * Convert aspect ratio to Qwen format (already uses ":" format)
+   */
+  protected convertAspectRatio(aspectRatio: AspectRatio): string {
+    // Qwen uses the same format as our standard
+    return aspectRatio;
+  }
+  
+  /**
+   * Convert quality to inference steps
+   */
+  protected convertQuality(quality: ImageQuality): number {
+    const qualityMap = {
+      fast: 15,
+      standard: 25,
+      high: 40,
+      ultra: 50
+    };
+    
+    return qualityMap[quality] || 25;
+  }
+  
+  /**
+   * Get image dimensions for aspect ratio
+   */
+  private getImageDimensions(aspectRatio: AspectRatio): { width: number; height: number } {
+    // Based on Qwen's documented aspect ratio dimensions
+    const dimensionMap: Record<AspectRatio, { width: number; height: number }> = {
+      "1:1": { width: 1328, height: 1328 },
+      "16:9": { width: 1664, height: 928 },
+      "9:16": { width: 928, height: 1664 },
+      "4:3": { width: 1472, height: 1140 },
+      "3:4": { width: 1140, height: 1472 },
+      "4:5": { width: 1216, height: 1520 },
+      "5:7": { width: 1120, height: 1568 },
+      "3:2": { width: 1584, height: 1056 },
+      "2:3": { width: 1056, height: 1584 },
+      "10:16": { width: 1056, height: 1584 }, // Fallback to 2:3
+      "16:10": { width: 1584, height: 1056 }, // Fallback to 3:2
+      "1:3": { width: 1056, height: 1584 }, // Fallback to 2:3
+      "3:1": { width: 1584, height: 1056 }  // Fallback to 3:2
+    };
+    
+    return dimensionMap[aspectRatio] || { width: 1328, height: 1328 };
+  }
+  
+  /**
+   * Handle Hugging Face specific errors
+   */
+  protected handleError(error: any, operation: string): ImageGenerationError {
+    // Handle Hugging Face Space specific errors
+    if (error && typeof error === 'object') {
+      // GPU quota exceeded
+      if (error.title === 'ZeroGPU quota exceeded' || 
+          error.message?.includes('quota exceeded')) {
+        return new ImageGenerationError(
+          `GPU quota exceeded: ${error.message}`,
+          ErrorCodes.QUOTA_EXCEEDED,
+          "huggingface",
+          true // retryable after quota reset
+        );
+      }
+      
+      // Space loading/queue errors
+      if (error.message?.includes('queue') || 
+          error.message?.includes('loading')) {
+        return new ImageGenerationError(
+          `Space is busy: ${error.message}`,
+          ErrorCodes.SERVICE_UNAVAILABLE,
+          "huggingface",
+          true // retryable
+        );
+      }
+      
+      // Connection errors
+      if (error.message?.includes('connect') || 
+          error.message?.includes('network')) {
+        return new ImageGenerationError(
+          `Connection error: ${error.message}`,
+          ErrorCodes.NETWORK_ERROR,
+          "huggingface",
+          true // retryable
+        );
+      }
+    }
+    
+    // Fall back to base error handling
+    return super.handleError(error, operation);
+  }
+  
+  /**
+   * Health check specific to Hugging Face
+   */
+  async healthCheck(): Promise<boolean> {
+    try {
+      await this.ensureConnection();
+      
+      // Try a minimal test generation
+      const testResult = await this.client!.predict("/infer", {
+        prompt: "test",
+        seed: 42,
+        randomize_seed: false,
+        aspect_ratio: "1:1",
+        guidance_scale: 4,
+        num_inference_steps: 1, // Minimal steps for quick test
+        prompt_enhance: false
+      });
+      
+      return testResult && testResult.data && Array.isArray(testResult.data);
+      
+    } catch (error) {
+      // If it's a quota error, the service is actually healthy
+      if (error && typeof error === 'object' && 
+          (error.title === 'ZeroGPU quota exceeded' || 
+           error.message?.includes('quota'))) {
+        return true;
+      }
+      
+      console.warn(`[HuggingFace] Health check failed: ${error}`);
+      return false;
+    }
+  }
+  
+  /**
+   * Disconnect from Space (cleanup)
+   */
+  async disconnect(): Promise<void> {
+    if (this.client) {
+      try {
+        // Gradio client doesn't have explicit disconnect, just nullify
+        this.client = null;
+        console.log(`[HuggingFace] Disconnected from ${this.spaceName}`);
+      } catch (error) {
+        console.warn(`[HuggingFace] Error during disconnect: ${error}`);
+      }
+    }
+  }
+}

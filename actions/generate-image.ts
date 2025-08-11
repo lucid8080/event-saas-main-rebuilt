@@ -44,16 +44,27 @@ export async function generateImage(
       throw new Error("Ideogram API key is not configured. Please add NEXT_PUBLIC_IDEOGRAM_API_KEY to your environment variables.");
     }
 
-    // Build the final combined prompt using FULL database prompts
+    // Build the final combined prompt using enhanced prompt generator
     let finalPrompt = prompt;
     if (eventType && eventDetails) {
-      finalPrompt = await generateFullPromptWithSystemPrompts(
-        prompt,
-        eventType,
-        eventDetails,
-        styleName,
-        customStyle
-      );
+      try {
+        // Import the enhanced prompt generator
+        const { generateEnhancedPromptWithSystemPrompts } = await import('@/lib/prompt-generator');
+        
+        // Use the enhanced prompt generator that includes holiday details
+        finalPrompt = await generateEnhancedPromptWithSystemPrompts(
+          prompt,
+          eventType,
+          eventDetails,
+          styleName,
+          customStyle
+        );
+        
+      } catch (error) {
+        console.error('Error building enhanced prompt, using fallback:', error);
+        // Fallback to original prompt if something goes wrong
+        finalPrompt = prompt;
+      }
     }
 
     // Convert aspect ratio format to Ideogram 3.0 API format
@@ -64,6 +75,8 @@ export async function generateImage(
         '9:16': '9x16',
         '4:3': '4x3',
         '3:4': '3x4',
+        '4:5': '4x5',
+        '5:7': '5x7',
         '3:2': '3x2',
         '2:3': '2x3',
         '10:16': '10x16',

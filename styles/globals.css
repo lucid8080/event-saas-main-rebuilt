@@ -24,16 +24,21 @@
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
-    
+
     --chart-1: 271.5 81.3% 55.9%;
     --chart-2: 270 95% 75%;
     --chart-3: 270 91% 65%;
     --chart-4: 269 97% 85%;
     --chart-5: 269 100% 92%;
-    
+
     --marquee-duration: 30s;
     --marquee-direction: normal;
     --gap: 1rem;
+    --color-1: oklch(66.2% 0.225 25.9);
+    --color-2: oklch(60.4% 0.26 302);
+    --color-3: oklch(69.6% 0.165 251);
+    --color-4: oklch(80.2% 0.134 225);
+    --color-5: oklch(90.7% 0.231 133);
   }
 
   .dark {
@@ -62,10 +67,18 @@
     --chart-3: 270 91% 65%;
     --chart-4: 269 97% 85%;
     --chart-5: 269 100% 92%;
-    
+
     --marquee-duration: 30s;
     --marquee-direction: normal;
     --gap: 1rem;
+    --color-1: oklch(66.2% 0.225 25.9);
+    --color-2: oklch(60.4% 0.26 302);
+    --color-3: oklch(69.6% 0.165 251);
+    --color-4: oklch(80.2% 0.134 225);
+    --color-5: oklch(90.7% 0.231 133);
+  }
+  .theme {
+    --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
   }
 }
 
@@ -298,4 +311,15 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-} 
+}
+
+@theme inline {
+  @keyframes rainbow {
+  0% {
+    background-position: 0%;
+    }
+  100% {
+    background-position: 200%;
+    }
+  }
+}

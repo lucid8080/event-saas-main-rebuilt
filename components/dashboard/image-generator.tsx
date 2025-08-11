@@ -43,7 +43,11 @@ import { EventQuestionsForm } from "@/components/dashboard/event-questions-form"
 import { WatermarkedImage } from "@/components/dashboard/watermarked-image";
 import { LogoSearch } from "@/components/dashboard/logo-search";
 import { LogoOverlay } from "@/components/dashboard/logo-overlay";
-import { generateImage } from "@/actions/generate-image";
+import { UpscaleButton } from "@/components/dashboard/upscale-button";
+import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
+// Provider selection now managed via admin settings only
+import { generateImageV2 } from "@/actions/generate-image-v2";
+import { ProviderType } from "@/lib/providers";
 import { toast } from "sonner";
 import { EventDetails, generateEnhancedPrompt } from "@/lib/prompt-generator";
 import { useSession } from "next-auth/react";
@@ -116,6 +120,8 @@ export function ImageGenerator() {
   const [selectedStyle, setSelectedStyle] = useState<number | null>(null);
   const [selectedShape, setSelectedShape] = useState<typeof shapes[0] | null>(null); // No default selection
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [generatedImageId, setGeneratedImageId] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedEventType, setSelectedEventType] = useState<string | null>(null);
   const [eventDetails, setEventDetails] = useState<EventDetails>({});
@@ -130,6 +136,9 @@ export function ImageGenerator() {
   const [isLoadingHolidayData, setIsLoadingHolidayData] = useState<boolean>(false);
   const [isShapeSectionCollapsed, setIsShapeSectionCollapsed] = useState<boolean>(true);
   const [isEventDetailsSectionCollapsed, setIsEventDetailsSectionCollapsed] = useState<boolean>(true);
+
+  // Quality setting - provider is now managed by admin settings
+  // Quality is now controlled by admin settings - removed from user interface
 
   // Style pagination state
   const [currentStylePage, setCurrentStylePage] = useState(0);
@@ -178,7 +187,9 @@ export function ImageGenerator() {
           const response = await fetch('/api/user');
           if (response.ok) {
             const userData = await response.json();
+            console.log('Fetched user data:', userData);
             setUserCredits(userData.credits || 0);
+            console.log('Set user credits to:', userData.credits || 0);
           }
         } catch (error) {
           console.error('Error fetching user credits:', error);
@@ -188,6 +199,42 @@ export function ImageGenerator() {
 
     fetchUserCredits();
   }, [session?.user?.id]);
+
+  // Simple sticky generate button behavior
+  useEffect(() => {
+    const container = document.getElementById('generate-button-container');
+    
+    if (!container) return;
+
+    // Check if button should be enabled
+    const isButtonEnabled = selectedShape !== null && userCredits > 0 && selectedEventType && (
+      styleMode === 'preset' 
+        ? selectedStyle !== null
+        : eventDetailsValid
+    );
+
+    // Only add sticky behavior if button is enabled
+    if (isButtonEnabled) {
+      container.classList.add('sticky', 'bottom-0', 'z-50');
+      container.style.backgroundColor = 'hsl(var(--background))';
+      container.style.borderTop = '1px solid hsl(var(--border))';
+      container.style.boxShadow = '0 -4px 12px rgba(0, 0, 0, 0.1)';
+    } else {
+      container.classList.remove('sticky', 'bottom-0', 'z-50');
+      container.style.backgroundColor = '';
+      container.style.borderTop = '';
+      container.style.boxShadow = '';
+    }
+
+    return () => {
+      if (container) {
+        container.classList.remove('sticky', 'bottom-0', 'z-50');
+        container.style.backgroundColor = '';
+        container.style.borderTop = '';
+        container.style.boxShadow = '';
+      }
+    };
+  }, [selectedShape, userCredits, selectedEventType, styleMode, selectedStyle, eventDetailsValid]);
 
 
 
@@ -435,28 +482,37 @@ export function ImageGenerator() {
       
       const getAspectRatio = () => {
         if (!selectedShape) return "1:1"; // Default fallback
+        // Map all available shape aspect ratios
         if (selectedShape.aspect === "16:9") return "16:9";
         if (selectedShape.aspect === "4:3") return "4:3";
         if (selectedShape.aspect === "1:1") return "1:1";
         if (selectedShape.aspect === "9:16") return "9:16";
         if (selectedShape.aspect === "3:4") return "3:4";
-        return "1:1";
+        if (selectedShape.aspect === "4:5") return "4:5";
+        if (selectedShape.aspect === "5:7") return "5:7";
+        if (selectedShape.aspect === "2:3") return "2:3";
+        return "1:1"; // Fallback for any unmapped ratios
       };
 
-      const result = await generateImage(
+      const result = await generateImageV2(
         baseControlPrompt,
         getAspectRatio(),
         selectedEventType,
         eventDetails,
         styleName,
-        additionalDetails
+        additionalDetails,
+        undefined, // Provider now managed by admin settings, will use default
+        undefined  // Quality now managed by admin settings, will use configured default
       );
 
       if (result.success && result.imageUrl) {
         setGeneratedImageUrl(result.imageUrl);
-        toast.success("Image generated successfully!");
+        setOriginalImageUrl(result.imageUrl); // Store the original image URL
+        setGeneratedImageId(result.generatedImageId || null);
+        const successMessage = `Image generated with ${result.provider} in ${result.generationTime}ms! ${result.cost > 0 ? `Cost: $${result.cost}` : 'Free generation'}`;
+        toast.success(successMessage);
       } else {
-        toast.error(result.error || "Failed to generate image");
+        toast.error("Failed to generate image");
       }
     } catch (error) {
       console.error('Error generating image:', error);
@@ -491,8 +547,25 @@ export function ImageGenerator() {
 
   const handleDelete = () => {
     setGeneratedImageUrl(null);
+    setGeneratedImageId(null);
+    setOriginalImageUrl(null);
     setIsLiked(false);
     toast.success("Image deleted");
+  };
+
+  const handleUpscaleSuccess = (upscaledImageUrl: string) => {
+    // Store the original image URL before replacing it with the upscaled version
+    if (generatedImageUrl && !originalImageUrl) {
+      setOriginalImageUrl(generatedImageUrl);
+    }
+    setGeneratedImageUrl(upscaledImageUrl);
+    // Refresh user credits after upscaling
+    if (session?.user?.id) {
+      fetch('/api/user')
+        .then(response => response.json())
+        .then(userData => setUserCredits(userData.credits || 0))
+        .catch(error => console.error('Error fetching updated credits:', error));
+    }
   };
 
   const handleCopyPrompt = () => {
@@ -529,6 +602,7 @@ export function ImageGenerator() {
     setEventDetails({});
     setEventDetailsValid(false);
     setGeneratedImageUrl(null);
+    setOriginalImageUrl(null);
     setCurrentStep(1);
     setStyleMode('preset');
     setCustomStyle('');
@@ -921,7 +995,7 @@ export function ImageGenerator() {
                 </button>
                 
                 {!isShapeSectionCollapsed && (
-                  <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto">
+                  <div className="grid grid-cols-3 gap-2">
                   {shapes.map((shape) => {
                     // Determine social media platforms for this shape
                     const getSocialPlatforms = (shapeName: string, description: string) => {
@@ -1024,14 +1098,55 @@ export function ImageGenerator() {
                   </div>
                 )}
               </div>
+
+              {/* Generate Button at bottom of left sidebar */}
+              <div 
+                id="generate-button-container"
+                className="shrink-0 border-t p-6 bg-white dark:bg-gray-950 transition-all duration-300"
+              >
+                <Button 
+                  className={`w-full bg-gradient-to-r from-purple-600 to-blue-600 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:from-purple-700 hover:to-blue-700 hover:shadow-xl ${
+                    selectedShape !== null && userCredits > 0 && selectedEventType && (
+                      styleMode === 'preset' 
+                        ? selectedStyle !== null
+                        : eventDetailsValid
+                    ) ? 'animate-breathing' : ''
+                  }`}
+                  size="lg"
+                  onClick={handleGenerateImage}
+                  disabled={isLoading || userCredits <= 0 || !selectedEventType || !selectedShape || (
+                    styleMode === 'preset' 
+                      ? selectedStyle === null
+                      : !eventDetailsValid
+                  )}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="loader"></div>
+                      Generating...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="size-5" />
+                      Generate Event
+                    </div>
+                  )}
+                </Button>
+                
+                {userCredits <= 0 && (
+                  <p className="mt-2 text-center text-sm text-red-600 dark:text-red-400">
+                    Insufficient credits. Please upgrade your plan to generate events.
+                  </p>
+                )}
+              </div>
             </div>
           </Card>
         </div>
 
         {/* Right Area - Image Generation and Display */}
         <div className="flex h-screen flex-col lg:w-2/3 xl:w-3/5">
-          <Card className="flex h-full flex-col overflow-y-auto shadow-lg">
-            {/* Generate Button Header */}
+          <Card className="flex h-full flex-col shadow-lg" style={{ overflow: 'auto' }}>
+            {/* Header */}
             <div className="shrink-0 border-b p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -1073,41 +1188,6 @@ export function ImageGenerator() {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              
-              <Button 
-                className={`mt-4 w-full bg-gradient-to-r from-purple-600 to-blue-600 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:from-purple-700 hover:to-blue-700 hover:shadow-xl ${
-                  selectedShape !== null && userCredits > 0 && selectedEventType && (
-                    styleMode === 'preset' 
-                      ? selectedStyle !== null
-                      : eventDetailsValid
-                  ) ? 'animate-breathing' : ''
-                }`}
-                size="lg"
-                onClick={handleGenerateImage}
-                disabled={isLoading || userCredits <= 0 || !selectedEventType || !selectedShape || (
-                  styleMode === 'preset' 
-                    ? selectedStyle === null
-                    : !eventDetailsValid
-                )}
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="loader"></div>
-                    Generating...
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="size-5" />
-                    Generate Event
-                  </div>
-                )}
-              </Button>
-              
-              {userCredits <= 0 && (
-                <p className="mt-2 text-center text-sm text-red-600 dark:text-red-400">
-                  Insufficient credits. Please upgrade your plan to generate events.
-                </p>
-              )}
             </div>
 
             {/* Image Display Area */}
@@ -1126,6 +1206,13 @@ export function ImageGenerator() {
                           <Pencil className="mr-2 size-4" />
                           Edit
                         </Button>
+                      )}
+                      {generatedImageId && (
+                        <UpscaleButton
+                          imageId={generatedImageId}
+                          onUpscaleSuccess={handleUpscaleSuccess}
+                          disabled={userCredits <= 0}
+                        />
                       )}
                       <Button
                         variant="outline"
@@ -1165,25 +1252,49 @@ export function ImageGenerator() {
                   
                   <div className="flex flex-1 items-center justify-center p-2">
                     <div className="group relative w-full">
-                      <div className="overflow-hidden rounded-lg border shadow-lg relative">
-                        <WatermarkedImage 
-                          src={generatedImageUrl} 
-                          alt="Generated" 
-                          className="h-auto w-full object-contain"
-                        />
-                        
-                        {/* Logo Overlays */}
-                        {selectedLogos.map((logoData) => (
-                          <LogoOverlay
-                            key={logoData.id}
-                            logo={logoData.logo}
-                            onRemove={() => handleLogoRemove(logoData.id)}
-                            onUpdate={(updates) => handleLogoUpdate(logoData.id, updates)}
-                            imageWidth={selectedShape?.width || 1080}
-                            imageHeight={selectedShape?.height || 1080}
+                      {/* Show before/after slider if we have both original and upscaled images */}
+                      {originalImageUrl && generatedImageUrl && originalImageUrl !== generatedImageUrl ? (
+                        <div className="overflow-hidden rounded-lg border shadow-lg relative">
+                          <BeforeAfterSlider
+                            beforeImage={originalImageUrl}
+                            afterImage={generatedImageUrl}
+                            alt="Before and after upscaling"
+                            className="h-auto w-full object-contain"
                           />
-                        ))}
-                      </div>
+                          
+                          {/* Logo Overlays */}
+                          {selectedLogos.map((logoData) => (
+                            <LogoOverlay
+                              key={logoData.id}
+                              logo={logoData.logo}
+                              onRemove={() => handleLogoRemove(logoData.id)}
+                              onUpdate={(updates) => handleLogoUpdate(logoData.id, updates)}
+                              imageWidth={selectedShape?.width || 1080}
+                              imageHeight={selectedShape?.height || 1080}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="overflow-hidden rounded-lg border shadow-lg relative">
+                          <WatermarkedImage 
+                            src={generatedImageUrl} 
+                            alt="Generated" 
+                            className="h-auto w-full object-contain"
+                          />
+                          
+                          {/* Logo Overlays */}
+                          {selectedLogos.map((logoData) => (
+                            <LogoOverlay
+                              key={logoData.id}
+                              logo={logoData.logo}
+                              onRemove={() => handleLogoRemove(logoData.id)}
+                              onUpdate={(updates) => handleLogoUpdate(logoData.id, updates)}
+                              imageWidth={selectedShape?.width || 1080}
+                              imageHeight={selectedShape?.height || 1080}
+                            />
+                          ))}
+                        </div>
+                      )}
                       
                       <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
                         <DropdownMenu>
@@ -1349,6 +1460,8 @@ export function ImageGenerator() {
                 </div>
               )}
             </div>
+
+
           </Card>
         </div>
 

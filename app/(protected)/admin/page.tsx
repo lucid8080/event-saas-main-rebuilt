@@ -9,6 +9,7 @@ import AdminStats from "@/components/dashboard/admin-stats";
 import RealCharts from "@/components/dashboard/real-charts";
 import { ImageEditToggleForm } from "@/components/forms/image-edit-toggle-form";
 import { MarqueeToggleForm } from "@/components/forms/marquee-toggle-form";
+import { AdvancedProviderSettings } from "@/components/admin/advanced-provider-settings";
 import { SystemPromptsManager } from "@/components/admin/system-prompts-manager";
 import { ContactMessagesList } from "@/components/admin/contact-messages-list";
 import R2AnalyticsDashboard from "@/components/admin/r2-analytics-dashboard";
@@ -175,6 +176,7 @@ export default async function AdminPage() {
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-6">
           <div className="space-y-6">
+            <AdvancedProviderSettings />
             <ImageEditToggleForm />
             <MarqueeToggleForm />
           </div>

@@ -50,6 +50,7 @@ export async function generateCarouselBackground(
         '3:4': '3x4',
         '4:5': '4x5',
         '5:4': '5x4',
+        '5:7': '5x7',
         '3:2': '3x2',
         '2:3': '2x3',
         '10:16': '10x16',

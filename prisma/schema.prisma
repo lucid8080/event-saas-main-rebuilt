@@ -108,6 +108,8 @@ model User {
   imageGenerationStats ImageGenerationStats[]
   blogPosts BlogPost[]
   personalEvents PersonalEvent[]
+  providerUsage ProviderUsage[]
+  providerBudgetAlerts ProviderBudgetAlert[]
 
   @@map(name: "users")
 }
@@ -135,6 +137,23 @@ model GeneratedImage {
   originalFormat String? // Original image format (png, jpg, etc.)
   compressionRatio Decimal? @db.Decimal(5,2) // Compression ratio achieved
   webpEnabled Boolean   @default(true) // Whether WebP conversion is enabled for this image
+  // Provider system fields
+  aspectRatio String?   // Image aspect ratio (1:1, 16:9, etc.)
+  styleName   String?   // Style name applied
+  customStyle String?   // Custom style prompt
+  seed        String?   // Generation seed for reproducibility
+  provider    String    @default("ideogram") // Which provider generated the image
+  generationTimeMs Int? // Generation time in milliseconds
+  providerCost Decimal? @db.Decimal(10,4) @default(0) // Cost of generation
+  quality     String    @default("standard") // Quality level used
+  imageUrl    String?   // Direct image URL
+  webpUrl     String?   // WebP version URL
+  // Upscaler support fields
+  isUpscaled  Boolean   @default(false) // Whether this image has been upscaled
+  originalImageId String? // ID of the original image (if this is an upscaled version)
+  upscaledImageId String? // ID of the upscaled image (if this image has been upscaled)
+  upscaleProvider String @default("fal-ai/clarity-upscaler") // Which upscaler was used
+  upscaleSettings Json? // Settings used for upscaling (prompt, creativity, etc.)
   createdAt   DateTime  @default(now())
   user        User      @relation(fields: [userId], references: [id])
 
@@ -144,6 +163,12 @@ model GeneratedImage {
   @@index([r2Key]) // Index for R2 key queries
   @@index([webpKey]) // Index for WebP key queries
   @@index([webpEnabled]) // Index for WebP enabled queries
+  @@index([provider]) // Index for provider queries
+  @@index([aspectRatio]) // Index for aspect ratio queries
+  @@index([quality]) // Index for quality queries
+  @@index([isUpscaled]) // Index for upscaled image queries
+  @@index([originalImageId]) // Index for original image queries
+  @@index([upscaledImageId]) // Index for upscaled image queries
   @@map("generated_images")
 }
 
@@ -343,4 +368,66 @@ model R2Alert {
   @@index([acknowledged])
   @@index([timestamp])
   @@map("r2_alerts")
+}
+
+// Provider Settings for advanced AI provider management
+model ProviderSettings {
+  id               String   @id @default(cuid())
+  providerId       String   // 'ideogram', 'huggingface', 'qwen', 'fal-qwen', etc.
+  name             String
+  description      String?
+  baseSettings     Json     @default("{}")     // Common settings (inferenceSteps, guidanceScale, etc.)
+  specificSettings Json     @default("{}")     // Provider-specific settings
+  isActive         Boolean  @default(true)
+  isDefault        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        String
+  updatedBy        String
+  version          Int      @default(1)
+
+  @@unique([providerId, name])
+  @@index([providerId])
+  @@index([isActive])
+  @@index([isDefault])
+}
+
+// Provider Usage Tracking for cost and analytics
+model ProviderUsage {
+  id            String   @id @default(cuid())
+  providerId    String
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generationId  String?  // Link to generated image if applicable
+  cost          Decimal  @default(0.0000) @db.Decimal(10, 4)
+  imageSize     String?
+  parameters    Json     @default("{}")    // Parameters used for generation
+  responseTime  Int?     // Response time in milliseconds
+  success       Boolean  @default(true)
+  errorMessage  String?
+  timestamp     DateTime @default(now())
+
+  @@index([providerId])
+  @@index([userId])
+  @@index([timestamp])
+  @@index([success])
+}
+
+// Provider Budget Alerts for cost management
+model ProviderBudgetAlert {
+  id              String    @id @default(cuid())
+  providerId      String
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgetLimit     Decimal   @db.Decimal(10, 2)
+  currentSpend    Decimal   @default(0.00) @db.Decimal(10, 2)
+  alertThreshold  Decimal   @default(0.80) @db.Decimal(3, 2) // 80% threshold
+  isActive        Boolean   @default(true)
+  lastAlertSent   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([providerId, userId])
+  @@index([providerId, userId])
+  @@index([isActive])
 }

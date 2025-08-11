@@ -322,20 +322,50 @@ export function getHolidayOptionsForEventGenerator(preferences: HolidayPreferenc
     return regionMatch && typeMatch;
   });
 
-  // Extract unique holiday names and sort them
-  const holidayNames = Array.from(new Set(filteredHolidays.map(holiday => holiday.name)));
-  
-  // Sort alphabetically
-  holidayNames.sort();
+  // Create a map to track duplicate names
+  const nameCounts = new Map<string, number>();
+  filteredHolidays.forEach(holiday => {
+    nameCounts.set(holiday.name, (nameCounts.get(holiday.name) || 0) + 1);
+  });
+
+  // Generate unique holiday names
+  const holidayNames = filteredHolidays.map(holiday => {
+    const count = nameCounts.get(holiday.name) || 0;
+    if (count > 1) {
+      // For duplicates, append the primary region
+      const primaryRegion = holiday.region[0];
+      return `${holiday.name} (${primaryRegion})`;
+    }
+    return holiday.name;
+  });
+
+  // Remove duplicates and sort
+  const uniqueHolidayNames = Array.from(new Set(holidayNames));
+  uniqueHolidayNames.sort();
   
   // Add "Other" option at the end
-  holidayNames.push("Other");
+  uniqueHolidayNames.push("Other");
   
-  return holidayNames;
+  return uniqueHolidayNames;
 }
 
-// Function to get holiday details by name
+// Function to get holiday details by name (updated to handle region-specific names)
 export function getHolidayDetailsByName(holidayName: string): Holiday | undefined {
+  // Check if the name includes a region (e.g., "Independence Day (USA)")
+  const regionMatch = holidayName.match(/^(.+)\s+\(([^)]+)\)$/);
+  
+  if (regionMatch) {
+    const baseName = regionMatch[1];
+    const region = regionMatch[2];
+    
+    // Find the holiday with the matching name and region
+    return holidays.find(holiday => 
+      holiday.name === baseName && 
+      holiday.region.includes(region)
+    );
+  }
+  
+  // Fallback to exact name match
   return holidays.find(holiday => holiday.name === holidayName);
 }
 

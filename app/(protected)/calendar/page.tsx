@@ -163,10 +163,16 @@ export default function CalendarPage() {
   };
 
   const handleHolidayClick = (holiday: any) => {
+    // Create region-specific holiday name if there are multiple holidays with the same name
+    const holidaysWithSameName = holidays.filter(h => h.name === holiday.name);
+    const holidayName = holidaysWithSameName.length > 1 
+      ? `${holiday.name} (${holiday.region[0]})`
+      : holiday.name;
+    
     // Navigate to Event Generator with holiday data
     const params = new URLSearchParams({
       eventType: 'HOLIDAY_CELEBRATION',
-      holiday: holiday.name,
+      holiday: holidayName,
       holidayType: holiday.type,
       holidayDate: holiday.date,
       holidayRegions: holiday.region.join(','),

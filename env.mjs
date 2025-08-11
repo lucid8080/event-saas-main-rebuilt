@@ -28,6 +28,8 @@ export const env = {
   NEXT_PUBLIC_STRIPE_BUSINESS_MONTHLY_PLAN_ID: process.env.NEXT_PUBLIC_STRIPE_BUSINESS_MONTHLY_PLAN_ID || "",
   NEXT_PUBLIC_STRIPE_BUSINESS_YEARLY_PLAN_ID: process.env.NEXT_PUBLIC_STRIPE_BUSINESS_YEARLY_PLAN_ID || "",
   NEXT_PUBLIC_IDEOGRAM_API_KEY: process.env.NEXT_PUBLIC_IDEOGRAM_API_KEY || "",
+  NEXT_PUBLIC_HUGGING_FACE_API_TOKEN: process.env.NEXT_PUBLIC_HUGGING_FACE_API_TOKEN || "",
+  FAL_KEY: process.env.FAL_KEY || "",
 };
 
 // TODO: Re-enable proper environment validation once zod is properly installed

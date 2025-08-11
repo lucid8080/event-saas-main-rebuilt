@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const eventType = searchParams.get("eventType");
-    const limit = parseInt(searchParams.get("limit") || "20");
+    const limit = parseInt(searchParams.get("limit") || "6"); // Changed from 20 to 6 for consistency
     const offset = parseInt(searchParams.get("offset") || "0");
 
     // Build the where clause

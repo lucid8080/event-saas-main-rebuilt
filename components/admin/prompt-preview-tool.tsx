@@ -164,12 +164,46 @@ export function PromptPreviewTool({ className }: PromptPreviewToolProps) {
           if (eventDetails.branding) eventDetailsParts.push(`${eventDetails.branding} branding`);
           break;
         case 'HOLIDAY_CELEBRATION':
-          if (eventDetails.holiday) eventDetailsParts.push(`${eventDetails.holiday} celebration`);
-          if (eventDetails.context) eventDetailsParts.push(`${eventDetails.context} context`);
+          if (eventDetails.holiday) {
+            // Import the function to get holiday details
+            const { getHolidayDetailsByName } = await import('@/lib/holidays');
+            const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
+            if (holidayDetails) {
+              // Add rich holiday context
+              eventDetailsParts.push(`${holidayDetails.name} celebration`);
+              eventDetailsParts.push(`${holidayDetails.type.toLowerCase()} holiday`);
+              if (holidayDetails.description) {
+                eventDetailsParts.push(`${holidayDetails.description.toLowerCase()}`);
+              }
+              if (holidayDetails.region.length > 0) {
+                eventDetailsParts.push(`${holidayDetails.region.join(', ')} cultural context`);
+              }
+            } else {
+              eventDetailsParts.push(`${eventDetails.holiday} celebration`);
+            }
+          }
+          
+          // Only add context if it's not redundant with holiday details
+          if (eventDetails.context && eventDetails.context !== 'Public Holiday') {
+            eventDetailsParts.push(`${eventDetails.context} context`);
+          }
+          
           if (eventDetails.venue) eventDetailsParts.push(`at ${eventDetails.venue}`);
           if (eventDetails.people) eventDetailsParts.push(`${eventDetails.people} people`);
           if (eventDetails.traditions) eventDetailsParts.push(`featuring ${eventDetails.traditions}`);
-          if (eventDetails.decorations) eventDetailsParts.push(`with ${eventDetails.decorations}`);
+          
+          // Only add decorations if they're not redundant with holiday details
+          if (eventDetails.decorations) {
+            const { getHolidayDetailsByName } = await import('@/lib/holidays');
+            const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
+            const isRedundantDecoration = holidayDetails && 
+              eventDetails.decorations.toLowerCase().includes(holidayDetails.region[0].toLowerCase()) &&
+              eventDetails.decorations.toLowerCase().includes('cultural');
+            
+            if (!isRedundantDecoration) {
+              eventDetailsParts.push(`with ${eventDetails.decorations}`);
+            }
+          }
           break;
         default:
           if (eventDetails.venue) eventDetailsParts.push(`at ${eventDetails.venue}`);

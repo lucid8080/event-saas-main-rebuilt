@@ -92,8 +92,10 @@
     "@auth/prisma-adapter": "^2.7.3",
     "@aws-sdk/client-s3": "^3.859.0",
     "@aws-sdk/s3-request-presigner": "^3.859.0",
+    "@fal-ai/client": "^1.6.2",
     "@google-cloud/storage": "^7.16.0",
     "@hookform/resolvers": "^3.9.0",
+    "@huggingface/inference": "^4.6.1",
     "@prisma/client": "^5.21.1",
     "@radix-ui/react-accessible-icon": "^1.1.0",
     "@radix-ui/react-accordion": "^1.2.0",
@@ -170,6 +172,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
+    "@gradio/client": "^1.17.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@next/bundle-analyzer": "^15.4.5",
     "@tailwindcss/line-clamp": "^0.4.4",

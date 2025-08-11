@@ -29,11 +29,11 @@ export function useLazyLoading(options: UseLazyLoadingOptions = {}): UseLazyLoad
   const load = useCallback(() => {
     if (!hasLoaded && !isLoading) {
       setIsLoading(true);
-      // Simulate loading delay for better UX
+      // Simulate loading delay for better UX with staggered timing
       setTimeout(() => {
         setHasLoaded(true);
         setIsLoading(false);
-      }, 100);
+      }, Math.random() * 200 + 50); // Random delay between 50-250ms for staggered loading
     }
   }, [hasLoaded, isLoading]);
 
@@ -102,13 +102,14 @@ export function useBatchLazyLoading<T>(
 
     setIsLoading(true);
     
-    // Simulate loading delay
+    // Progressive loading with staggered timing for better UX
+    const delay = Math.random() * 100 + 100; // Random delay between 100-200ms
     setTimeout(() => {
       const nextBatch = items.slice(currentIndex, currentIndex + batchSize);
       setVisibleItems(prev => [...prev, ...nextBatch]);
       setCurrentIndex(prev => prev + batchSize);
       setIsLoading(false);
-    }, 200);
+    }, delay);
   }, [items, currentIndex, batchSize, isLoading]);
 
   useEffect(() => {

@@ -12,6 +12,7 @@ interface LazyImageProps {
   placeholder?: string;
   onLoad?: () => void;
   onError?: () => void;
+  priority?: boolean; // Add priority prop for first batch images
 }
 
 export function LazyImage({
@@ -22,13 +23,14 @@ export function LazyImage({
   placeholder = '/placeholder-image.png',
   onLoad,
   onError,
+  priority = false, // Add priority prop for first batch images
 }: LazyImageProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
   const { isVisible, hasLoaded, isLoading, ref } = useLazyLoading({
     threshold: 0.1,
-    rootMargin: '50px',
+    rootMargin: priority ? '300px' : '100px', // More aggressive preloading for priority images
   });
 
   const handleImageLoad = () => {
@@ -49,12 +51,14 @@ export function LazyImage({
         className
       )}
     >
-      {/* Loading placeholder */}
+      {/* Loading placeholder with progressive effect */}
       {!hasLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
           <div className="flex flex-col items-center space-y-2">
-            <div className="size-8 border-2 border-gray-300 border-t-purple-600 rounded-full animate-spin"></div>
-            <p className="text-xs text-gray-500">Loading...</p>
+            <div className="size-6 border-2 border-gray-300 border-t-purple-600 rounded-full animate-spin"></div>
+            <div className="h-2 w-16 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-full bg-purple-600 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+            </div>
           </div>
         </div>
       )}

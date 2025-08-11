@@ -83,6 +83,11 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
     applyTransformations();
     ctx.drawImage(originalImage, 0, 0, canvas.width / zoom, canvas.height / zoom);
     restoreTransformations();
+    
+    // Also clear the drawing canvas to keep it synchronized
+    if (drawingCtx && drawingCanvasRef.current) {
+      drawingCtx.clearRect(0, 0, drawingCanvasRef.current.width, drawingCanvasRef.current.height);
+    }
   };
 
   // Zoom functions
@@ -167,143 +172,199 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
       return;
     }
 
+    // Check drawing canvas ref
+    const drawingCanvas = drawingCanvasRef.current;
+    console.log("Initial setup - Image canvas found:", !!canvas);
+    console.log("Initial setup - Image context created:", !!context);
+    console.log("Initial setup - Drawing canvas found:", !!drawingCanvas);
+    
+    if (drawingCanvas) {
+      const drawingContext = drawingCanvas.getContext("2d", { willReadFrequently: true });
+      console.log("Initial setup - Drawing context created:", !!drawingContext);
+    }
+
     console.log("Loading image:", imageUrl);
     setImageLoading(true);
 
-    const img = new Image();
-    
-    // Try different loading strategies
-    const loadImageWithStrategy = (strategy: 'cors' | 'no-cors' | 'direct') => {
-      console.log(`Trying loading strategy: ${strategy}`);
-      
-      if (strategy === 'cors') {
-        img.crossOrigin = "anonymous";
-      } else if (strategy === 'no-cors') {
-        img.crossOrigin = "";
-      }
-      
-      const timestamp = Date.now();
-      const separator = imageUrl.includes('?') ? '&' : '?';
-      const url = `${imageUrl}${separator}timestamp=${timestamp}`;
-      
-      console.log(`Loading image with ${strategy}:`, url);
-      img.src = url;
-    };
+    // Function to load image through proxy to avoid CORS issues
+    const loadImageThroughProxy = async () => {
+      try {
+        console.log("Fetching image through proxy to avoid CORS...");
+        
+        // Fetch the image through our server to avoid CORS
+        const response = await fetch('/api/proxy-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageUrl }),
+        });
 
-    img.onload = () => {
-      console.log("Image loaded successfully:", img.width, "x", img.height);
-      setImageLoading(false);
-      
-      // Set canvas size to match the container while maintaining aspect ratio
-      const container = canvas.parentElement;
-      if (container) {
-        const containerRect = container.getBoundingClientRect();
-        // Use 95% of available space to make image much bigger
-        const maxWidth = containerRect.width * 0.95;
-        const maxHeight = containerRect.height * 0.95;
-        
-        // Calculate aspect ratio
-        const aspectRatio = img.width / img.height;
-        
-        let canvasWidth, canvasHeight;
-        
-        if (maxWidth / aspectRatio <= maxHeight) {
-          // Width is the limiting factor
-          canvasWidth = maxWidth;
-          canvasHeight = maxWidth / aspectRatio;
-        } else {
-          // Height is the limiting factor
-          canvasHeight = maxHeight;
-          canvasWidth = maxHeight * aspectRatio;
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
         }
+
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
         
-        // Ensure minimum size but make it much larger
-        const minSize = 600; // Increased from 300 to 600
-        const maxSize = Math.min(maxWidth, maxHeight);
-        if (canvasWidth < minSize || canvasHeight < minSize) {
-          if (aspectRatio > 1) {
-            canvasWidth = minSize;
-            canvasHeight = minSize / aspectRatio;
+        console.log("Image fetched successfully, creating blob URL:", blobUrl);
+        
+        const img = new Image();
+        img.onload = () => {
+          console.log("Image loaded successfully from blob:", img.width, "x", img.height);
+          setImageLoading(false);
+          
+          // Set canvas size to match the container while maintaining aspect ratio
+          const container = canvas.parentElement;
+          console.log("Container found:", !!container);
+          if (container) {
+            const containerRect = container.getBoundingClientRect();
+            console.log("Container rect:", containerRect);
+            // Use 95% of available space to make image much bigger
+            const maxWidth = containerRect.width * 0.95;
+            const maxHeight = containerRect.height * 0.95;
+            
+            // Calculate aspect ratio
+            const aspectRatio = img.width / img.height;
+            
+            let canvasWidth, canvasHeight;
+            
+            if (maxWidth / aspectRatio <= maxHeight) {
+              // Width is the limiting factor
+              canvasWidth = maxWidth;
+              canvasHeight = maxWidth / aspectRatio;
+            } else {
+              // Height is the limiting factor
+              canvasHeight = maxHeight;
+              canvasWidth = maxHeight * aspectRatio;
+            }
+            
+            // Ensure minimum size but make it much larger
+            const minSize = 600; // Increased from 300 to 600
+            const maxSize = Math.min(maxWidth, maxHeight);
+            if (canvasWidth < minSize || canvasHeight < minSize) {
+              if (aspectRatio > 1) {
+                canvasWidth = minSize;
+                canvasHeight = minSize / aspectRatio;
+              } else {
+                canvasHeight = minSize;
+                canvasWidth = minSize * aspectRatio;
+              }
+            }
+            
+            // Ensure we don't exceed container bounds
+            if (canvasWidth > maxSize) {
+              canvasWidth = maxSize;
+              canvasHeight = maxSize / aspectRatio;
+            }
+            if (canvasHeight > maxSize) {
+              canvasHeight = maxSize;
+              canvasWidth = maxSize * aspectRatio;
+            }
+            
+            console.log("Calculated canvas size:", canvasWidth, "x", canvasHeight);
+            
+            // Set up both canvases
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            console.log("Image canvas set to:", canvas.width, "x", canvas.height);
+            
+            // Set up drawing canvas with exact same size and position
+            const drawingCanvas = drawingCanvasRef.current;
+            console.log("Drawing canvas ref found:", !!drawingCanvas);
+            if (drawingCanvas) {
+              drawingCanvas.width = canvasWidth;
+              drawingCanvas.height = canvasHeight;
+              console.log("Drawing canvas set to:", drawingCanvas.width, "x", drawingCanvas.height);
+              const drawingContext = drawingCanvas.getContext("2d", { willReadFrequently: true });
+              console.log("Drawing context created:", !!drawingContext);
+              if (drawingContext) {
+                // Clear the drawing canvas
+                drawingContext.clearRect(0, 0, canvasWidth, canvasHeight);
+                setDrawingCtx(drawingContext);
+                console.log("Drawing canvas context set up with size:", canvasWidth, "x", canvasHeight);
+              } else {
+                console.error("Failed to create drawing context!");
+              }
+            } else {
+              console.error("Drawing canvas ref not found!");
+            }
+            
+            // Draw the image to fill the canvas
+            context.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+            setCtx(context);
+            setOriginalImage(img);
+            
+            console.log("Canvas sized to:", canvasWidth, "x", canvasHeight);
+            
+            // Clean up blob URL
+            URL.revokeObjectURL(blobUrl);
           } else {
-            canvasHeight = minSize;
-            canvasWidth = minSize * aspectRatio;
+            console.log("Container not found, using fallback sizing");
+            // Fallback to original image size
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // Set up drawing canvas with same size
+            const drawingCanvas = drawingCanvasRef.current;
+            if (drawingCanvas) {
+              drawingCanvas.width = img.width;
+              drawingCanvas.height = img.height;
+              const drawingContext = drawingCanvas.getContext("2d", { willReadFrequently: true });
+              if (drawingContext) {
+                // Clear the drawing canvas
+                drawingContext.clearRect(0, 0, img.width, img.height);
+                setDrawingCtx(drawingContext);
+                console.log("Drawing canvas context set up (fallback) with size:", img.width, "x", img.height);
+              } else {
+                console.error("Failed to create drawing context in fallback!");
+              }
+            } else {
+              console.error("Drawing canvas ref not found in fallback!");
+            }
+            
+            context.drawImage(img, 0, 0);
+            setCtx(context);
+            setOriginalImage(img);
+            
+            // Clean up blob URL
+            URL.revokeObjectURL(blobUrl);
           }
-        }
+        };
+
+        img.onerror = (e) => {
+          console.error("Error loading image from blob:", e);
+          setImageLoading(false);
+        };
+
+        img.src = blobUrl;
         
-        // Ensure we don't exceed container bounds
-        if (canvasWidth > maxSize) {
-          canvasWidth = maxSize;
-          canvasHeight = maxSize / aspectRatio;
-        }
-        if (canvasHeight > maxSize) {
-          canvasHeight = maxSize;
-          canvasWidth = maxSize * aspectRatio;
-        }
+      } catch (error) {
+        console.error("Error fetching image through proxy:", error);
+        setImageLoading(false);
         
-        // Set up both canvases
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+        // Fallback to direct loading (will likely fail due to CORS, but worth trying)
+        console.log("Trying direct image loading as fallback...");
+        const img = new Image();
+        img.crossOrigin = "anonymous";
         
-        // Set up drawing canvas
-        const drawingCanvas = drawingCanvasRef.current;
-        if (drawingCanvas) {
-          drawingCanvas.width = canvasWidth;
-          drawingCanvas.height = canvasHeight;
-          const drawingContext = drawingCanvas.getContext("2d", { willReadFrequently: true });
-          if (drawingContext) {
-            setDrawingCtx(drawingContext);
-            console.log("Drawing canvas context set up with size:", canvasWidth, "x", canvasHeight);
-          }
-        }
+        img.onload = () => {
+          console.log("Direct image loading succeeded (unexpected)");
+          setImageLoading(false);
+          // ... same canvas setup logic as above
+        };
         
-        // Draw the image to fill the canvas
-        context.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-        setCtx(context);
-        setOriginalImage(img);
+        img.onerror = (e) => {
+          console.error("Direct image loading also failed:", e);
+          setImageLoading(false);
+        };
         
-        console.log("Canvas sized to:", canvasWidth, "x", canvasHeight);
-      } else {
-        // Fallback to original image size
-        canvas.width = img.width;
-        canvas.height = img.height;
-        
-        // Set up drawing canvas with same size
-        const drawingCanvas = drawingCanvasRef.current;
-        if (drawingCanvas) {
-          drawingCanvas.width = img.width;
-          drawingCanvas.height = img.height;
-          const drawingContext = drawingCanvas.getContext("2d", { willReadFrequently: true });
-          if (drawingContext) {
-            setDrawingCtx(drawingContext);
-            console.log("Drawing canvas context set up (fallback) with size:", img.width, "x", img.height);
-          }
-        }
-        
-        context.drawImage(img, 0, 0);
-        setCtx(context);
-        setOriginalImage(img);
+        img.src = imageUrl;
       }
     };
 
-    img.onerror = (e) => {
-      console.error("Error loading image:", e);
-      console.error("Image URL that failed:", imageUrl);
-      setImageLoading(false);
-      
-      // Try different strategies
-      if (img.crossOrigin === "anonymous") {
-        console.log("CORS failed, trying without crossOrigin...");
-        loadImageWithStrategy('no-cors');
-      } else if (img.crossOrigin === "") {
-        console.log("No-CORS failed, trying direct load...");
-        loadImageWithStrategy('direct');
-      } else {
-        console.log("All loading strategies failed");
-      }
-    };
-
-    // Start with CORS strategy
-    loadImageWithStrategy('cors');
+    // Start loading the image
+    loadImageThroughProxy();
     
     // Add timeout to prevent infinite loading
     const timeout = setTimeout(() => {
@@ -322,6 +383,16 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
   useEffect(() => {
     redrawCanvas();
   }, [zoom, pan]);
+
+  // Monitor canvas context state changes
+  useEffect(() => {
+    console.log("Canvas context state changed:", {
+      hasCtx: !!ctx,
+      hasDrawingCtx: !!drawingCtx,
+      hasOriginalImage: !!originalImage,
+      imageLoading
+    });
+  }, [ctx, drawingCtx, originalImage, imageLoading]);
 
   const createMask = async () => {
     const canvas = canvasRef.current;
@@ -420,9 +491,9 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
     const drawingCanvas = drawingCanvasRef.current;
     const rect = drawingCanvas.getBoundingClientRect();
     
-    // Calculate coordinates relative to the drawing canvas
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // Calculate coordinates relative to the drawing canvas, accounting for zoom and pan
+    const x = (e.clientX - rect.left - pan.x) / zoom;
+    const y = (e.clientY - rect.top - pan.y) / zoom;
     
     console.log('Drawing canvas coordinates:', { 
       x, y, 
@@ -454,9 +525,9 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
     const drawingCanvas = drawingCanvasRef.current;
     const rect = drawingCanvas.getBoundingClientRect();
     
-    // Calculate coordinates relative to the drawing canvas
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // Calculate coordinates relative to the drawing canvas, accounting for zoom and pan
+    const x = (e.clientX - rect.left - pan.x) / zoom;
+    const y = (e.clientY - rect.top - pan.y) / zoom;
     
     // Continue drawing path on the drawing canvas
     drawingCtx.lineTo(x, y);
@@ -492,8 +563,19 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
 
     try {
       console.log('Fetching original image from:', imageUrl);
-      const imageResponse = await fetch(imageUrl);
+      
+      // Use the same proxy approach to avoid CORS issues
+      const imageResponse = await fetch('/api/proxy-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageUrl }),
+      });
+      
       if (!imageResponse.ok) {
+        const errorText = await imageResponse.text();
+        console.error('Proxy API error:', errorText);
         throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
       }
       const imageBlob = await imageResponse.blob();
@@ -577,7 +659,18 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
         message: error.message,
         stack: error.stack
       });
-      alert(`Failed to edit image: ${error.message}. Please try again.`);
+      
+      // Provide more specific error messages
+      let errorMessage = error.message;
+      if (error.message.includes('NetworkError')) {
+        errorMessage = 'Network connection failed. Please check your internet connection and try again.';
+      } else if (error.message.includes('Failed to fetch')) {
+        errorMessage = 'Failed to connect to the image editing service. Please try again.';
+      } else if (error.message.includes('API key')) {
+        errorMessage = 'API key configuration error. Please contact support.';
+      }
+      
+      alert(`Failed to edit image: ${errorMessage}. Please try again.`);
     }
   };
 
@@ -666,12 +759,13 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
   // Clear only the drawing canvas
   const clearDrawingOnly = () => {
     if (drawingCtx && drawingCanvasRef.current) {
-      drawingCtx.clearRect(0, 0, drawingCanvasRef.current.width, drawingCanvasRef.current.height);
+      const drawingCanvas = drawingCanvasRef.current;
+      drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
       console.log('Drawing canvas cleared only');
-      alert('Drawing canvas cleared!');
+      alert('Drawing canvas cleared! You can now draw again.');
     } else {
       console.log('Cannot clear drawing - no drawing context');
-      alert('Cannot clear drawing - drawing canvas not ready');
+      alert('Cannot clear drawing - drawing canvas not ready. Please wait for image to load.');
     }
   };
 
@@ -683,6 +777,8 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
     console.log('Context:', !!ctx);
     console.log('Drawing context:', !!drawingCtx);
     console.log('Original image:', !!originalImage);
+    console.log('Current zoom:', zoom);
+    console.log('Current pan:', pan);
     
     if (!drawingCtx || !drawingCanvasRef.current) {
       console.log('Cannot test drawing - no drawing context or canvas');
@@ -715,31 +811,33 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
     // Clear the drawing canvas first
     drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
     
-    // Draw a large, very visible red square
+    // Draw a large, very visible red square in the center
+    const centerX = drawingCanvas.width / 2;
+    const centerY = drawingCanvas.height / 2;
+    const size = Math.min(drawingCanvas.width, drawingCanvas.height) * 0.2; // 20% of smaller dimension
+    
     drawingCtx.fillStyle = 'red';
-    drawingCtx.fillRect(100, 100, 200, 200);
+    drawingCtx.fillRect(centerX - size/2, centerY - size/2, size, size);
     
     // Draw a blue border around it
     drawingCtx.strokeStyle = 'blue';
-    drawingCtx.lineWidth = 10;
-    drawingCtx.strokeRect(100, 100, 200, 200);
+    drawingCtx.lineWidth = 5;
+    drawingCtx.strokeRect(centerX - size/2, centerY - size/2, size, size);
     
     // Draw a large green circle
     drawingCtx.beginPath();
-    drawingCtx.arc(400, 200, 80, 0, 2 * Math.PI);
+    drawingCtx.arc(centerX + size, centerY, size/2, 0, 2 * Math.PI);
     drawingCtx.fillStyle = 'green';
     drawingCtx.fill();
-    drawingCtx.strokeStyle = 'yellow';
-    drawingCtx.lineWidth = 8;
-    drawingCtx.stroke();
     
-    // Draw some text to make it even more visible
+    // Draw some text
     drawingCtx.fillStyle = 'black';
-    drawingCtx.font = '24px Arial';
-    drawingCtx.fillText('TEST DRAWING', 150, 350);
+    drawingCtx.font = '20px Arial';
+    drawingCtx.textAlign = 'center';
+    drawingCtx.fillText('TEST DRAWING', centerX, centerY + size + 30);
     
-    console.log('Test drawing completed - you should see a large red square with blue border, a green circle, and text');
-    alert('Test drawing completed! You should see a large red square with blue border, a green circle, and text. If you only see some shapes, there might be a canvas issue.');
+    console.log('Test drawing completed! You should see red square, blue border, green circle, and text.');
+    alert('Test drawing completed! Check the canvas for red square, blue border, green circle, and text. If you can see these shapes, drawing is working correctly.');
   };
 
   return (
@@ -847,7 +945,8 @@ export function ImageEditorModal({ imageUrl, onClose, onEdit }: ImageEditorModal
                       maxWidth: 'calc(100vw - 300px)',
                       objectFit: 'contain',
                       backgroundColor: isDrawing ? 'rgba(255, 0, 0, 0.1)' : 'transparent',
-                      zIndex: 2
+                      zIndex: 2,
+                      pointerEvents: 'auto'
                     }}
                   />
                   

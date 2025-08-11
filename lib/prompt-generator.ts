@@ -89,11 +89,27 @@ export async function generateFullPromptWithSystemPrompts(
 
     case 'HOLIDAY_CELEBRATION':
       if (eventDetails.holiday) {
-        contextParts.push(`${eventDetails.holiday} celebration`);
+        const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
+        if (holidayDetails) {
+          // Add rich holiday context
+          contextParts.push(`${holidayDetails.name} celebration`);
+          contextParts.push(`${holidayDetails.type.toLowerCase()} holiday`);
+          if (holidayDetails.description) {
+            contextParts.push(`${holidayDetails.description.toLowerCase()}`);
+          }
+          if (holidayDetails.region.length > 0) {
+            contextParts.push(`${holidayDetails.region.join(', ')} cultural context`);
+          }
+        } else {
+          contextParts.push(`${eventDetails.holiday} celebration`);
+        }
       }
-      if (eventDetails.context) {
+      
+      // Only add context if it's not redundant with holiday details
+      if (eventDetails.context && eventDetails.context !== 'Public Holiday') {
         contextParts.push(`${eventDetails.context} context`);
       }
+      
       if (eventDetails.venue) {
         contextParts.push(`at ${eventDetails.venue}`);
       }
@@ -103,8 +119,17 @@ export async function generateFullPromptWithSystemPrompts(
       if (eventDetails.traditions) {
         contextParts.push(`featuring ${eventDetails.traditions}`);
       }
+      
+      // Only add decorations if they're not redundant with holiday details
       if (eventDetails.decorations) {
-        contextParts.push(`with ${eventDetails.decorations}`);
+        const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
+        const isRedundantDecoration = holidayDetails && 
+          eventDetails.decorations.toLowerCase().includes(holidayDetails.region[0].toLowerCase()) &&
+          eventDetails.decorations.toLowerCase().includes('cultural');
+        
+        if (!isRedundantDecoration) {
+          contextParts.push(`with ${eventDetails.decorations}`);
+        }
       }
       break;
 
@@ -126,29 +151,26 @@ export async function generateFullPromptWithSystemPrompts(
   }
 
   // Get the FULL event type prompt from database and add it directly
+  let foundEventTypePrompt = false;
   try {
     console.log('FULL PROMPT MODE: Looking up event type:', eventType);
     const eventTypePrompt = await getActivePrompt('event_type', eventType);
     if (eventTypePrompt && eventTypePrompt.content) {
       console.log('FULL PROMPT MODE: Found event type prompt:', eventTypePrompt.content.length, 'chars');
       contextParts.push(eventTypePrompt.content);
+      foundEventTypePrompt = true;
     } else {
       console.log('FULL PROMPT MODE: No event type prompt found for:', eventType);
-      // Fallback to a minimal event context if DB is missing
-      contextParts.unshift(`${eventConfig.name} flyer theme`);
     }
   } catch (error) {
     console.error('Error retrieving event type prompt:', error);
-    // On error, still add a minimal event context so the prompt remains meaningful
-    contextParts.unshift(`${eventConfig.name} flyer theme`);
   }
 
-  // If DB event type prompt exists but does not contain the minimal context, prepend it
-  // This avoids duplicates like "Wedding flyer theme, Wedding flyer theme"
-  const minimalEventContext = `${eventConfig.name} flyer theme`;
-  const hasEventContextAlready = contextParts.join(' ').toLowerCase().includes(minimalEventContext.toLowerCase());
-  if (!hasEventContextAlready) {
-    contextParts.unshift(minimalEventContext);
+  // Only add fallback context if no database prompt was found
+  // This prevents "Wedding flyer theme" from appearing when system prompts are available
+  if (!foundEventTypePrompt) {
+    console.log('FULL PROMPT MODE: Adding fallback event context since no database prompt found');
+    contextParts.unshift(`${eventConfig.name} flyer theme`);
   }
 
   // Get the FULL style preset prompt from database and add it directly
@@ -285,9 +307,12 @@ export async function generateEnhancedPromptWithSystemPrompts(
           contextParts.push(`${eventDetails.holiday} celebration`);
         }
       }
-      if (eventDetails.context) {
+      
+      // Only add context if it's not redundant with holiday details
+      if (eventDetails.context && eventDetails.context !== 'Public Holiday') {
         contextParts.push(`${eventDetails.context} context`);
       }
+      
       if (eventDetails.venue) {
         contextParts.push(`at ${eventDetails.venue}`);
       }
@@ -297,8 +322,17 @@ export async function generateEnhancedPromptWithSystemPrompts(
       if (eventDetails.traditions) {
         contextParts.push(`with ${eventDetails.traditions}`);
       }
+      
+      // Only add decorations if they're not redundant with holiday details
       if (eventDetails.decorations) {
-        contextParts.push(`decorated with ${eventDetails.decorations}`);
+        const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
+        const isRedundantDecoration = holidayDetails && 
+          eventDetails.decorations.toLowerCase().includes(holidayDetails.region[0].toLowerCase()) &&
+          eventDetails.decorations.toLowerCase().includes('cultural');
+        
+        if (!isRedundantDecoration) {
+          contextParts.push(`decorated with ${eventDetails.decorations}`);
+        }
       }
       break;
 
@@ -588,9 +622,12 @@ export function generateEnhancedPrompt(
           contextParts.push(`${eventDetails.holiday} celebration`);
         }
       }
-      if (eventDetails.context) {
+      
+      // Only add context if it's not redundant with holiday details
+      if (eventDetails.context && eventDetails.context !== 'Public Holiday') {
         contextParts.push(`${eventDetails.context} context`);
       }
+      
       if (eventDetails.venue) {
         contextParts.push(`at ${eventDetails.venue}`);
       }
@@ -600,8 +637,17 @@ export function generateEnhancedPrompt(
       if (eventDetails.traditions) {
         contextParts.push(`with ${eventDetails.traditions}`);
       }
+      
+      // Only add decorations if they're not redundant with holiday details
       if (eventDetails.decorations) {
-        contextParts.push(`decorated with ${eventDetails.decorations}`);
+        const holidayDetails = getHolidayDetailsByName(eventDetails.holiday as string);
+        const isRedundantDecoration = holidayDetails && 
+          eventDetails.decorations.toLowerCase().includes(holidayDetails.region[0].toLowerCase()) &&
+          eventDetails.decorations.toLowerCase().includes('cultural');
+        
+        if (!isRedundantDecoration) {
+          contextParts.push(`decorated with ${eventDetails.decorations}`);
+        }
       }
       break;
 
