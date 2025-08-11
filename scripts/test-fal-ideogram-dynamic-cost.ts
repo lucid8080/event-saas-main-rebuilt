@@ -4,7 +4,7 @@
  */
 
 import { FalIdeogramProvider } from '../lib/providers/fal-ideogram-provider';
-import { ImageGenerationParams } from '../lib/providers/types';
+import { ImageGenerationParams } from '../lib/providers';
 
 async function testFalIdeogramDynamicCost() {
   console.log('🧪 Testing Fal-AI Ideogram Dynamic Cost Calculation\n');

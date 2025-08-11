@@ -149,7 +149,7 @@ async function testFalAIProvider() {
     // Test 6: Provider types integration
     console.log("\n🔗 Test 6: Type System Integration");
     try {
-      const { ProviderType } = await import("../lib/providers/types");
+      const { ProviderType } = await import("../lib/providers");
       
       // This would fail at compile time if the type wasn't properly added
       const falQwenType: ProviderType = "fal-qwen";

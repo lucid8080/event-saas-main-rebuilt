@@ -8,15 +8,17 @@ import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 interface InfoLandingProps {
   data: InfoLdg;
   reverse?: boolean;
+  videoSrc?: string;
 }
 
 export default function InfoLanding({
   data,
   reverse = false,
+  videoSrc,
 }: InfoLandingProps) {
   return (
     <div className="py-10 sm:py-20">
-      <MaxWidthWrapper className="grid px-2.5 lg:grid-cols-2 lg:items-center lg:px-7 gap-10">
+      <MaxWidthWrapper className={cn("grid px-2.5 lg:grid-cols-2 lg:items-center lg:px-7 gap-10", videoSrc && "lg:grid-cols-[1fr_1.2fr]")}>
         <div className={cn(reverse ? "lg:order-2" : "lg:order-1")}>
           <h2 className="text-2xl text-foreground md:text-4xl lg:text-[40px] font-heading">
             {data.title}
@@ -47,15 +49,30 @@ export default function InfoLanding({
             reverse ? "order-1" : "order-2",
           )}
         >
-          <div className="aspect-video">
-            <Image
-              className="size-full object-cover object-center"
-              src={"/styles/bento_images/image_99.png"} //  placerholder code ----> {data.image} 
-              alt={data.title}
-              width={1000}
-              height={500}
-              priority={true}
-            />
+          <div className={cn("aspect-video", videoSrc && "lg:aspect-[4/3]")}>
+            {videoSrc ? (
+              <video
+                className="w-full h-full object-cover"
+                controls
+                poster="/ECAI.png"
+                preload="metadata"
+                loop
+                autoPlay
+                muted
+              >
+                <source src={videoSrc} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <Image
+                className="size-full object-cover object-center"
+                src={"/styles/bento_images/image_99.png"} //  placerholder code ----> {data.image} 
+                alt={data.title}
+                width={1000}
+                height={500}
+                priority={true}
+              />
+            )}
           </div>
         </div>
       </MaxWidthWrapper>

@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { uploadImageWithWebP, DEFAULT_WEBP_CONFIG, type WebPIntegrationConfig } from "@/lib/webp-integration";
 import { generateSignedUrl } from "@/lib/r2";
+import { generatePromptHash } from "@/lib/enhanced-image-naming";
 import { env } from "@/env.mjs";
 
 export async function POST(request: NextRequest) {
@@ -157,10 +158,12 @@ export async function POST(request: NextRequest) {
     const imageMetadata = {
       userId: session.user.id,
       eventType: originalImage.eventType,
-      prompt: originalImage.prompt,
       aspectRatio: originalImage.aspectRatio,
-      styleName: originalImage.styleName,
-      customStyle: originalImage.customStyle
+      stylePreset: originalImage.styleName || 'default',
+      watermarkEnabled: false, // Upscaled images don't need watermark
+      promptHash: generatePromptHash(originalImage.prompt), // Generate proper hash from original prompt
+      generationModel: 'fal-ai/clarity-upscaler',
+      customTags: ['upscaled', 'hd']
     };
 
     const webpConfig = {

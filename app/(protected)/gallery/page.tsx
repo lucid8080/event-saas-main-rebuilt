@@ -79,7 +79,7 @@ interface CarouselData {
 export default function GalleryPage() {
   const { data: session } = useSession();
   const { imageEditEnabled, isLoading: toggleLoading } = useImageEditToggle();
-  const [activeTab, setActiveTab] = useState("events");
+  const [activeTab, setActiveTab] = useState<string>("events");
   const [images, setImages] = useState<ImageData[]>([]);
   const [carousels, setCarousels] = useState<CarouselData[]>([]);
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
@@ -89,6 +89,7 @@ export default function GalleryPage() {
   const [upscaledImageUrl, setUpscaledImageUrl] = useState<string | null>(null);
   const [showUpscaled, setShowUpscaled] = useState(false);
   const [hasUpscaledVersion, setHasUpscaledVersion] = useState(false);
+  const [upscaledImageLoading, setUpscaledImageLoading] = useState(false);
   const [selectedCarousel, setSelectedCarousel] = useState<CarouselData | null>(null);
   const [selectedEventType, setSelectedEventType] = useState<string | null>(null);
   const [filteredImages, setFilteredImages] = useState<ImageData[]>([]);
@@ -221,7 +222,7 @@ export default function GalleryPage() {
             isWebP: result.value.isWebP
           });
         } else {
-          const image = uniqueImages[index];
+          const image = userImages[index];
           newWebpUrls.set(image.id, {
             primaryUrl: image.url,
             fallbackUrl: image.url,
@@ -638,19 +639,75 @@ export default function GalleryPage() {
     }
   };
 
-  const handleUpscaleSuccess = (upscaledImageUrl: string) => {
+  const handleUpscaleSuccess = async (upscaledImageUrl: string) => {
     if (selectedImage) {
+      console.log("🔍 Upscale Success Debug:");
+      console.log("   Original selectedImage.url:", selectedImage.url);
+      console.log("   New upscaledImageUrl:", upscaledImageUrl);
+      
       // Set the upscaled image URL
       setUpscaledImageUrl(upscaledImageUrl);
       setHasUpscaledVersion(true);
-      setShowUpscaled(true); // Show the upscaled version by default
       
-      // Update the selected image to show it's now upscaled
+      // Refresh the original image URL to ensure it's still valid
+      // This fixes the 403 Forbidden issue with expired signed URLs
+      try {
+        const response = await fetch(`/api/image-versions?imageId=${selectedImage.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.originalImage?.url) {
+            setOriginalImageUrl(data.originalImage.url);
+            console.log("   Original image URL refreshed:", data.originalImage.url);
+          }
+        }
+      } catch (error) {
+        console.error("   Error refreshing original image URL:", error);
+      }
+      
+      // Don't update selectedImage.url directly - let the upscaledImageUrl handle the display
+      // This prevents the slim bar issue by keeping the original image URL intact
       setSelectedImage({
         ...selectedImage,
-        url: upscaledImageUrl,
         isUpscaled: true
       });
+      
+      // Set loading state while we prepare the upscaled image
+      setUpscaledImageLoading(true);
+      
+      // Wait a moment for the upscaled image to be fully processed before showing it
+      // This prevents the slim bar issue by ensuring the image is ready
+      setTimeout(() => {
+        // Test if the upscaled image is accessible before switching to it
+        const testImage = new Image();
+        testImage.onload = () => {
+          console.log("   Upscaled image loaded successfully, switching to it");
+          setShowUpscaled(true);
+          setUpscaledImageLoading(false);
+        };
+        testImage.onerror = () => {
+          console.log("   Upscaled image not ready yet, keeping original");
+          setShowUpscaled(false);
+          setUpscaledImageLoading(false);
+          // Try again in a few seconds
+          setTimeout(() => {
+            setUpscaledImageLoading(true);
+            const retryImage = new Image();
+            retryImage.onload = () => {
+              console.log("   Upscaled image ready on retry, switching to it");
+              setShowUpscaled(true);
+              setUpscaledImageLoading(false);
+            };
+            retryImage.onerror = () => {
+              console.log("   Upscaled image still not ready, user can manually switch later");
+              setUpscaledImageLoading(false);
+            };
+            retryImage.src = upscaledImageUrl;
+          }, 3000);
+        };
+        testImage.src = upscaledImageUrl;
+      }, 1000);
+      
+      console.log("   State updated - upscaledImageUrl set to:", upscaledImageUrl);
     }
     
     // Refresh user credits after upscaling
@@ -720,7 +777,7 @@ export default function GalleryPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab || "events"} onValueChange={(value) => setActiveTab(value || "events")} className="w-full">
         <TabsList className="grid grid-cols-2 w-full mb-6">
           <TabsTrigger value="events" className="flex items-center gap-2">
             <ImageIcon className="size-4" />
@@ -1130,12 +1187,30 @@ export default function GalleryPage() {
                     className="max-w-none max-h-none object-contain"
                   />
                 ) : (
-                  <WebPImage
-                    src={showUpscaled && upscaledImageUrl ? upscaledImageUrl : selectedImage.url}
-                    webpSrc={webpUrls.get(selectedImage.id)?.primaryUrl}
-                    alt="Full size"
-                    className="max-w-none max-h-none object-contain"
-                  />
+                  <div className="relative">
+                    <WebPImage
+                      src={showUpscaled && upscaledImageUrl ? upscaledImageUrl : selectedImage.url}
+                      webpSrc={webpUrls.get(selectedImage.id)?.primaryUrl}
+                      alt="Full size"
+                      className="max-w-none max-h-none object-contain"
+                      onError={() => {
+                        console.error("🔍 Image Display Error:");
+                        console.error("   src:", showUpscaled && upscaledImageUrl ? upscaledImageUrl : selectedImage.url);
+                        console.error("   showUpscaled:", showUpscaled);
+                        console.error("   hasUpscaledVersion:", hasUpscaledVersion);
+                        console.error("   originalImageUrl:", originalImageUrl);
+                        console.error("   upscaledImageUrl:", upscaledImageUrl);
+                      }}
+                    />
+                    {upscaledImageLoading && showUpscaled && (
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                        <div className="bg-white/90 rounded-lg p-4 flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                          <span className="text-sm font-medium">Preparing upscaled image...</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -1176,13 +1251,14 @@ export default function GalleryPage() {
                   <h3 className="mb-2 font-semibold">Image Version</h3>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
-                      {showUpscaled ? 'Upscaled' : 'Original'}
+                      {upscaledImageLoading ? 'Preparing upscaled...' : (showUpscaled ? 'Upscaled' : 'Original')}
                     </span>
                     <button
                       onClick={() => setShowUpscaled(!showUpscaled)}
+                      disabled={upscaledImageLoading}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
                         showUpscaled ? 'bg-purple-600' : 'bg-gray-200 dark:bg-gray-700'
-                      }`}
+                      } ${upscaledImageLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -1191,6 +1267,11 @@ export default function GalleryPage() {
                       />
                     </button>
                   </div>
+                  {upscaledImageLoading && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Upscaled image is being prepared...
+                    </p>
+                  )}
                 </div>
               )}
 
