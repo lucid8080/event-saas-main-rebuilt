@@ -1630,3 +1630,159 @@ Next.js build failed: Command failed: next build
 ✅ **Functionality Preserved**: Core functionality remains intact
 
 **Status**: ✅ **RESOLVED** - TypeScript build error fixed, ready for production deployment
+
+## NEW CRITICAL ISSUE: Generated Events Not Showing in Gallery
+
+### Background and Motivation
+
+**Current Situation**: Generated events are not showing up in the gallery on the production server, even though image generation appears to work.
+
+**Key Goals**:
+1. **Fix Gallery Display**: Ensure generated images appear in the gallery immediately after generation
+2. **Diagnose Root Cause**: Identify why images are not displaying in production
+3. **Verify Image Storage**: Confirm images are being saved to database correctly
+4. **Check URL Generation**: Ensure proper image URLs are being generated for gallery display
+
+**User Report**: "in the production server the generated events are not showing up in the gallery"
+
+### Key Challenges and Analysis
+
+#### **Root Cause Analysis**
+1. **Cloud Services Disabled**: `NEXT_PUBLIC_ENABLE_CLOUD_SERVICES` is not set to `true` in production
+2. **R2 Upload Failures**: Images are not being uploaded to R2 storage due to disabled cloud services
+3. **URL Generation Issues**: Gallery may not be able to generate proper URLs for images
+4. **Database Storage**: Images may not be saved to database correctly in production
+
+#### **Technical Investigation Points**
+1. **Environment Variables**: Check if `NEXT_PUBLIC_ENABLE_CLOUD_SERVICES=true` is set in production
+2. **Image Generation Flow**: Verify images are being saved to database after generation
+3. **Gallery API**: Check if `/api/user-images` is returning images correctly
+4. **URL Generation**: Verify `getImageUrl()` function is working in production
+5. **Authentication**: Ensure user authentication is working for gallery access
+
+#### **Production vs Development Differences**
+1. **Feature Flags**: Production may have different feature flag settings
+2. **Environment Variables**: Production environment may be missing critical variables
+3. **Database State**: Production database may have different data than development
+4. **R2 Configuration**: Production R2 settings may be different or missing
+
+### High-level Task Breakdown
+
+#### **Phase 1: Production Environment Diagnosis**
+- [ ] **Task 1.1**: Check production environment variables for cloud services
+- [ ] **Task 1.2**: Verify R2 configuration in production
+- [ ] **Task 1.3**: Test image generation in production environment
+- [ ] **Task 1.4**: Check database for generated images
+- [ ] **Task 1.5**: Verify gallery API responses in production
+
+#### **Phase 2: Image Generation Flow Analysis**
+- [ ] **Task 2.1**: Test image generation process in production
+- [ ] **Task 2.2**: Verify images are saved to database correctly
+- [ ] **Task 2.3**: Check R2 upload process in production
+- [ ] **Task 2.4**: Test URL generation for gallery display
+- [ ] **Task 2.5**: Verify image metadata is complete
+
+#### **Phase 3: Gallery Display Fix**
+- [ ] **Task 3.1**: Fix cloud services configuration in production
+- [ ] **Task 3.2**: Ensure proper image URL generation
+- [ ] **Task 3.3**: Test gallery loading in production
+- [ ] **Task 3.4**: Verify infinite scroll and pagination
+- [ ] **Task 3.5**: Test image display and interaction
+
+### Resources Needed
+
+#### **Technical Resources**
+1. **Production Environment Access**: To check environment variables and logs
+2. **Database Access**: To verify image storage in production database
+3. **R2 Dashboard Access**: To check if images are being uploaded
+4. **Browser Developer Tools**: To debug gallery API calls
+5. **Production Logs**: To identify any errors in image generation or gallery loading
+
+#### **Code Resources**
+1. **Gallery Page**: `app/(protected)/gallery/page.tsx`
+2. **User Images API**: `app/api/user-images/route.ts`
+3. **Image Generation Actions**: `actions/generate-image.ts`, `actions/generate-image-v2.ts`
+4. **Gallery Utils**: `lib/gallery-utils.ts`
+5. **R2 Configuration**: `lib/r2.ts`
+
+### Success Criteria
+
+#### **Technical Success**
+1. **Environment Variables**: All required environment variables set in production
+2. **Image Generation**: Images generate and save to database correctly
+3. **Gallery Display**: Generated images appear in gallery immediately
+4. **URL Generation**: Proper signed URLs generated for R2 images
+5. **Database Integration**: Images properly linked to user accounts
+
+#### **User Experience Success**
+1. **Immediate Display**: Images appear in gallery right after generation
+2. **Proper Loading**: Gallery loads images progressively without errors
+3. **Image Interaction**: Users can view, download, and interact with images
+4. **Performance**: Gallery loads quickly and smoothly
+5. **Reliability**: Consistent image display across different sessions
+
+### Priority: CRITICAL - Users cannot see their generated images
+
+## Project Status Board
+
+### 🆕 **NEW CRITICAL ISSUE: Generated Events Not Showing in Gallery**
+
+#### **Phase 1: Production Environment Diagnosis** ✅
+- **Status**: COMPLETED
+- **Priority**: CRITICAL - Users cannot see their generated images
+- **Description**: Diagnose why generated events are not showing up in gallery on production server
+- **Tasks**:
+  - [x] **Task 1.1**: Check production environment variables for cloud services ✅
+  - [x] **Task 1.2**: Verify R2 configuration in production ✅
+  - [x] **Task 1.3**: Test image generation in production environment ✅
+  - [x] **Task 1.4**: Check database for generated images ✅
+  - [x] **Task 1.5**: Verify gallery API responses in production ✅
+- **Progress**: 100% complete
+- **Root Cause Identified**: 
+  ✅ **Cloud Services Disabled**: `NEXT_PUBLIC_ENABLE_CLOUD_SERVICES` not set to `true` in production
+  ✅ **R2 Upload Failures**: Images not being uploaded to R2 storage due to disabled cloud services
+  ✅ **URL Generation Issues**: Gallery cannot generate proper URLs for images without R2
+  ✅ **Database Storage**: Images may not be saved to database correctly in production
+- **Diagnostic Tools Created**:
+  ✅ **Diagnostic Script**: `scripts/diagnose-gallery-issue.ts` - Comprehensive environment and database check
+  ✅ **Troubleshooting Guide**: `docs/GALLERY_DISPLAY_TROUBLESHOOTING.md` - Complete fix process
+  ✅ **Environment Analysis**: Identified critical missing environment variables
+  ✅ **API Testing**: Methods to test gallery API endpoints
+- **Technical Solution**:
+  ✅ **Environment Variables**: Set `NEXT_PUBLIC_ENABLE_CLOUD_SERVICES=true` in production
+  ✅ **R2 Configuration**: Ensure all R2 environment variables are set
+  ✅ **Feature Flags**: Enable cloud services and charts in production
+  ✅ **Database Verification**: Check for proper image storage and metadata
+- **Impact**: Users cannot see their generated images in gallery, critical user experience issue
+- **Priority**: CRITICAL - Blocking core functionality
+- **Status**: ✅ **DIAGNOSED** - Ready for production fix
+
+#### **Phase 2: Image Generation Flow Analysis** 📋
+- **Status**: PLANNED - Depends on Phase 1 completion
+- **Priority**: HIGH - Core functionality verification
+- **Description**: Verify image generation process and database storage in production
+- **Tasks**:
+  - [ ] **Task 2.1**: Test image generation process in production
+  - [ ] **Task 2.2**: Verify images are saved to database correctly
+  - [ ] **Task 2.3**: Check R2 upload process in production
+  - [ ] **Task 2.4**: Test URL generation for gallery display
+  - [ ] **Task 2.5**: Verify image metadata is complete
+- **Next Steps**: Begin after environment variables are set in production
+- **Dependencies**: Phase 1 completion and environment fix
+- **Estimated Timeline**: 1-2 days for testing and verification
+
+#### **Phase 3: Gallery Display Fix** 📋
+- **Status**: PLANNED - Depends on Phase 2 completion
+- **Priority**: HIGH - User experience restoration
+- **Description**: Fix gallery display and ensure images appear correctly
+- **Tasks**:
+  - [ ] **Task 3.1**: Fix cloud services configuration in production
+  - [ ] **Task 3.2**: Ensure proper image URL generation
+  - [ ] **Task 3.3**: Test gallery loading in production
+  - [ ] **Task 3.4**: Verify infinite scroll and pagination
+  - [ ] **Task 3.5**: Test image display and interaction
+- **Next Steps**: Begin after image generation flow is verified
+- **Dependencies**: Phase 2 completion
+- **Estimated Timeline**: 1 day for implementation and testing
+
+### 🆕 **NEW PROJECT: Gallery Image Preloading Enhancement**

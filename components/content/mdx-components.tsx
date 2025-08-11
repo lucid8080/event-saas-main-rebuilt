@@ -1,7 +1,6 @@
 import * as React from "react";
 import NextImage, { ImageProps } from "next/image";
 import Link from "next/link";
-// import { useMDXComponent } from "next-contentlayer/hooks";
 
 import { cn } from "@/lib/utils";
 import { MdxCard } from "@/components/content/mdx-card";
@@ -205,24 +204,8 @@ interface MdxProps {
 }
 
 export function Mdx({ code, images }: MdxProps) {
-  // Temporary workaround for MDX processing issue
-  const MDXImage = (props: any) => {
-    if (!images) return null;
-    const blurDataURL = images.find(
-      (image) => image.src === props.src,
-    )?.blurDataURL;
-
-    return (
-      <div className="w-full mt-5 rounded-lg overflow-hidden border">
-        <BlurImage
-          {...props}
-          blurDataURL={blurDataURL}
-          className="size-full object-cover object-center"
-        />
-      </div>
-    );
-  };
-
+  // Since we don't have next-contentlayer/hooks, we'll use a simpler approach
+  // The code should already be processed HTML from contentlayer
   return (
     <div className="mdx">
       <div 
