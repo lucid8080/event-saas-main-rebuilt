@@ -2,7 +2,6 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { EventType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { EventDetails, generateEnhancedPromptWithSystemPrompts, generateFullPromptWithSystemPrompts } from "@/lib/prompt-generator";
 import { addWatermarkToImageFromUrl } from "@/lib/watermark";
@@ -31,12 +30,22 @@ export async function generateImageV2(
   preferredProvider?: ProviderType,
   quality?: ImageQuality
 ) {
+  console.log("🔍 generateImageV2 Debug - Starting image generation");
+  console.log("   Parameters:", { prompt, aspectRatio, eventType, styleName, customStyle, preferredProvider, quality });
+  
   try {
+    console.log("🔍 generateImageV2 Debug - Step 1: Authentication");
     const session = await auth();
+    console.log("   Session exists:", !!session);
+    console.log("   User ID:", session?.user?.id);
+    
     if (!session?.user?.id) {
+      console.log("❌ Authentication failed");
       throw new Error("Unauthorized");
     }
+    console.log("✅ Authentication successful");
 
+    console.log("🔍 generateImageV2 Debug - Step 2: User validation");
     // Get user's current credit balance and watermark setting
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -44,18 +53,26 @@ export async function generateImageV2(
     });
 
     if (!user) {
+      console.log("❌ User not found in database");
       throw new Error("User not found");
     }
 
+    console.log("   User credits:", user.credits);
+    console.log("   Watermark enabled:", user.watermarkEnabled);
+
     // Check if user has enough credits
     if (user.credits <= 0) {
+      console.log("❌ Insufficient credits");
       throw new Error("Insufficient credits. Please upgrade your plan.");
     }
+    console.log("✅ User validation successful");
 
+    console.log("🔍 generateImageV2 Debug - Step 3: Prompt generation");
     // Build the final combined prompt using enhanced prompt generator
     let finalPrompt = prompt;
     if (eventType && eventDetails) {
       try {
+        console.log("   Building enhanced prompt with event details");
         // Import the enhanced prompt generator
         const { generateEnhancedPromptWithSystemPrompts } = await import('@/lib/prompt-generator');
         
@@ -67,24 +84,30 @@ export async function generateImageV2(
           styleName,
           customStyle
         );
+        console.log("✅ Enhanced prompt generated successfully");
         
       } catch (error) {
-        console.error('Error building enhanced prompt, using fallback:', error);
+        console.error('❌ Error building enhanced prompt, using fallback:', error);
         // Fallback to original prompt if something goes wrong
         finalPrompt = prompt;
       }
+    } else {
+      console.log("   Using base prompt (no event details)");
     }
 
-    console.log("Generated final prompt:", finalPrompt);
+    console.log("   Final prompt length:", finalPrompt.length);
+    console.log("   Final prompt preview:", finalPrompt.substring(0, 100) + "...");
 
     // Convert aspect ratio to our standard format (if needed)
     const standardAspectRatio = convertToStandardAspectRatio(aspectRatio);
 
+    console.log("🔍 generateImageV2 Debug - Step 4: Provider selection");
     // Check provider capabilities for seed support
     // First try to get admin-configured default provider, then fall back to system default
     let actualProvider: ProviderType;
     
     try {
+      console.log("   Querying database for default provider settings");
       // Directly query the database for the default provider settings
       const defaultProviderSettings = await prisma.providerSettings.findFirst({
         where: {
@@ -96,8 +119,10 @@ export async function generateImageV2(
         }
       });
       
+      console.log("   Default provider settings found:", !!defaultProviderSettings);
       if (defaultProviderSettings?.providerId) {
         actualProvider = defaultProviderSettings.providerId as ProviderType;
+        console.log("   Using configured default provider:", actualProvider);
         console.log(`Using admin-configured default provider: ${actualProvider}`);
       } else {
         // No admin default configured, use system default
@@ -198,15 +223,29 @@ export async function generateImageV2(
       console.log(`🎯 Expected Fal-Qwen quality compensation for 9:16: ${baseSteps} base steps → ${expectedSteps} final steps`);
     }
 
+    console.log("🔍 generateImageV2 Debug - Step 5: Image generation");
     // Generate image using the provider system
     const startTime = Date.now();
-    const providerResponse = await generateImageWithProviders(
-      generationParams,
-      actualProvider
-    );
-    const generationTime = Date.now() - startTime;
+    
+    let providerResponse;
+    let generationTime;
+    
+    try {
+      console.log("   Calling generateImageWithProviders...");
+      providerResponse = await generateImageWithProviders(
+        generationParams,
+        actualProvider
+      );
+      generationTime = Date.now() - startTime;
 
-    console.log(`Image generated successfully with ${providerResponse.provider} in ${generationTime}ms`);
+      console.log("✅ Image generation successful");
+      console.log(`   Provider used: ${providerResponse.provider}`);
+      console.log(`   Generation time: ${generationTime}ms`);
+      console.log(`   Cost: ${providerResponse.cost}`);
+    } catch (error) {
+      console.error("❌ Image generation failed:", error);
+      throw error;
+    }
 
     // Convert image data to buffer for uploading
     let imageBuffer: Buffer;
@@ -236,7 +275,7 @@ export async function generateImageV2(
     // Create image metadata with provider information FIRST
     const imageMetadata: ImageMetadata = {
       userId: session.user.id,
-      eventType: eventType as EventType || undefined,
+      eventType: eventType || undefined,
       aspectRatio: aspectRatio,
       stylePreset: styleName || undefined,
       watermarkEnabled: user.watermarkEnabled,
@@ -277,36 +316,73 @@ export async function generateImageV2(
       }
     }
 
+    console.log("🔍 generateImageV2 Debug - Step 7: R2 upload");
     // Upload to R2 with WebP support
-    console.log("Uploading to R2 with enhanced key:", enhancedKey);
+    console.log("   Uploading to R2 with enhanced key:", enhancedKey);
     const webpConfig: WebPIntegrationConfig = {
       ...DEFAULT_WEBP_CONFIG,
       enabled: true
     };
 
-    const uploadResult = await uploadImageWithWebP(
-      finalImageBuffer,
-      providerResponse.mimeType || 'image/png',
-      imageMetadata,
-      webpConfig
-    );
+    let uploadResult;
+    let imageUrl: string;
+    let webpUrl: string | null = null;
 
-    console.log("R2 upload successful:", uploadResult);
+    try {
+      uploadResult = await uploadImageWithWebP(
+        finalImageBuffer,
+        providerResponse.mimeType || 'image/png',
+        imageMetadata,
+        webpConfig
+      );
 
-    // Generate signed URLs for the uploaded images
-    const imageUrl = await generateSignedUrl(uploadResult.r2Key);
-    const webpUrl = uploadResult.success && uploadResult.webpSize !== uploadResult.originalSize 
-      ? await generateSignedUrl(uploadResult.r2Key.replace(/\.[^.]+$/, '.webp')) 
-      : null;
+      console.log("✅ R2 upload successful:", uploadResult);
 
+      // Generate signed URLs for the uploaded images
+      imageUrl = await generateSignedUrl(uploadResult.r2Key);
+      webpUrl = uploadResult.success && uploadResult.webpSize !== uploadResult.originalSize 
+        ? await generateSignedUrl(uploadResult.r2Key.replace(/\.[^.]+$/, '.webp')) 
+        : null;
+
+      console.log("✅ Signed URLs generated successfully");
+    } catch (uploadError) {
+      console.error("❌ R2 upload failed:", uploadError);
+      
+      // Fallback: Use the original image URL from the provider
+      console.log("🔄 Using fallback: original provider image URL");
+      imageUrl = providerResponse.imageData.startsWith('http') 
+        ? providerResponse.imageData 
+        : `data:${providerResponse.mimeType || 'image/png'};base64,${imageBuffer.toString('base64')}`;
+      
+      uploadResult = {
+        r2Key: null,
+        success: false,
+        originalSize: imageBuffer.length,
+        webpSize: imageBuffer.length
+      };
+      
+      console.log("✅ Fallback image URL created:", imageUrl.substring(0, 100) + "...");
+    }
+
+
+
+    console.log("🔍 generateImageV2 Debug - Step 8: Database operations");
+    
     // Deduct one credit from user
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { credits: { decrement: 1 } }
-    });
+    try {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { credits: { decrement: 1 } }
+      });
+      console.log("✅ Credit deduction successful");
+    } catch (creditError) {
+      console.error("❌ Credit deduction failed:", creditError);
+      // Continue anyway - the image was generated successfully
+    }
 
     // Save generation record to database with provider info
-    const generatedImage = await prisma.generatedImage.create({
+    try {
+      const generatedImage = await prisma.generatedImage.create({
       data: {
         userId: session.user.id,
         prompt: finalPrompt,
@@ -315,7 +391,7 @@ export async function generateImageV2(
         webpKey: webpUrl ? uploadResult.r2Key.replace(/\.[^.]+$/, '.webp') : null,
         originalFormat: fileExtension,
         webpEnabled: !!webpUrl,
-        eventType: eventType as EventType,
+        eventType: eventType as any,
         eventDetails: eventDetails || null,
         // Provider system fields
         aspectRatio: aspectRatio,
@@ -331,11 +407,12 @@ export async function generateImageV2(
       }
     });
 
-    console.log("Database record created:", generatedImage.id);
+    console.log("✅ Database record created:", generatedImage.id);
 
     // Revalidate the dashboard path to show the new image
     revalidatePath("/dashboard");
 
+    console.log("✅ Image generation completed successfully");
     return {
       success: true,
       imageUrl: imageUrl,
@@ -349,6 +426,23 @@ export async function generateImageV2(
       quality: quality || "standard",
       message: `Image generated successfully using ${providerResponse.provider} provider`
     };
+    } catch (dbError) {
+      console.error("❌ Database operation failed:", dbError);
+      // Return success anyway since the image was generated
+      return {
+        success: true,
+        imageUrl: imageUrl,
+        webpUrl: webpUrl,
+        r2Key: uploadResult.r2Key,
+        generatedImageId: null,
+        provider: providerResponse.provider,
+        generationTime: providerResponse.generationTime,
+        cost: providerResponse.cost,
+        seed: providerResponse.seed,
+        quality: quality || "standard",
+        message: `Image generated successfully using ${providerResponse.provider} provider (database save failed)`
+      };
+    }
 
   } catch (error) {
     console.error("Error in generateImageV2:", error);

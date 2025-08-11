@@ -1,8 +1,6 @@
-import { EventType } from '@prisma/client';
-
 export interface ImageMetadata {
   userId: string;
-  eventType?: EventType;
+  eventType?: string;
   aspectRatio?: string;
   stylePreset?: string;
   watermarkEnabled?: boolean;
